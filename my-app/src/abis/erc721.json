@@ -146,7 +146,7 @@
   {
     "constant": true,
     "inputs": [{ "name": "_owner", "type": "address" }],
-    "name": "getOwnerTokens",
+    "name": "tokensOfOwner",
     "outputs": [{ "name": "_tokenIds", "type": "uint256[]" }],
     "payable": false,
     "stateMutability": "view",

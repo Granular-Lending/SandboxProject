@@ -130,6 +130,18 @@
     "type": "function"
   },
   {
+    "constant": true,
+    "inputs": [
+      { "name": "_owners", "type": "address[]" },
+      { "name": "_ids", "type": "uint256[]" }
+    ],
+    "name": "balanceOfBatch",
+    "outputs": [{ "name": "_balances", "type": "uint256[]" }],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "constant": false,
     "inputs": [
       { "name": "_owner", "type": "address" },
@@ -169,15 +181,6 @@
     "inputs": [],
     "name": "numTokensTotal",
     "outputs": [{ "name": "", "type": "uint256" }],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [{ "name": "_owner", "type": "address" }],
-    "name": "getOwnerTokens",
-    "outputs": [{ "name": "_tokenIds", "type": "uint256[]" }],
     "payable": false,
     "stateMutability": "view",
     "type": "function"
