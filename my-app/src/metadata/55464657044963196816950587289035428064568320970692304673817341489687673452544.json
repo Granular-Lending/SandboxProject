@@ -1,0 +1,18 @@
+{
+  "name": "ATARI SNEAKER OG [Atari+RTFKT]",
+  "description": "A homage to the ATARI legacy, Akira, and our love of video games. Our OG Version reserved for family and friends. Voxelized by @KamiSawZe.",
+  "image": "ipfs://bafybeiedfl4yzr3sn2aaquh7zig53bs6d7l3ilwfsesqpqmduettd766mq/atari-sneaker-og-atari-rtfkt.png",
+  "external_url": "https://www.sandbox.game/en/assets/atari-sneaker-og-atari-rtfkt/1bdbf176-4eb1-40f0-b1cd-db55a53bf7b3/",
+  "animation_url": "ipfs://bafybeiedfl4yzr3sn2aaquh7zig53bs6d7l3ilwfsesqpqmduettd766mq/atari-sneaker-og-atari-rtfkt.gltf",
+  "sandbox": {
+    "version": 2,
+    "creator": "0x7a9fe22691c811ea339d9b73150e6911a5343dca",
+    "classification": {
+      "type": "Equipment",
+      "theme": "Retro",
+      "categories": ["Decoration", "Sports", "Tool"]
+    },
+    "voxel_model": "ipfs://bafybeiedfl4yzr3sn2aaquh7zig53bs6d7l3ilwfsesqpqmduettd766mq/atari-sneaker-og-atari-rtfkt.vxc",
+    "creator_profile_url": "https://www.sandbox.game/en/users/sandboxgame/cfb94ffd-e3b9-4681-850c-95a4c3e65f2f/"
+  }
+}
