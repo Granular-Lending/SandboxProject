@@ -1,9 +1,6 @@
 import MetaMaskOnboarding from "@metamask/onboarding";
 import React from "react";
 import Web3 from "web3";
-import image1 from "./images/40785833732304342849735419653626615027421227776496020677721887159020450484224.png";
-import image2 from "./images/40785833732304342849735419653626615027421227776496020677721887159020450484225.png";
-import image3 from "./images/55464657044963196816950587289035428064568320970692304673817341489687673452544.png";
 
 const erc20abi = require("./abis/erc20.json");
 const erc721abi = require("./abis/erc721.json");
@@ -14,19 +11,15 @@ declare global {
     ethereum: any;
   }
 }
+
 const EQUIPMENT_TOKEN_IDS = [
   "40785833732304342849735419653626615027421227776496020677721887159020450484224",
   "40785833732304342849735419653626615027421227776496020677721887159020450484225",
   "55464657044963196816950587289035428064568320970692304673817341489687673452544",
+  "55464657044963196816950587289035428064568320970692304673817341489687665059841",
 ];
 
-const images: Record<string, string> = {
-  "40785833732304342849735419653626615027421227776496020677721887159020450484224": image1,
-  "40785833732304342849735419653626615027421227776496020677721887159020450484225": image2,
-  "55464657044963196816950587289035428064568320970692304673817341489687673452544": image3,
-};
-
-const PANDA_ACCOUNT_ADDRESS = "0x7903259ad9ff4f4f22bef350ab794e8193686e7b";
+const PANDA_ACCOUNTS = ["0x7903259ad9ff4f4f22bef350ab794e8193686e7b"];
 const USE_PANDA_ACCOUNTS = true;
 
 const SAND_TOKEN_ADDRESS = "0x3845badade8e6dff049820680d1f14bd3903a5d0";
@@ -41,38 +34,42 @@ const web3 = new Web3(
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const landTokenInst = new web3.eth.Contract(erc721abi, LAND_TOKEN_ADDRESS);
-const tokenTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
+const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
 
 interface Asset {
   id: string;
   uri: string;
   name: string;
   classification: { type: string; theme: string; categories: string[] };
-  image: string;
-  amountOwned: number;
 }
 
 const assets = EQUIPMENT_TOKEN_IDS.map((id) => {
-  const metadata = require(`./metadata/${id}.json`);
+  let metadata: any;
+  try {
+    metadata = require(`./metadata/${id}.json`);
+  } catch (ex) {
+    return {
+      id: id,
+      uri: "",
+      name: "missing metadata",
+      classification: {
+        type: "missing metadata",
+        theme: "missing metadata",
+        categories: [],
+      },
+    };
+  }
   const asset: Asset = {
     id: id,
     uri: "",
     name: metadata.name,
     classification: metadata.sandbox.classification,
-    image: images[id],
-    amountOwned: -1,
   };
-  tokenTokenInst.methods
+  assetTokenInst.methods
     .uri(id)
     .call()
     .then(function (uri: string) {
       asset.uri = uri;
-    });
-  tokenTokenInst.methods
-    .balanceOf(PANDA_ACCOUNT_ADDRESS, id)
-    .call()
-    .then(function (amount: number) {
-      asset.amountOwned = amount;
     });
   return asset;
 });
@@ -84,11 +81,12 @@ const CONNECTED_TEXT = "Connected";
 function App() {
   const [loginButtonText, setLoginButtonText] = React.useState(ONBOARD_TEXT);
   const [isDisabled, setDisabled] = React.useState(false);
-  const [accounts, setAccounts] = React.useState([]);
+  const [accounts, setAccounts] = React.useState([""]);
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
   const [sandBalance, setSandBalance] = React.useState(-1);
   const [landBalance, setLandBalance] = React.useState(-1);
+  const [assetBalances, setAssetBalances] = React.useState([-1]);
 
   React.useEffect(() => {
     if (!onboarding.current) {
@@ -98,22 +96,20 @@ function App() {
 
   React.useEffect(() => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-      if (accounts.length > 0) {
-        setLoginButtonText(CONNECTED_TEXT);
-        setDisabled(true);
-        if (onboarding.current) {
-          onboarding.current.stopOnboarding();
-        }
-      } else {
-        setLoginButtonText(CONNECT_TEXT);
-        setDisabled(false);
+      setLoginButtonText(CONNECTED_TEXT);
+      setDisabled(true);
+      if (onboarding.current) {
+        onboarding.current.stopOnboarding();
       }
+    } else {
+      setLoginButtonText(CONNECT_TEXT);
+      setDisabled(false);
     }
   }, [accounts]);
 
   React.useEffect(() => {
-    function handleNewAccounts(newAccounts: React.SetStateAction<never[]>) {
-      setAccounts(newAccounts);
+    function handleNewAccounts(newAccounts: React.SetStateAction<string[]>) {
+      setAccounts(USE_PANDA_ACCOUNTS ? PANDA_ACCOUNTS : newAccounts);
     }
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
@@ -127,9 +123,9 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    if (accounts.length > 0) {
+    if (accounts[0] !== "") {
       sandTokenInst.methods
-        .balanceOf(USE_PANDA_ACCOUNTS ? PANDA_ACCOUNT_ADDRESS : accounts[0])
+        .balanceOf(accounts[0])
         .call()
         .then(function (bal: string) {
           console.log(bal);
@@ -139,9 +135,9 @@ function App() {
   }, [accounts]);
 
   React.useEffect(() => {
-    if (accounts.length > 0) {
+    if (accounts[0] !== "") {
       landTokenInst.methods
-        .balanceOf(USE_PANDA_ACCOUNTS ? PANDA_ACCOUNT_ADDRESS : accounts[0])
+        .balanceOf(accounts[0])
         .call()
         .then(function (bal: string) {
           console.log(bal);
@@ -150,12 +146,23 @@ function App() {
     }
   }, [accounts]);
 
+  React.useEffect(() => {
+    if (accounts[0] !== "") {
+      assetTokenInst.methods
+        .balanceOfBatch(Array(4).fill(PANDA_ACCOUNTS[0]), EQUIPMENT_TOKEN_IDS)
+        .call()
+        .then(function (bals: number[]) {
+          setAssetBalances(bals);
+        });
+    }
+  }, [accounts]);
+
   const onClick = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
         .request({ method: "eth_requestAccounts" })
-        .then((newAccounts: React.SetStateAction<never[]>) =>
-          setAccounts(newAccounts)
+        .then((newAccounts: React.SetStateAction<string[]>) =>
+          setAccounts(USE_PANDA_ACCOUNTS ? PANDA_ACCOUNTS : newAccounts)
         );
     } else {
       if (onboarding.current) {
@@ -176,8 +183,7 @@ function App() {
       <div>
         <h2>Your account</h2>
         <p>
-          Your address is{" "}
-          <b>{USE_PANDA_ACCOUNTS ? PANDA_ACCOUNT_ADDRESS : accounts[0]}</b>
+          Your address is <b>{accounts[0]}</b>
         </p>
         <p>
           Your SAND balance is <b>{sandBalance}</b>
@@ -190,12 +196,19 @@ function App() {
         <h2>Equipment Marketplace</h2>
         <div style={{ display: "flex" }}>
           {assets.map((a) => (
-            <div style={{ margin: 20 }}>
-              <img alt="logo" style={{ height: "100px" }} src={a.image} />
+            <div style={{ margin: 20, borderStyle: "solid" }}>
+              <img
+                alt={"missing metadata"}
+                style={{ height: "100px" }}
+                src={process.env.PUBLIC_URL + `/equipment/${a.id}.png`}
+              />
               <h3>
                 {a.name} | {a.classification.theme}
               </h3>
-              <p>You own {a.amountOwned}</p>
+              <h4>
+                Token ID: {a.id.slice(0, 4)}...{a.id.slice(-2)}
+              </h4>
+              <p>You own {assetBalances[EQUIPMENT_TOKEN_IDS.indexOf(a.id)]}</p>
             </div>
           ))}
         </div>
