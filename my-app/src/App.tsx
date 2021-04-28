@@ -3,6 +3,8 @@ import React from "react";
 import Web3 from "web3";
 
 import Navbar from "./Components/Navbar/Navbar"
+import Hero from "./Components/Hero/Hero"
+
 
 const erc20abi = require("./abis/erc20.json");
 const erc721abi = require("./abis/erc721.json");
@@ -176,39 +178,7 @@ function App() {
   return (
     <div>
       <Navbar disabled={isDisabled} onClick={onClick} loginButtonText={loginButtonText}/>
-      <div>
-        <h2>Your account</h2>
-        <p>
-          Your address is <b>{accounts[0]}</b>
-        </p>
-        <p>
-          Your SAND balance is <b>{sandBalance}</b>
-        </p>
-        <p>
-          Your LAND balance is <b>{landBalance}</b>
-        </p>
-      </div>
-      <div>
-        <h2>Equipment Marketplace</h2>
-        <div style={{ display: "flex" }}>
-          {assets.map((a) => (
-            <div style={{ margin: 20, borderStyle: "solid" }}>
-              <img
-                alt={"missing metadata"}
-                style={{ height: "100px" }}
-                src={process.env.PUBLIC_URL + `/equipment/${a.id}.png`}
-              />
-              <h3>
-                {a.name} | {a.classification.theme}
-              </h3>
-              <h4>
-                Token ID: {a.id.slice(0, 4)}...{a.id.slice(-2)}
-              </h4>
-              <p>You own {assetBalances[EQUIPMENT_TOKEN_IDS.indexOf(a.id)]}</p>
-            </div>
-          ))}
-        </div>
-      </div>
+      <Hero accounts={accounts[0]} sandBalance={sandBalance} landBalance={landBalance} assets={assets} assetBalances={assetBalances} tokenids={EQUIPMENT_TOKEN_IDS}/>
     </div>
   );
 }
