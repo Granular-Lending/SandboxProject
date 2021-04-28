@@ -2,6 +2,8 @@ import MetaMaskOnboarding from "@metamask/onboarding";
 import React from "react";
 import Web3 from "web3";
 
+import Navbar from "./Components/Navbar/Navbar"
+
 const erc20abi = require("./abis/erc20.json");
 const erc721abi = require("./abis/erc721.json");
 const erc1155abi = require("./abis/erc1155.json");
@@ -173,13 +175,7 @@ function App() {
 
   return (
     <div>
-      <h1>Granular lending</h1>
-      <div>
-        <h2>Login</h2>
-        <button disabled={isDisabled} onClick={onClick}>
-          {loginButtonText}
-        </button>
-      </div>
+      <Navbar disabled={isDisabled} onClick={onClick} loginButtonText={loginButtonText}/>
       <div>
         <h2>Your account</h2>
         <p>
