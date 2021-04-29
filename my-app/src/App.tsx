@@ -176,7 +176,7 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="App">
       <Navbar disabled={isDisabled} onClick={onClick} loginButtonText={loginButtonText}/>
       <Hero accounts={accounts[0]} sandBalance={sandBalance} landBalance={landBalance} assets={assets} assetBalances={assetBalances} tokenids={EQUIPMENT_TOKEN_IDS}/>
     </div>
