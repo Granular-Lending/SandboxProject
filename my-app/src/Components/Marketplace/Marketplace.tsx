@@ -12,7 +12,7 @@ interface MarketplaceProps {
 }
 
 const AssetCard = (a: Asset, balance: number) => (
-  <div style={{ margin: 20, borderStyle: "solid" }}>
+  <div className="cardData">
     <img
       alt={"missing metadata"}
       style={{ height: "50px" }}
