@@ -1,0 +1,18 @@
+{
+  "name": "Cute Baby Unicorn",
+  "description": "Cute Baby Unicorn is adorable and full of joy, this creature brings joy to everyone it meets.",
+  "image": "ipfs://bafybeichvj4uhur2pyhyyujmvde5ubenl4pq7lta4k3ouoaxa643uhtnii/cute-baby-unicorn.png",
+  "external_url": "https://www.sandbox.game/en/assets/cute-baby-unicorn/83262ae9-f42c-4882-9649-6952ee53f97f/",
+  "animation_url": "ipfs://bafybeichvj4uhur2pyhyyujmvde5ubenl4pq7lta4k3ouoaxa643uhtnii/cute-baby-unicorn.gltf",
+  "sandbox": {
+    "version": 2,
+    "creator": "0x399d07303275719fb83acb468249a9a26ae2f674",
+    "classification": {
+      "type": "Entity",
+      "theme": "Fantasy",
+      "categories": ["Magic", "Nature", "Sci-Fi"]
+    },
+    "voxel_model": "ipfs://bafybeichvj4uhur2pyhyyujmvde5ubenl4pq7lta4k3ouoaxa643uhtnii/cute-baby-unicorn.vxc",
+    "creator_profile_url": "https://www.sandbox.game/en/users/aob/ba56f4d1-8285-4ab3-b413-d9d429a2d2eb/"
+  }
+}
