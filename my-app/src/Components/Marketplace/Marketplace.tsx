@@ -12,17 +12,21 @@ interface MarketplaceProps {
 }
 
 const AssetCard = (a: Asset, balance: number) => (
-  <div className="cardData">
-    <img
-      alt={"missing metadata"}
-      style={{ height: "50px" }}
-      src={process.env.PUBLIC_URL + `/equipment/${a.id}.png`}
-    />
-    <h3>
-      {a.name} | {a.classification.theme}
-    </h3>
-    <h4>Token ID: {a.id.slice(0, 10)}...</h4>
-    <p>You own {balance}</p>
+  <div className="productCard">
+    <div className="card-container-data">
+      <img
+        alt={"missing metadata"}
+        style={{ height: "50px" }}
+        src={process.env.PUBLIC_URL + `/equipment/${a.id}.png`}
+      />                        
+      <div className="cardData">
+        <h3>
+          {a.name} | {a.classification.theme}
+        </h3>
+        <h4>Token ID: {a.id.slice(0, 10)}...</h4>
+        <p>You own {balance}</p>
+      </div>
+    </div>
   </div>
 );
 
@@ -54,8 +58,10 @@ const Marketplace = (props: MarketplaceProps) => {
         <h2>Asset Marketplace</h2>
         <button onClick={onClick}>
           Show assets you own? {showOwned ? "YES" : "NO"}
-        </button>
-        {assetsToShow}
+        </button>                
+        <div className="card-container">
+          {assetsToShow}
+        </div>
       </div>
     </div>
   );
