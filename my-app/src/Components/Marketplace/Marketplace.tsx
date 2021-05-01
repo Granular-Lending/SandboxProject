@@ -20,7 +20,7 @@ const Marketplace = (props: MarketplaceProps) => {
     <div className="productCard">
       <div className="card-container-data">
         <img
-          alt={"missing image metadata"}
+          alt={"missing metadata"}
           style={{ objectFit: "contain" }}
           src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
         />
