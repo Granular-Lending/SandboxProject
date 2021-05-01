@@ -8,6 +8,19 @@
     font-family: 'Ruda';
 }
 
+.icon-container {
+    display:flex;
+    justify-content: space-between;
+}
+
+.navbar-container .logo-icon {
+    height:75px;
+    width:75px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    margin-right: 25px;
+}
+
 .navbar-container h1 {
     color:#ffffff;
 }
