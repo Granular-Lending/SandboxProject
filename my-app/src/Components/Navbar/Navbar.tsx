@@ -9,7 +9,7 @@ const Navbar = (props: any) => {
     <div className="Navbar">
       <div className="navbar-container">
         <div className="icon-container">
-          <img className="logo-icon" src={logo} alt={"granular-lending-logo"} /> 
+          <img className="logo-icon" src={logo} /> 
           <h1>Granular Lending</h1>
         </div>
         

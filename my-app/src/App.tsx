@@ -6,7 +6,7 @@ import Navbar from "./Components/Navbar/Navbar";
 import Hero from "./Components/Hero/Hero";
 
 const erc20abi = require("./abis/erc20.json");
-const erc721abi = require("./abis/erc721.json");
+// const erc721abi = require("./abis/erc721.json");
 const erc1155abi = require("./abis/erc1155.json");
 
 export interface Asset {
