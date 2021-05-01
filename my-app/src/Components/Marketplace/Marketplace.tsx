@@ -11,26 +11,33 @@ interface MarketplaceProps {
   assetTokenInst: any;
 }
 
-const AssetCard = (a: Asset, balance: number) => (
-  <div className="productCard">
-    <div className="card-container-data">
-      <img
-        alt={"missing image metadata"}
-        style={{ objectFit: "contain" }}
-        src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
-      />
-      <div className="cardData">
-        <h3>
-          {a.name} | {a.classification.theme}
-        </h3>
-        <h4>Token ID: {a.id.slice(0, 10)}...</h4>
-        <p>You own {balance}</p>
-      </div>
-    </div>
-  </div>
-);
+const transferAsset = (inst: any, from: string, to: string, id: string) => {
+  inst.methods.safeTransferFrom(from, to, id, 1, "0x00").send({ from: from }).then(console.log).catch(console.error);
+}
 
 const Marketplace = (props: MarketplaceProps) => {
+  const AssetCard = (a: Asset, balance: number) => (
+    <div className="productCard">
+      <div className="card-container-data">
+        <img
+          alt={"missing image metadata"}
+          style={{ objectFit: "contain" }}
+          src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
+        />
+        <div className="cardData">
+          <h3>
+            {a.name} | {a.classification.theme}
+          </h3>
+          <h4>Token ID: {a.id.slice(0, 10)}...</h4>
+        </div>
+        <div style={{ display: "flex" }}>
+          <p>You own {balance}</p>
+          <button onClick={() => transferAsset(props.assetTokenInst, props.accounts[0], "0xf768524df0f3a766df8cae83243dc772b291f00c", a.id)}>TRANSFER 1</button>
+        </div>
+      </div>
+    </div >
+  );
+
   const [showOwned, setShowOwned] = useState(false);
   const [assetsToShow, setAssetsToShow] = useState(
     props.assets.map((a: Asset) =>

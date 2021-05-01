@@ -6,7 +6,6 @@ import Navbar from "./Components/Navbar/Navbar";
 import Hero from "./Components/Hero/Hero";
 
 const erc20abi = require("./abis/erc20.json");
-const erc721abi = require("./abis/erc721.json");
 const erc1155abi = require("./abis/erc1155.json");
 
 export interface Asset {
@@ -50,13 +49,12 @@ declare global {
   }
 }
 
-const TEST_ACCOUNTS = ["0xf768524df0f3a766df8cae83243dc772b291f00c"];
-const USE_TEST_ACCOUNTS = false;
-
-const SAND_TOKEN_ADDRESS = "0x3845badAde8e6dFF049820680d1F14bD3903a5d0";
-const ASSET_TOKEN_ADDRESS = "0xa342f5D851E866E18ff98F351f2c6637f4478dB5";
-
 const web3 = new Web3(window.ethereum);
+
+const USE_MAIN = true;
+
+const SAND_TOKEN_ADDRESS = USE_MAIN ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0" : "";
+const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x767c98f260585e9da36faef70d1691992bc1addf";
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
@@ -120,7 +118,7 @@ function App() {
 
   React.useEffect(() => {
     function handleNewAccounts(newAccounts: React.SetStateAction<string[]>) {
-      setAccounts(USE_TEST_ACCOUNTS ? TEST_ACCOUNTS : newAccounts);
+      setAccounts(newAccounts);
     }
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
@@ -158,7 +156,7 @@ function App() {
       window.ethereum
         .request({ method: "eth_requestAccounts" })
         .then((newAccounts: React.SetStateAction<string[]>) =>
-          setAccounts(USE_TEST_ACCOUNTS ? TEST_ACCOUNTS : newAccounts)
+          setAccounts(newAccounts)
         );
     } else {
       if (onboarding.current) {
