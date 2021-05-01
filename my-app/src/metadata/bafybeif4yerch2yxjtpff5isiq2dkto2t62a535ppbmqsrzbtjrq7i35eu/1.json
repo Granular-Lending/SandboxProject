@@ -1,0 +1,21 @@
+{
+    "name": "Elegant Mermaid",
+    "description": "This beautiful creature is definitely not a myth! Unlike some other mermaids, this one is quite comfortable living under the sea.",
+    "image": "ipfs://bafybeic2ifviuwpyvdc7j2xgltdcrrlvziq22xy5mnrjjxl3hmwobb44si/elegant-mermaid.png",
+    "external_url": "https://www.sandbox.game/en/assets/elegant-mermaid/6f4f160f-a4ca-482c-bf27-86371ba85121/",
+    "animation_url": "ipfs://bafybeic2ifviuwpyvdc7j2xgltdcrrlvziq22xy5mnrjjxl3hmwobb44si/elegant-mermaid.gltf",
+    "sandbox": {
+        "version": 2,
+        "creator": "0x8f9634d2267ea65ef6567349d58086d39fc0b831",
+        "classification": {
+            "type": "Entity",
+            "theme": "Fantasy",
+            "categories": [
+                "Magic",
+                "Humanoid"
+            ]
+        },
+        "voxel_model": "ipfs://bafybeic2ifviuwpyvdc7j2xgltdcrrlvziq22xy5mnrjjxl3hmwobb44si/elegant-mermaid.vxc",
+        "creator_profile_url": "https://www.sandbox.game/en/users/tobyr/b1cfd511-e78e-4168-aa46-e34867251aa7/"
+    }
+}

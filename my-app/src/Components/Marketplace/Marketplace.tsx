@@ -15,10 +15,10 @@ const AssetCard = (a: Asset, balance: number) => (
   <div className="productCard">
     <div className="card-container-data">
       <img
-        alt={"missing metadata"}
-        style={{ height: "50px" }}
-        src={process.env.PUBLIC_URL + `/equipment/${a.id}.png`}
-      />                        
+        alt={"missing image metadata"}
+        style={{ objectFit: "contain" }}
+        src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
+      />
       <div className="cardData">
         <h3>
           {a.name} | {a.classification.theme}
@@ -55,15 +55,15 @@ const Marketplace = (props: MarketplaceProps) => {
   return (
     <div className="Marketplace">
       <div className="marketplace-container">
-        <h2>Asset Marketplace</h2>
+        <h2>Assets</h2>
         <button onClick={onClick}>
-          Show assets you own? {showOwned ? "YES" : "NO"}
-        </button>                
+          {showOwned ? "Click me to show all assets" : "Click me to show just your assets"}
+        </button>
         <div className="card-container">
           {assetsToShow}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -12,6 +12,7 @@ const erc1155abi = require("./abis/erc1155.json");
 export interface Asset {
   id: string;
   name: string;
+  image: string;
   classification: { type: string; theme: string; categories: string[] };
 }
 
@@ -21,7 +22,27 @@ export const EQUIPMENT_TOKEN_IDS = [
   "40785833732304342849735419653626615027421227776496020677721887159020450484225",
   "55464657044963196816950587289035428064568320970692304673817341489687673452544",
   "59877022449356993441109123519648614159160891474231538650442489089192695443456",
+  "64946128963576652222538036970165700352413276268630562676894999040163055677440",
+  "64946128963576652222538036970165700352413276268630562676894999040163055677441",
+  "64946128963576652222538036970165700352413276268630562676894999040163055677442",
+  "64946128963576652222538036970165700352413276268630562676894999040163055677443",
+  "64946128963576652222538036970165700352413276268630562676894999040163055677444",
+  "64946128963576652222538036970165700352413276268630562676894999040163055677445",
 ];
+
+const URIS = [
+  "ipfs://bafybeib6jgupsp26uywcc4psuqie3w646za4dmpbzdxdi56enhlnztvcyu/0.json",
+  "ipfs://bafybeicevfqqfobqdc3lr62xqyx5utvozyqsq5ok2bswy4tblzfeeerkle/0.json",
+  "ipfs://bafybeicevfqqfobqdc3lr62xqyx5utvozyqsq5ok2bswy4tblzfeeerkle/1.json",
+  "ipfs://bafybeihfloegzon52utqqqhvfedhmdqxjdy7bbpez5pk2nwbc4gomf2pge/0.json",
+  "ipfs://bafybeifyldllf63l7ppdppmchgnnj7umh6nx6smhnzhmiiskyckc5zetre/0.json",
+  "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/0.json",
+  "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/1.json",
+  "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/2.json",
+  "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/3.json",
+  "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/4.json",
+  "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/5.json"
+]
 
 declare global {
   interface Window {
@@ -30,15 +51,15 @@ declare global {
 }
 
 const TEST_ACCOUNTS = ["0xf768524df0f3a766df8cae83243dc772b291f00c"];
-const USE_TEST_ACCOUNTS = false;
+const USE_TEST_ACCOUNTS = true;
 
-const SAND_TOKEN_ADDRESS = "0xF217FD6336182395B53d9d55881a0D838a6CCc9A";
+const SAND_TOKEN_ADDRESS = "0x3845badAde8e6dFF049820680d1F14bD3903a5d0";
 const LAND_TOKEN_ADDRESS = "0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a";
 const ASSET_TOKEN_ADDRESS = "0xa342f5D851E866E18ff98F351f2c6637f4478dB5";
 
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider(
-    "wss://ropsten.infura.io/ws/v3/1002239177e9489a9ec78a14729a043d"
+    "wss://mainnet.infura.io/ws/v3/1002239177e9489a9ec78a14729a043d"
   )
 );
 
@@ -47,9 +68,15 @@ const landTokenInst = new web3.eth.Contract(erc721abi, LAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
 
 const assets = EQUIPMENT_TOKEN_IDS.map((id) => {
-  let metadata: any;
   try {
-    metadata = require(`./metadata/${id}.json`);
+    const metadata = require(`./metadata/${URIS[EQUIPMENT_TOKEN_IDS.indexOf(id)].slice(7)}`);
+
+    return {
+      id: id,
+      name: metadata.name,
+      classification: metadata.sandbox.classification,
+      image: metadata.image.slice(6)
+    };;
   } catch (ex) {
     return {
       id: id,
@@ -61,12 +88,6 @@ const assets = EQUIPMENT_TOKEN_IDS.map((id) => {
       },
     };
   }
-  const asset: Asset = {
-    id: id,
-    name: metadata.name,
-    classification: metadata.sandbox.classification,
-  };
-  return asset;
 });
 
 const ONBOARD_TEXT = "Click here to install MetaMask!";

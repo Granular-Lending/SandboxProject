@@ -1,0 +1,21 @@
+{
+    "name": "Mouse King",
+    "description": "Yearning for power, the Mouse King cursed the kingdom's prince into a nutcracker. The overthrow brought influence, but retribution follows injustice.",
+    "image": "ipfs://bafybeiagl4zf3h73tmmg27mci7git4uyeuc3b5ctrf2chgbnjybbho5pq4/mouse-king.png",
+    "external_url": "https://www.sandbox.game/en/assets/mouse-king/6f4910a7-1e55-4b11-be3c-bd76f71e2db2/",
+    "animation_url": "ipfs://bafybeiagl4zf3h73tmmg27mci7git4uyeuc3b5ctrf2chgbnjybbho5pq4/mouse-king.gltf",
+    "sandbox": {
+        "version": 2,
+        "creator": "0x8f9634d2267ea65ef6567349d58086d39fc0b831",
+        "classification": {
+            "type": "Entity",
+            "theme": "Fantasy",
+            "categories": [
+                "Animal",
+                "Humanoid"
+            ]
+        },
+        "voxel_model": "ipfs://bafybeiagl4zf3h73tmmg27mci7git4uyeuc3b5ctrf2chgbnjybbho5pq4/mouse-king.vxc",
+        "creator_profile_url": "https://www.sandbox.game/en/users/tobyr/b1cfd511-e78e-4168-aa46-e34867251aa7/"
+    }
+}

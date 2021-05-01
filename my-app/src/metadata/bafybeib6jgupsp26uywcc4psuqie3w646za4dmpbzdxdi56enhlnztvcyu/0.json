@@ -10,7 +10,11 @@
     "classification": {
       "type": "Entity",
       "theme": "Fantasy",
-      "categories": ["Magic", "Nature", "Sci-Fi"]
+      "categories": [
+        "Magic",
+        "Nature",
+        "Sci-Fi"
+      ]
     },
     "voxel_model": "ipfs://bafybeichvj4uhur2pyhyyujmvde5ubenl4pq7lta4k3ouoaxa643uhtnii/cute-baby-unicorn.vxc",
     "creator_profile_url": "https://www.sandbox.game/en/users/aob/ba56f4d1-8285-4ab3-b413-d9d429a2d2eb/"
