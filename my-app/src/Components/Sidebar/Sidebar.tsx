@@ -13,7 +13,6 @@ interface SiderbarProps {
 }
 
 const Sidebar = (props: SiderbarProps) => {
-  const [toAddressEth, setToAddressEth] = React.useState("0xf768524df0f3a766df8cae83243dc772b291f00c");
   const [toAddressSand, setToAddressSand] = React.useState("0xf768524df0f3a766df8cae83243dc772b291f00c");
 
   const transferSomeSand = () => {
