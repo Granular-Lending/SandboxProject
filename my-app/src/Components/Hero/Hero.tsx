@@ -13,6 +13,7 @@ const Hero = (props: any) => {
           accounts={props.accounts}
           sandBalance={props.sandBalance}
           landBalance={props.landBalance}
+          sandTokenInst={props.sandTokenInst}
         />
         <Marketplace
           accounts={props.accounts}

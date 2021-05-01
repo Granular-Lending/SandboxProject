@@ -51,20 +51,14 @@ declare global {
 }
 
 const TEST_ACCOUNTS = ["0xf768524df0f3a766df8cae83243dc772b291f00c"];
-const USE_TEST_ACCOUNTS = true;
+const USE_TEST_ACCOUNTS = false;
 
 const SAND_TOKEN_ADDRESS = "0x3845badAde8e6dFF049820680d1F14bD3903a5d0";
-const LAND_TOKEN_ADDRESS = "0x50f5474724e0ee42d9a4e711ccfb275809fd6d4a";
 const ASSET_TOKEN_ADDRESS = "0xa342f5D851E866E18ff98F351f2c6637f4478dB5";
 
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider(
-    "wss://mainnet.infura.io/ws/v3/1002239177e9489a9ec78a14729a043d"
-  )
-);
+const web3 = new Web3(window.ethereum);
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
-const landTokenInst = new web3.eth.Contract(erc721abi, LAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
 
 const assets = EQUIPMENT_TOKEN_IDS.map((id) => {
@@ -101,7 +95,6 @@ function App() {
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
   const [sandBalance, setSandBalance] = React.useState(-1);
-  const [landBalance, setLandBalance] = React.useState(-1);
   const [assetBalances, setAssetBalances] = React.useState(
     Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
   );
@@ -148,22 +141,6 @@ function App() {
         .then(function (bal: string) {
           setSandBalance(parseFloat(bal));
         });
-    }
-  }, [accounts]);
-
-  React.useEffect(() => {
-    if (accounts[0] !== "") {
-      landTokenInst.methods
-        .balanceOf(accounts[0])
-        .call()
-        .then(function (bal: string) {
-          setLandBalance(parseFloat(bal));
-        });
-    }
-  }, [accounts]);
-
-  React.useEffect(() => {
-    if (accounts[0] !== "") {
       assetTokenInst.methods
         .balanceOfBatch(
           Array(EQUIPMENT_TOKEN_IDS.length).fill(accounts[0]),
@@ -200,11 +177,11 @@ function App() {
       <Hero
         accounts={accounts}
         sandBalance={sandBalance}
-        landBalance={landBalance}
         assets={assets}
         assetBalances={assetBalances}
         assetTokenInst={assetTokenInst}
         tokenids={EQUIPMENT_TOKEN_IDS}
+        sandTokenInst={sandTokenInst}
       />
     </div>
   );
