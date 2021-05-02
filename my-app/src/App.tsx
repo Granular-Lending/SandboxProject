@@ -62,6 +62,15 @@ const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
 const poolInst = new web3.eth.Contract(poolabi, POOL_ADDRESS);
 
+let sym: string;
+
+sandTokenInst.methods
+  .symbol()
+  .call()
+  .then(function (s: string) {
+    sym = s;
+  });
+
 const assets = EQUIPMENT_TOKEN_IDS.map((id) => {
   try {
     const metadata = require(`./metadata/${URIS[EQUIPMENT_TOKEN_IDS.indexOf(id)].slice(7)}`);
@@ -189,6 +198,7 @@ function App() {
       />
       <Hero
         accounts={accounts}
+        sym={sym}
         sandBalance={sandBalance}
         assets={assets}
         assetBalances={assetBalances}

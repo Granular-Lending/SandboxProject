@@ -11,6 +11,7 @@ const Hero = (props: any) => {
       <div className="hero-container">
         <Sidebar
           accounts={props.accounts}
+          sym={props.sym}
           sandBalance={props.sandBalance}
           landBalance={props.landBalance}
           sandTokenInst={props.sandTokenInst}
