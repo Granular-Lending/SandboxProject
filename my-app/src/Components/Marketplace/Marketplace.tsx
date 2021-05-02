@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Tabs from "../Tabs/Tabs";
 import { Asset } from "../../App";
 
+import Tabs from "../Tabs/Tabs";
 import "./Marketplace.css";
 
 interface MarketplaceProps {
@@ -29,7 +30,7 @@ const Marketplace = (props: MarketplaceProps) => {
     <div className="productCard">
       <div className="card-container-data">
         <img
-          alt={"missing metadata"}
+          alt="missing metadata"
           style={{ objectFit: "contain" }}
           src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
         />
@@ -56,12 +57,36 @@ const Marketplace = (props: MarketplaceProps) => {
             </div>
           </div>
         </div>
+        
+        {/* <div style={{ display: "flex" }}>
+         
+        </div> */}
       </div>
     </div >
   );
 
-  const ownedAssets = props.assets.filter((a: Asset) =>
-    props.assetBalances[props.tokenids.indexOf(a.id)] > 0);
+  const ownedAssets = props.assets.filter((a: Asset) => props.assetBalances[props.tokenids.indexOf(a.id)] > 0);
+
+  // const [showOwned, setShowOwned] = useState(false);
+  // const [assetsToShow, setAssetsToShow] = useState(
+  //   props.assets.map((a: Asset) =>
+  //     AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)], props.assetBalancesPool[props.tokenids.indexOf(a.id)])
+  //   )
+  // );
+
+  // const onClick = () => {
+  //   setAssetsToShow(
+  //     props.assets.map((a: Asset) =>
+  //       showOwned || props.assetBalances[props.tokenids.indexOf(a.id)] > 0 ? (
+  //         AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)], props.assetBalancesPool[props.tokenids.indexOf(a.id)])
+  //       ) : (
+  //         <></>
+  //       )
+  //     )
+  //   );
+
+  //   setShowOwned(!showOwned);
+  // };
 
   return (
     <div className="Marketplace">
@@ -88,7 +113,6 @@ const Marketplace = (props: MarketplaceProps) => {
             </div>
           </div>
         </Tabs>
-
       </div>
     </div >
   );
