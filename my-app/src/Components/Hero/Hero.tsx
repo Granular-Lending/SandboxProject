@@ -20,7 +20,9 @@ const Hero = (props: any) => {
           accounts={props.accounts}
           assets={props.assets}
           assetBalances={props.assetBalances}
+          assetBalancesPool={props.poolAssetBalances}
           assetTokenInst={props.assetTokenInst}
+          poolInst={props.poolInst}
           tokenids={props.tokenids}
         />
       </div>
