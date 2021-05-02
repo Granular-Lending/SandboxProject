@@ -26,7 +26,7 @@ const Marketplace = (props: MarketplaceProps) => {
     <div className="productCard">
       <div className="card-container-data">
         <img
-          alt={"missing metadata"}
+          alt="missing metadata"
           style={{ objectFit: "contain" }}
           src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
         />
@@ -35,13 +35,28 @@ const Marketplace = (props: MarketplaceProps) => {
             {a.name}
           </h3>
           <h4>{a.classification.theme} | ID: {a.id.slice(0, 10)}... </h4>
+          <div className="accordion" id="accordionExample">
+          <div className="accordion-item">
+            <h2 className="accordion-header" id={`${a.name}Heading`}>
+              <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target={`#${a.name.split(/\s/).join('').slice(0,7)}`} aria-expanded="true" aria-controls={`${a.name.split(/\s/).join('').slice(0,7)}`}>
+                More Info
+              </button>
+            </h2>
+            <div id={`${a.name.split(/\s/).join('').slice(0,7)}`} className="accordion-collapse collapse show" aria-labelledby={`${a.name}Heading`} data-bs-parent="#accordionExample">
+              <div className="accordion-body">
+                <p>You own {balance}</p>
+                <p>Pool owns {balancePool}</p>
+                <button className="first-btn" onClick={() => transferAsset(props.assetTokenInst, props.accounts[0], "0x3b20F0B97290c4BF2cEA6DEf9340CEb5fd8f36E3", a.id)}>PUT 1 IN POOl</button>
+                <button className="second-btn" onClick={() => retrieveAsset(props.poolInst, props.accounts[0], a.id)}>TAKE 1 OUT OF POOl</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div style={{ display: "flex" }}>
-          <p>You own {balance}</p>
-          <p>Pool owns {balancePool}</p>
-          <button onClick={() => transferAsset(props.assetTokenInst, props.accounts[0], "0x3b20F0B97290c4BF2cEA6DEf9340CEb5fd8f36E3", a.id)}>PUT 1 IN POOl</button>
-          <button onClick={() => retrieveAsset(props.poolInst, props.accounts[0], a.id)}>TAKE 1 OUT OF POOl</button>
         </div>
+        
+        {/* <div style={{ display: "flex" }}>
+         
+        </div> */}
       </div>
     </div >
   );

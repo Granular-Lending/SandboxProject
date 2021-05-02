@@ -30,7 +30,7 @@
     background: #1b2026; 
     background: -webkit-linear-gradient(to right, #493240, #FF0099);
     background: linear-gradient(to right, #493240, #FF0099);
-    margin: 30px 45px;
+    margin: 30px 45px 250px 45px;
     font-family: 'Ruda';
     color:#ffffff;
     border-radius: 25px;
@@ -55,4 +55,53 @@
     justify-content: space-around;
     flex-direction: column;
     height:180px;
+}
+
+.cardData h3{
+    font-size: 1.25rem;
+}
+
+.cardData h4{
+    font-size: 1.0rem;
+}
+
+.accordion {
+    position: relative;
+    right: 5px;
+}
+
+.cardData .accordion-item {
+ border-radius:25px;
+ /* background-color: #fd51b8; */
+ background-color: #104ca6
+}
+
+.accordion-item .accordion-button {
+    border-radius: 25px;
+    background: #1b2026;
+    color: #fff;
+}
+
+.accordion-item:last-of-type .accordion-button.collapsed {
+    border-radius: 25px;;
+}
+
+.accordion-item:first-of-type .accordion-button {
+    border-radius: 25px;;
+}
+
+.accordion-body .first-btn{
+    margin-bottom: 10px;
+    border: none;
+    background: #1b2026;
+    color: #fff;
+    border-radius: 25px;
+}
+
+.accordion-body .second-btn{
+    margin-bottom: 10px;
+    border: none;
+    background: #1b2026;
+    color: #fff;
+    border-radius: 25px;
 }
