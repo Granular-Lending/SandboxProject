@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Tabs from "../Tabs/Tabs";
 import { Asset } from "../../App";
 
 import "./Marketplace.css";
@@ -32,36 +33,55 @@ const AssetCard = (a: Asset, balance: number) => (
 
 const Marketplace = (props: MarketplaceProps) => {
   const [showOwned, setShowOwned] = useState(false);
-  const [assetsToShow, setAssetsToShow] = useState(
-    props.assets.map((a: Asset) =>
-      AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)])
-    )
+
+  // const onClick = () => {
+  //   setAssetsToShow(
+  //     props.assets.map((a: Asset) =>
+  //       showOwned || props.assetBalances[props.tokenids.indexOf(a.id)] > 0 ? (
+  //         AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)])
+  //       ) : (
+  //         <></>
+  //       )
+  //     )
+  //   );
+
+  //   setShowOwned(!showOwned);
+  // };
+
+  const poolAssets = props.assets.map((a: Asset) =>
+    AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)])
   );
 
-  const onClick = () => {
-    setAssetsToShow(
-      props.assets.map((a: Asset) =>
-        showOwned || props.assetBalances[props.tokenids.indexOf(a.id)] > 0 ? (
-          AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)])
-        ) : (
-          <></>
-        )
-      )
-    );
-
-    setShowOwned(!showOwned);
-  };
+  const ownedAssets = props.assets.map((a: Asset) =>
+    showOwned || props.assetBalances[props.tokenids.indexOf(a.id)] > 0 ? (
+      AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)])
+    ) : (
+      <></>
+    )
+  );
 
   return (
     <div className="Marketplace">
       <div className="marketplace-container">
         <h2>Assets</h2>
-        <button onClick={onClick}>
-          {showOwned ? "Click me to show all assets" : "Click me to show just your assets"}
-        </button>
-        <div className="card-container">
-          {assetsToShow}
-        </div>
+        <Tabs>
+          <div data-label="Home"> 
+            <div style={{color: 'white'}}>
+            Granular Lending is a portal that lets you loan & borrow Sandbox NFT's.
+            </div>
+          </div> 
+          <div data-label="Your Items"> 
+            <div className="card-container">
+              {ownedAssets}
+            </div>
+          </div> 
+          <div data-label="Pool"> 
+            <div className="card-container">
+              {poolAssets}
+            </div>
+          </div> 
+        </Tabs>
+        
       </div>
     </div >
   );
