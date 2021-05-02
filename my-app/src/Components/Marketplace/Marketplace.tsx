@@ -36,7 +36,7 @@ const Marketplace = (props: MarketplaceProps) => {
           <h3>
             {a.name}
           </h3>
-          <h4>{a.classification.theme} | ID: {a.id.slice(0, 10)}... </h4>
+          <h4>{a.classification.type} | {a.classification.theme}</h4>
           <div className="accordion" id="accordionExample">
             <div className="accordion-item">
               <h2 className="accordion-header" id={`${a.name}Heading`}>
