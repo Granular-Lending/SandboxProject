@@ -20,8 +20,8 @@ const Tabs = (props: TabsProps) => {
     return (
         <div className="tabs">
             <ol className="tab-list">
-                {props.children.map((child:any) => {
-                    
+                {props.children.map((child: any) => {
+
                     const label = child.props['data-label'];
                     return (
                         <Tab
@@ -33,7 +33,7 @@ const Tabs = (props: TabsProps) => {
                     );
                 })}
             </ol>
-            <div className = "tab-content">
+            <div className="tab-content">
                 {props.children.map((child: any) => {
                     const label = child.props['data-label'];
                     if (label !== activeTab) return undefined;

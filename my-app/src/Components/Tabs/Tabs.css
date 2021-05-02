@@ -10,7 +10,6 @@
   padding: 0.5rem 0.75rem;
   margin: 0 2px;
   text-align: center;
-  width: 85px;
   transform: perspective(40px) rotateX(6deg);
 }
 
