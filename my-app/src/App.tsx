@@ -6,8 +6,8 @@ import Navbar from "./Components/Navbar/Navbar";
 import Hero from "./Components/Hero/Hero";
 
 const erc20abi = require("./abis/erc20.json");
-const erc721abi = require("./abis/erc721.json");
 const erc1155abi = require("./abis/erc1155.json");
+const poolabi = require("./abis/pool.json");
 
 export interface Asset {
   id: string;
@@ -50,16 +50,17 @@ declare global {
   }
 }
 
-const TEST_ACCOUNTS = ["0xf768524df0f3a766df8cae83243dc772b291f00c"];
-const USE_TEST_ACCOUNTS = false;
-
-const SAND_TOKEN_ADDRESS = "0x3845badAde8e6dFF049820680d1F14bD3903a5d0";
-const ASSET_TOKEN_ADDRESS = "0xa342f5D851E866E18ff98F351f2c6637f4478dB5";
-
 const web3 = new Web3(window.ethereum);
+
+const USE_MAIN = true;
+
+const SAND_TOKEN_ADDRESS = USE_MAIN ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0" : "0x0000000000000000000000000000000000000000";
+const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x767c98f260585e9da36faef70d1691992bc1addf";
+const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x3b20F0B97290c4BF2cEA6DEf9340CEb5fd8f36E3";
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
+const poolInst = new web3.eth.Contract(poolabi, POOL_ADDRESS);
 
 const assets = EQUIPMENT_TOKEN_IDS.map((id) => {
   try {
@@ -98,6 +99,9 @@ function App() {
   const [assetBalances, setAssetBalances] = React.useState(
     Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
   );
+  const [poolAssetBalances, setPoolAssetBalances] = React.useState(
+    Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
+  );
 
   React.useEffect(() => {
     if (!onboarding.current) {
@@ -120,7 +124,7 @@ function App() {
 
   React.useEffect(() => {
     function handleNewAccounts(newAccounts: React.SetStateAction<string[]>) {
-      setAccounts(USE_TEST_ACCOUNTS ? TEST_ACCOUNTS : newAccounts);
+      setAccounts(newAccounts);
     }
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
@@ -150,6 +154,15 @@ function App() {
         .then(function (bals: number[]) {
           setAssetBalances(bals);
         });
+      assetTokenInst.methods
+        .balanceOfBatch(
+          Array(EQUIPMENT_TOKEN_IDS.length).fill(POOL_ADDRESS),
+          EQUIPMENT_TOKEN_IDS
+        )
+        .call()
+        .then(function (bals: number[]) {
+          setPoolAssetBalances(bals);
+        });
     }
   }, [accounts]);
 
@@ -158,7 +171,7 @@ function App() {
       window.ethereum
         .request({ method: "eth_requestAccounts" })
         .then((newAccounts: React.SetStateAction<string[]>) =>
-          setAccounts(USE_TEST_ACCOUNTS ? TEST_ACCOUNTS : newAccounts)
+          setAccounts(newAccounts)
         );
     } else {
       if (onboarding.current) {
@@ -179,7 +192,9 @@ function App() {
         sandBalance={sandBalance}
         assets={assets}
         assetBalances={assetBalances}
+        poolAssetBalances={poolAssetBalances}
         assetTokenInst={assetTokenInst}
+        poolInst={poolInst}
         tokenids={EQUIPMENT_TOKEN_IDS}
         sandTokenInst={sandTokenInst}
       />
