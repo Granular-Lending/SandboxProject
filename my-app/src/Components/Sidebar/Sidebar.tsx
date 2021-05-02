@@ -8,6 +8,7 @@ interface SiderbarProps {
   landBalance: number,
   sandBalance: number,
   accounts: string[],
+  sym: string,
   sandTokenInst: any,
   assetTokenInst: any
 }
@@ -30,7 +31,7 @@ const Sidebar = (props: SiderbarProps) => {
           </h3>
           <div className="accBalance">
             <h3>
-              Your SAND balance :{" "}
+              Your {props.sym} balance :{" "}
               <span>
                 <img className="sandIcon" src={sandIcon} alt="SAND logo" />
               </span>{" "}
