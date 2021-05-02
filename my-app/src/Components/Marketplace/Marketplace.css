@@ -27,7 +27,6 @@
 }
 
 .productCard {
-  height: 320px;
   width: 250px;
   border: 2.5px;
   background: #1b2026;
@@ -55,7 +54,6 @@
 
 .productCard .cardData {
   display: flex;
-  justify-content: space-around;
   flex-direction: column;
   height: 180px;
 }
