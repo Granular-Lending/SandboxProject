@@ -34,7 +34,7 @@ const Marketplace = (props: MarketplaceProps) => {
         <h3>
           {a.name}
         </h3>
-        <h4>{a.classification.theme}</h4>
+        <h4>{a.classification.type} | {a.classification.theme}</h4>
         <p>You own {balance}</p>
         <p>Pool owns {balancePool}</p>
         <div style={{ display: "flex" }}>
