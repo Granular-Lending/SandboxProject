@@ -56,7 +56,7 @@ const USE_MAIN = false;
 
 const SAND_TOKEN_ADDRESS = USE_MAIN ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0" : "0xF217FD6336182395B53d9d55881a0D838a6CCc9A";
 const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x767c98f260585e9da36faef70d1691992bc1addf";
-const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x3b20F0B97290c4BF2cEA6DEf9340CEb5fd8f36E3";
+const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0xcEeF416F11B4AB77De91B7D0C25Bf839521590A8";
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
@@ -111,6 +111,7 @@ function App() {
   const [poolAssetBalances, setPoolAssetBalances] = React.useState(
     Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
   );
+  const [loaners, setLoaners] = React.useState([[""]]);
 
   React.useEffect(() => {
     if (!onboarding.current) {
@@ -172,6 +173,12 @@ function App() {
         .then(function (bals: number[]) {
           setPoolAssetBalances(bals);
         });
+      poolInst.methods
+        .getLoanersForID(EQUIPMENT_TOKEN_IDS[0])
+        .call()
+        .then(function (addresses: string[]) {
+          setLoaners([addresses]);
+        });
     }
   }, [accounts]);
 
@@ -191,6 +198,8 @@ function App() {
 
   return (
     <div>
+      <button onClick={() => sandTokenInst.methods.approve(POOL_ADDRESS, 1000).send({ from: accounts[0] }).then(console.log).catch(console.error)}>approve the token</button>
+      <button onClick={() => assetTokenInst.methods.setApprovalForAll(POOL_ADDRESS, true).send({ from: accounts[0] }).then(console.log).catch(console.error)}>approve assets</button>
       <Navbar
         disabled={isDisabled}
         onClick={metaMaskLogin}
@@ -207,8 +216,9 @@ function App() {
         poolInst={poolInst}
         tokenids={EQUIPMENT_TOKEN_IDS}
         sandTokenInst={sandTokenInst}
+        loaners={loaners}
       />
-    </div>
+    </div >
   );
 }
 

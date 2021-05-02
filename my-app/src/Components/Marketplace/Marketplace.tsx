@@ -1,4 +1,5 @@
-// import React, { useState } from "react";
+import React, { useState } from "react";
+import Tabs from "../Tabs/Tabs";
 import { Asset } from "../../App";
 
 import Tabs from "../Tabs/Tabs";
@@ -11,18 +12,20 @@ interface MarketplaceProps {
   tokenids: string[];
   accounts: string[];
   assetTokenInst: any;
-  poolInst: any
+  poolInst: any;
+  loaners: string[];
 }
 
-const transferAsset = (inst: any, from: string, to: string, id: string) => {
-  inst.methods.safeTransferFrom(from, to, id, 1, "0x00").send({ from: from }).then(console.log).catch(console.error);
+const transferAsset = (inst: any, from: string, id: string) => {
+  inst.methods.putIntoPool(id).send({ from: from }).then(console.log).catch(console.error);
 }
 
 const retrieveAsset = (inst: any, from: string, id: string) => {
-  inst.methods.retrieve(id).send({ from: from }).then(console.log).catch(console.error);
+  inst.methods.retrieve(id, "0xb19BC46C52A1352A071fe2389503B6FE1ABD50Ff").send({ from: from }).then(console.log).catch(console.error);
 }
 
 const Marketplace = (props: MarketplaceProps) => {
+  const [x, setX] = useState("ded")
   const AssetCard = (a: Asset, balance: number, balancePool: number) => (
     <div className="productCard">
       <div className="card-container-data">
@@ -37,22 +40,22 @@ const Marketplace = (props: MarketplaceProps) => {
           </h3>
           <h4>{a.classification.theme} | ID: {a.id.slice(0, 10)}... </h4>
           <div className="accordion" id="accordionExample">
-          <div className="accordion-item">
-            <h2 className="accordion-header" id={`${a.name}Heading`}>
-              <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target={`#${a.name.split(/\s/).join('').slice(0,7)}`} aria-expanded="true" aria-controls={`${a.name.split(/\s/).join('').slice(0,7)}`}>
-                More Info
+            <div className="accordion-item">
+              <h2 className="accordion-header" id={`${a.name}Heading`}>
+                <button className="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target={`#${a.name.split(/\s/).join('').slice(0, 7)}`} aria-expanded="true" aria-controls={`${a.name.split(/\s/).join('').slice(0, 7)}`}>
+                  More Info
               </button>
-            </h2>
-            <div id={`${a.name.split(/\s/).join('').slice(0,7)}`} className="accordion-collapse collapse show" aria-labelledby={`${a.name}Heading`} data-bs-parent="#accordionExample">
-              <div className="accordion-body">
-                <p>You own {balance}</p>
-                <p>Pool owns {balancePool}</p>
-                <button className="first-btn" onClick={() => transferAsset(props.assetTokenInst, props.accounts[0], "0x3b20F0B97290c4BF2cEA6DEf9340CEb5fd8f36E3", a.id)}>PUT 1 IN POOl</button>
-                <button className="second-btn" onClick={() => retrieveAsset(props.poolInst, props.accounts[0], a.id)}>TAKE 1 OUT OF POOl</button>
+              </h2>
+              <div id={`${a.name.split(/\s/).join('').slice(0, 7)}`} className="accordion-collapse collapse show" aria-labelledby={`${a.name}Heading`} data-bs-parent="#accordionExample">
+                <div className="accordion-body">
+                  <p>You own {balance}</p>
+                  <p>Pool owns {balancePool}</p>
+                  <button className="first-btn" onClick={() => transferAsset(props.poolInst, props.accounts[0], a.id)}>PUT 1 IN POOl</button>
+                  <button className="second-btn" onClick={() => retrieveAsset(props.poolInst, props.accounts[0], a.id)}>TAKE 1 OUT OF POOl</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
         </div>
         
         {/* <div style={{ display: "flex" }}>
