@@ -1,59 +1,107 @@
-@import url("https://fonts.googleapis.com/css2?family=Ruda&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Ruda&display=swap');
 
-.Marketplace {
-  height: 100%;
-  width: 80%;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  background: #1b2026;
-  overflow: scroll;
+
+.Marketplace{
+    height:100%;
+    width:80%;
+    display:flex;
+    justify-content:center;
+    flex-wrap: wrap;
+    background: #1b2026;
+    overflow:scroll;
 }
 
-.marketplace-container {
-  width: inherit;
-}
-
-.marketplace-container h2 {
-  color: #ffffff;
-  font-family: "Ruda";
-  text-align: center;
+.marketplace-container h2{
+    color:#ffffff;
+    font-family: 'Ruda';
+    text-align: center;
 }
 
 .card-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .productCard {
-  width: 250px;
-  border: 2.5px;
-  background: #1b2026;
-  background: -webkit-linear-gradient(to right, #493240, #ff0099);
-  background: linear-gradient(to right, #493240, #ff0099);
-  margin: 30px 45px;
-  font-family: "Ruda";
-  color: #ffffff;
-  border-radius: 25px;
-  padding: 1.75px;
+    height:320px;
+    width: 250px;
+    border:2.5px;
+    background: #1b2026; 
+    background: -webkit-linear-gradient(to right, #493240, #FF0099);
+    background: linear-gradient(to right, #493240, #FF0099);
+    margin: 30px 45px 250px 45px;
+    font-family: 'Ruda';
+    color:#ffffff;
+    border-radius: 25px;
+    padding:1.75px;
 }
 
 .productCard img {
-  height: 75px;
-  margin: 45px 0px 15px 45px;
-  width: 140px;
+    height: 75px;
+    margin: 45px 0px 15px 45px;
+    width: 140px;
 }
 
 .productCard .card-container-data {
-  background: #1b2026;
-  height: 100%;
-  border-radius: 25px;
-  padding-left: 10px;
+    background:#1b2026;
+    height:100%;
+    border-radius:25px;
+    padding-left:10px;
 }
 
 .productCard .cardData {
-  display: flex;
-  flex-direction: column;
-  height: 180px;
+    display:flex;
+    justify-content: space-around;
+    flex-direction: column;
+    height:180px;
+}
+
+.cardData h3{
+    font-size: 1.25rem;
+}
+
+.cardData h4{
+    font-size: 1.0rem;
+}
+
+.accordion {
+    position: relative;
+    right: 5px;
+}
+
+.cardData .accordion-item {
+ border-radius:25px;
+ /* background-color: #fd51b8; */
+ background-color: #104ca6
+}
+
+.accordion-item .accordion-button {
+    border-radius: 25px;
+    background: #1b2026;
+    color: #fff;
+}
+
+.accordion-item:last-of-type .accordion-button.collapsed {
+    border-radius: 25px;;
+}
+
+.accordion-item:first-of-type .accordion-button {
+    border-radius: 25px;;
+}
+
+.accordion-body .first-btn{
+    margin-bottom: 10px;
+    border: none;
+    background: #1b2026;
+    color: #fff;
+    border-radius: 25px;
+}
+
+.accordion-body .second-btn{
+    margin-bottom: 10px;
+    border: none;
+    background: #1b2026;
+    color: #fff;
+    border-radius: 25px;
 }
