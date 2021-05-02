@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import Tabs from "../Tabs/Tabs";
 import { Asset } from "../../App";
 
-import Tabs from "../Tabs/Tabs";
 import "./Marketplace.css";
 
 interface MarketplaceProps {
@@ -25,7 +24,6 @@ const retrieveAsset = (inst: any, from: string, id: string) => {
 }
 
 const Marketplace = (props: MarketplaceProps) => {
-  const [x, setX] = useState("ded")
   const AssetCard = (a: Asset, balance: number, balancePool: number) => (
     <div className="productCard">
       <div className="card-container-data">
@@ -57,36 +55,11 @@ const Marketplace = (props: MarketplaceProps) => {
             </div>
           </div>
         </div>
-        
-        {/* <div style={{ display: "flex" }}>
-         
-        </div> */}
       </div>
     </div >
   );
 
   const ownedAssets = props.assets.filter((a: Asset) => props.assetBalances[props.tokenids.indexOf(a.id)] > 0);
-
-  // const [showOwned, setShowOwned] = useState(false);
-  // const [assetsToShow, setAssetsToShow] = useState(
-  //   props.assets.map((a: Asset) =>
-  //     AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)], props.assetBalancesPool[props.tokenids.indexOf(a.id)])
-  //   )
-  // );
-
-  // const onClick = () => {
-  //   setAssetsToShow(
-  //     props.assets.map((a: Asset) =>
-  //       showOwned || props.assetBalances[props.tokenids.indexOf(a.id)] > 0 ? (
-  //         AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)], props.assetBalancesPool[props.tokenids.indexOf(a.id)])
-  //       ) : (
-  //         <></>
-  //       )
-  //     )
-  //   );
-
-  //   setShowOwned(!showOwned);
-  // };
 
   return (
     <div className="Marketplace">
