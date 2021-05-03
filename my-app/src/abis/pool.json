@@ -3,15 +3,15 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_id",
+        "name": "_asset_id",
         "type": "uint256"
       },
       {
-        "name": "_loaner",
-        "type": "address"
+        "name": "_price",
+        "type": "uint256"
       }
     ],
-    "name": "retrieve",
+    "name": "createSale",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -21,11 +21,11 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_id",
+        "name": "_sale_index",
         "type": "uint256"
       }
     ],
-    "name": "putIntoPool",
+    "name": "acceptSale",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -33,17 +33,24 @@
   },
   {
     "constant": true,
-    "inputs": [
-      {
-        "name": "_id",
-        "type": "uint256"
-      }
-    ],
-    "name": "getLoanersForID",
+    "inputs": [],
+    "name": "getSales",
     "outputs": [
       {
-        "name": "_addresses",
-        "type": "address[]"
+        "name": "prices",
+        "type": "uint[100]"
+      },
+      {
+        "name": "ids",
+        "type": "uint[100]"
+      },
+      {
+        "name": "sellers",
+        "type": "address[100]"
+      },
+      {
+        "name": "solds",
+        "type": "bool[100]"
       }
     ],
     "payable": false,
