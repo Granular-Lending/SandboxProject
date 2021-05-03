@@ -111,7 +111,7 @@ poolInst.methods
   .call()
   .then(function (salesInfo: { prices: number[], sellers: string[], solds: boolean[], ids: string[] }) {
     for (let i = 0; i < salesInfo.prices.length; i++) {
-      if (salesInfo.sellers[i] == '0x0000000000000000000000000000000000000000') return;
+      if (salesInfo.sellers[i] === '0x0000000000000000000000000000000000000000') return;
       sales.push({ price: salesInfo.prices[i], seller: salesInfo.sellers[i], asset_id: salesInfo.ids[0], sold: salesInfo.solds[i] });
     }
   });
