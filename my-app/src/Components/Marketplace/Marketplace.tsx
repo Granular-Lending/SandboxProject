@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import Tabs from "../Tabs/Tabs";
 import { Asset, Sale } from "../../App";
-import sandIcon from "./assets/sandIcon.png";
+import SalesPopup from "./SalesPopup";
+import CreatePopup from "./CreatePopup";
 import "./Marketplace.css";
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 
 interface MarketplaceProps {
   assets: Asset[];
@@ -16,18 +17,10 @@ interface MarketplaceProps {
   sales: Sale[];
 }
 
-const transferAsset = (inst: any, from: string, asset_id: string, price: number) => {
-  inst.methods.createSale(asset_id, price).send({ from: from }).then(console.log).catch(console.error);
-}
-
-const retrieveAsset = (inst: any, from: string, index: string) => {
-  inst.methods.acceptSale(index).send({ from: from }).then(console.log).catch(console.error);
-}
-
 const Marketplace = (props: MarketplaceProps) => {
   const [price, setPrice] = React.useState(5);
 
-  const [m, setm] = useState(
+  const [chosenAsset, setChosenAsset] = useState(
     {
       id: "-1",
       name: "missing metadata",
@@ -42,94 +35,21 @@ const Marketplace = (props: MarketplaceProps) => {
 
   const [open, setOpen] = React.useState(false);
   const handleOpenCreate = (a: Asset) => {
-    setm(a);
+    setChosenAsset(a);
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
   };
 
-
   const [open2, setOpen2] = React.useState(false);
   const handleOpenBrowse = (a: Asset) => {
-    setm(a);
+    setChosenAsset(a);
     setOpen2(true);
   };
-  const handleClose2 = () => {
+  const handleCloseBrowse = () => {
     setOpen2(false);
   };
-
-  const CreatePopup = (a: Asset) =>
-    <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">Create a sale</DialogTitle>
-      <DialogContent>
-        Selling 1 {a.name} for:
-        <div style={{ display: 'flex' }}>
-          <img style={{ objectFit: "contain", width: 20 }} src={sandIcon} alt="SAND logo" />
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Price"
-            fullWidth
-            onChange={(e: any) => setPrice(e.target.value)}
-          />
-        </div>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} color="primary">
-          Cancel
-        </Button>
-        <Button onClick={() => { transferAsset(props.poolInst, props.accounts[0], a.id, price); handleClose(); }} color="primary">
-          Create
-        </Button>
-      </DialogActions>
-    </Dialog>;
-
-  const SalesPopup = (a: Asset) =>
-    <Dialog open={open2} onClose={handleClose2} aria-labelledby="form-dialog-title">
-      <DialogTitle id="form-dialog-title">Asset sales for {a.name}</DialogTitle>
-      <DialogContent>
-        <TableContainer component={Paper}>
-          <Table >
-            <TableHead>
-              <TableRow>
-                <TableCell>Item</TableCell>
-                <TableCell>Price</TableCell>
-                <TableCell>Seller</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {props.sales.map((l: Sale) => (l.asset_id === a.id && !l.sold ?
-                <TableRow key={l.price}>
-                  <TableCell >
-                    <img
-                      alt="missing metadata"
-                      style={{ objectFit: "contain", width: 20 }}
-                      src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
-                    />
-                  </TableCell>
-                  <TableCell >
-                    <span>
-                      <img style={{ width: 15 }} src={sandIcon} alt="SAND logo" />
-                    </span>
-                    {l.price}
-                  </TableCell>
-                  <TableCell >{l.seller}</TableCell>
-                  <TableCell ><Button variant="contained" onClick={() => retrieveAsset(props.poolInst, props.accounts[0], props.sales.indexOf(l).toString())}>Buy</Button></TableCell>
-                </TableRow> : null
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose2} color="primary">
-          Cancel
-        </Button>
-      </DialogActions>
-    </Dialog>;
-
 
   const AssetCard = (a: Asset, balance: number) => {
     return <div className="productCard">
@@ -186,8 +106,8 @@ const Marketplace = (props: MarketplaceProps) => {
           </div>
         </Tabs>
       </div>
-      {CreatePopup(m)}
-      {SalesPopup(m)}
+      <CreatePopup price={price} setPrice={setPrice} open={open} handleClose={handleClose} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+      <SalesPopup open={open2} handleClose={handleCloseBrowse} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
     </div>
   );
 };

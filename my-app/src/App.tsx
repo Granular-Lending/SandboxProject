@@ -37,7 +37,7 @@ export const EQUIPMENT_TOKEN_IDS = [
   "64946128963576652222538036970165700352413276268630562676894999040163055677445",
 ];
 
-const URIS = [
+const TEST_URIS = [
   "ipfs://bafybeib6jgupsp26uywcc4psuqie3w646za4dmpbzdxdi56enhlnztvcyu/0.json",
   "ipfs://bafybeicevfqqfobqdc3lr62xqyx5utvozyqsq5ok2bswy4tblzfeeerkle/0.json",
   "ipfs://bafybeicevfqqfobqdc3lr62xqyx5utvozyqsq5ok2bswy4tblzfeeerkle/1.json",
@@ -70,36 +70,12 @@ const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
 const poolInst = new web3.eth.Contract(poolabi, POOL_ADDRESS);
 
 let sym: string;
-
 sandTokenInst.methods
   .symbol()
   .call()
   .then(function (s: string) {
     sym = s;
   });
-
-const assets = EQUIPMENT_TOKEN_IDS.map((id) => {
-  try {
-    const metadata = require(`./metadata/${URIS[EQUIPMENT_TOKEN_IDS.indexOf(id)].slice(7)}`);
-
-    return {
-      id: id,
-      name: metadata.name,
-      classification: metadata.sandbox.classification,
-      image: metadata.image.slice(6)
-    };
-  } catch (ex) {
-    return {
-      id: id,
-      name: "missing metadata",
-      classification: {
-        type: "missing metadata",
-        theme: "missing metadata",
-        categories: [],
-      },
-    };
-  }
-});
 
 const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
@@ -126,9 +102,66 @@ function App() {
   const [assetBalances, setAssetBalances] = React.useState(
     Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
   );
-  const [poolAssetBalances, setPoolAssetBalances] = React.useState(
-    Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
-  );
+
+  const [assets, setAssets]: [Asset[], any] = React.useState([]);
+
+  React.useEffect(() => {
+    for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
+      if (USE_MAIN) {
+        assetTokenInst.methods
+          .uri(EQUIPMENT_TOKEN_IDS[i])
+          .call()
+          .then(function (u: string) {
+            const tempy = assets;
+            try {
+              const metadata = require(`./metadata/${u.slice(7)}`)
+              tempy.push({
+                id: EQUIPMENT_TOKEN_IDS[i],
+                name: metadata.name,
+                classification: metadata.sandbox.classification,
+                image: metadata.image.slice(6)
+              })
+            } catch {
+              const tempy = assets;
+              tempy.push({
+                id: EQUIPMENT_TOKEN_IDS[i],
+                name: "missing metadata",
+                image: "missing metadata",
+                classification: {
+                  type: "missing metadata",
+                  theme: "missing metadata",
+                  categories: [""],
+                }
+              });
+            }
+            setAssets(tempy)
+          });
+      } else {
+        const tempy = assets;
+        try {
+          const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`)
+          tempy.push({
+            id: EQUIPMENT_TOKEN_IDS[i],
+            name: metadata.name,
+            classification: metadata.sandbox.classification,
+            image: metadata.image.slice(6)
+          })
+        } catch {
+          const tempy = assets;
+          tempy.push({
+            id: EQUIPMENT_TOKEN_IDS[i],
+            name: "missing metadata",
+            image: "missing metadata",
+            classification: {
+              type: "missing metadata",
+              theme: "missing metadata",
+              categories: [""],
+            }
+          });
+        }
+      }
+    }
+  }, [assets]);
 
   React.useEffect(() => {
     if (!onboarding.current) {
@@ -181,15 +214,6 @@ function App() {
         .then(function (bals: number[]) {
           setAssetBalances(bals);
         });
-      assetTokenInst.methods
-        .balanceOfBatch(
-          Array(EQUIPMENT_TOKEN_IDS.length).fill(POOL_ADDRESS),
-          EQUIPMENT_TOKEN_IDS
-        )
-        .call()
-        .then(function (bals: number[]) {
-          setPoolAssetBalances(bals);
-        });
     }
   }, [accounts]);
 
@@ -220,7 +244,6 @@ function App() {
         sandBalance={sandBalance}
         assets={assets}
         assetBalances={assetBalances}
-        poolAssetBalances={poolAssetBalances}
         assetTokenInst={assetTokenInst}
         poolInst={poolInst}
         tokenids={EQUIPMENT_TOKEN_IDS}
