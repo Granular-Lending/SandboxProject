@@ -3,7 +3,7 @@ import Tabs from "../Tabs/Tabs";
 import { Asset, Sale } from "../../App";
 import sandIcon from "./assets/sandIcon.png";
 import "./Marketplace.css";
-import { Button, Dialog, DialogActions, DialogContent, RadioGroup, DialogTitle, FormControl, FormLabel, InputLabel, MenuItem, TextField, FormControlLabel, Radio, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@material-ui/core";
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@material-ui/core";
 
 interface MarketplaceProps {
   assets: Asset[];
@@ -100,7 +100,7 @@ const Marketplace = (props: MarketplaceProps) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {props.sales.map((l: Sale) => (l.asset_id == a.id && !l.sold ?
+              {props.sales.map((l: Sale) => (l.asset_id === a.id && !l.sold ?
                 <TableRow key={l.price}>
                   <TableCell >
                     <img
