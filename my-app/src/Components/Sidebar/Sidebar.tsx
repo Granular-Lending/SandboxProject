@@ -3,6 +3,7 @@ import React from "react";
 import "./Sidebar.css";
 import profileImg from "./assets/kenny.jpg";
 import sandIcon from "./assets/sandIcon.png";
+import { POOL_ADDRESS } from "../../App";
 
 interface SiderbarProps {
   landBalance: number,
@@ -32,6 +33,8 @@ const Sidebar = (props: SiderbarProps) => {
               <b>{props.sandBalance}</b>
             </h3>
           </div>
+          <button style={{ marginRight: 10 }} onClick={() => props.sandTokenInst.methods.approve(POOL_ADDRESS, 1000).send({ from: props.accounts[0] }).then(console.log).catch(console.error)}>Authorize the pool contract to operate {props.sym} on your behalf</button>
+          <button onClick={() => props.assetTokenInst.methods.setApprovalForAll(POOL_ADDRESS, true).send({ from: props.accounts[0] }).then(console.log).catch(console.error)}>Authorize the pool contract to operate game assets on your behalf</button>
         </div>
       </div>
     </div >

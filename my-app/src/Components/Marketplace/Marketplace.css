@@ -4,7 +4,6 @@
 .Marketplace{
     height:100%;
     width:80%;
-    
     justify-content:center;
     flex-wrap: wrap;
     background: #1b2026;
@@ -24,7 +23,6 @@
 }
 
 .productCard {
-    height:320px;
     width: 250px;
     border:2.5px;
     background: #1b2026; 
@@ -44,17 +42,9 @@
 }
 
 .productCard .card-container-data {
-    background:#1b2026;
-    height:100%;
+    background:#0570a5;
     border-radius:25px;
-    padding-left:10px;
-}
-
-.productCard .cardData {
-    display:flex;
-    justify-content: space-around;
-    flex-direction: column;
-    height:180px;
+    padding:10px;
 }
 
 .cardData h3{
@@ -63,45 +53,4 @@
 
 .cardData h4{
     font-size: 1.0rem;
-}
-
-.accordion {
-    position: relative;
-    right: 5px;
-}
-
-.cardData .accordion-item {
- border-radius:25px;
- /* background-color: #fd51b8; */
- background-color: #104ca6
-}
-
-.accordion-item .accordion-button {
-    border-radius: 25px;
-    background: #1b2026;
-    color: #fff;
-}
-
-.accordion-item:last-of-type .accordion-button.collapsed {
-    border-radius: 25px;;
-}
-
-.accordion-item:first-of-type .accordion-button {
-    border-radius: 25px;;
-}
-
-.accordion-body .first-btn{
-    margin-bottom: 10px;
-    border: none;
-    background: #1b2026;
-    color: #fff;
-    border-radius: 25px;
-}
-
-.accordion-body .second-btn{
-    margin-bottom: 10px;
-    border: none;
-    background: #1b2026;
-    color: #fff;
-    border-radius: 25px;
 }
