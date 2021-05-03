@@ -161,7 +161,7 @@ function App() {
         }
       }
     }
-  }, []);
+  }, [assets]);
 
   React.useEffect(() => {
     if (!onboarding.current) {
