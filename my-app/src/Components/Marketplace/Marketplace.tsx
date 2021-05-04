@@ -31,16 +31,16 @@ const Marketplace = (props: MarketplaceProps) => {
     }
   );
 
-  const [open, setOpen] = React.useState(false);
+  const [openCreate, setOpen] = React.useState(false);
   const handleOpenCreate = (a: Asset) => {
     setChosenAsset(a);
     setOpen(true);
   };
-  const handleClose = () => {
+  const handleCloseCreate = () => {
     setOpen(false);
   };
 
-  const [open2, setOpen2] = React.useState(false);
+  const [openBrowse, setOpen2] = React.useState(false);
   const handleOpenBrowse = (a: Asset) => {
     setChosenAsset(a);
     setOpen2(true);
@@ -104,8 +104,8 @@ const Marketplace = (props: MarketplaceProps) => {
           </div>
         </Tabs>
       </div>
-      <CreatePopup open={open} handleClose={handleClose} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
-      <SalesPopup open={open2} handleClose={handleCloseBrowse} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+      <CreatePopup open={openCreate} handleClose={handleCloseCreate} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+      <SalesPopup open={openBrowse} handleClose={handleCloseBrowse} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
     </div>
   );
 };

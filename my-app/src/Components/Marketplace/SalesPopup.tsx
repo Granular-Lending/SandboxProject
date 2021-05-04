@@ -85,9 +85,9 @@ const SalesPopup = (props: PopupProps) => {
                 <TableCell>{l.duration}</TableCell>
                 <TableCell>{l.startTime}</TableCell>
                 <TableCell>{l.seller.slice(0, 12)}...</TableCell>
-                <TableCell>{mappings[l.sold]}</TableCell>
+                <TableCell>{mappings[l.state]}</TableCell>
                 <TableCell>
-                  {buttonMapping[l.sold](l)}
+                  {buttonMapping[l.state](l)}
                 </TableCell>
               </TableRow> : null
             ))}

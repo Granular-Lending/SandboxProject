@@ -23,7 +23,7 @@ export interface Sale {
   startTime: number;
   asset_id: string;
   seller: string;
-  sold: number;
+  state: number;
 }
 
 export const EQUIPMENT_TOKEN_IDS = [
@@ -65,8 +65,8 @@ const web3 = new Web3(window.ethereum);
 const USE_MAIN = false;
 
 const SAND_TOKEN_ADDRESS = USE_MAIN ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0" : "0xF217FD6336182395B53d9d55881a0D838a6CCc9A";
-const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x767c98f260585e9da36faef70d1691992bc1addf";
-export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0xb23A3ded038E024850B18d50b5A732438CD0aE02";
+const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8";
+export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x82e9b61E99E488088a1a93fF50636Cd8e59bF0C8";
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
@@ -91,7 +91,7 @@ poolInst.methods
   .then(function (salesInfo: { costs: number[], deposits: number[], durations: number[], startTimes: number[], ids: string[], sellers: string[], states: number[] }) {
     for (let i = 0; i < salesInfo.costs.length; i++) {
       if (salesInfo.sellers[i] === '0x0000000000000000000000000000000000000000') return;
-      sales.push({ cost: salesInfo.costs[i], deposit: salesInfo.deposits[i], duration: salesInfo.durations[i], startTime: salesInfo.startTimes[i], seller: salesInfo.sellers[i], asset_id: salesInfo.ids[i], sold: salesInfo.states[i] });
+      sales.push({ cost: salesInfo.costs[i], deposit: salesInfo.deposits[i], duration: salesInfo.durations[i], startTime: salesInfo.startTimes[i], seller: salesInfo.sellers[i], asset_id: salesInfo.ids[i], state: salesInfo.states[i] });
     }
   });
 
