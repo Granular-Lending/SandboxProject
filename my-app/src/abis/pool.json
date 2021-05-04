@@ -7,11 +7,15 @@
         "type": "uint256"
       },
       {
-        "name": "_upfront",
+        "name": "_cost",
         "type": "uint256"
       },
       {
-        "name": "_getback",
+        "name": "_deposit",
+        "type": "uint256"
+      },
+      {
+        "name": "_duration",
         "type": "uint256"
       }
     ],
@@ -83,11 +87,19 @@
     "name": "getSales",
     "outputs": [
       {
-        "name": "upfronts",
+        "name": "costs",
         "type": "uint[100]"
       },
       {
-        "name": "getbacks",
+        "name": "deposits",
+        "type": "uint[100]"
+      },
+      {
+        "name": "durations",
+        "type": "uint[100]"
+      },
+      {
+        "name": "startTimes",
         "type": "uint[100]"
       },
       {

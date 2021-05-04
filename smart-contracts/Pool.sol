@@ -15,6 +15,8 @@ contract Pool is ERC1155TokenReceiver {
         uint asset_id;
         uint cost; 
         uint deposit; 
+        uint duration;
+        uint startTime;
         address seller;
         LoanState state;
     }
@@ -33,7 +35,7 @@ contract Pool is ERC1155TokenReceiver {
         return bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
     }
 
-    function createSale(uint _asset_id, uint _cost, uint _deposit) public {
+    function createSale(uint _asset_id, uint _cost, uint _deposit, uint _duration) public {
         require(_cost > _deposit, "Deposit must be less than cost");
         
         sales.push(
@@ -41,6 +43,8 @@ contract Pool is ERC1155TokenReceiver {
             _asset_id,
             _cost, 
             _deposit,
+            _duration,
+            0,
             msg.sender, 
             LoanState.Listed
         ));
@@ -52,6 +56,7 @@ contract Pool is ERC1155TokenReceiver {
         require(sales[_sale_index].state == LoanState.Listed, "Loan must not have been lent yet");
         
         sales[_sale_index].state = LoanState.Borrowed;
+        sales[_sale_index].startTime = block.timestamp;
         
         sandToken.transferFrom(msg.sender, address(this), sales[_sale_index].cost + sales[_sale_index].deposit);
         assetContract.safeTransferFrom(address(this), msg.sender, sales[_sale_index].asset_id, 1, "");
@@ -78,18 +83,25 @@ contract Pool is ERC1155TokenReceiver {
     
     function collectLoanFail(uint _sale_index) public {
         require(sales[_sale_index].state == LoanState.Borrowed, "Loan must not have been collected yet");
+        require(block.timestamp > sales[_sale_index].startTime + sales[_sale_index].duration, "Loan duration has not passed");
 
         sales[_sale_index].state = LoanState.Collected;
         
         sandToken.transfer(sales[_sale_index].seller, sales[_sale_index].cost + sales[_sale_index].deposit);
     }
     
-    function getSales() public view returns (uint[100] memory costs, uint[100] memory deposits, uint[100] memory ids, address[100] memory sellers, LoanState[100] memory states) {
+    function getSales() public view returns (uint[100] memory costs, uint[100] memory deposits, uint[100] memory durations, uint[100] memory startTimes, uint[100] memory ids, address[100] memory sellers, LoanState[100] memory states) {
         for (uint i=0; i < sales.length; i++){
             costs[i] = sales[i].cost;
         }
         for (uint i=0; i < sales.length; i++){
             deposits[i] = sales[i].deposit;
+        }
+        for (uint i=0; i < sales.length; i++){
+            durations[i] = sales[i].duration;
+        }
+        for (uint i=0; i < sales.length; i++){
+            startTimes[i] = sales[i].startTime;
         }
         for (uint i=0; i < sales.length; i++){
             ids[i] = sales[i].asset_id;
@@ -101,6 +113,6 @@ contract Pool is ERC1155TokenReceiver {
             states[i] = sales[i].state;
         }
         
-        return (costs, deposits, ids, sellers, states);
+        return (costs, deposits, durations, startTimes, ids, sellers, states);
     }
 }

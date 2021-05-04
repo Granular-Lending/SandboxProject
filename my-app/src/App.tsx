@@ -17,8 +17,10 @@ export interface Asset {
 }
 
 export interface Sale {
-  upfront: number;
-  getback: number;
+  cost: number;
+  deposit: number;
+  duration: number;
+  startTime: number;
   asset_id: string;
   seller: string;
   sold: number;
@@ -64,7 +66,7 @@ const USE_MAIN = false;
 
 const SAND_TOKEN_ADDRESS = USE_MAIN ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0" : "0xF217FD6336182395B53d9d55881a0D838a6CCc9A";
 const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x767c98f260585e9da36faef70d1691992bc1addf";
-export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x64F57ef8574D3F756155EB6d20D3FABbb4Bb1B0f";
+export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0xb23A3ded038E024850B18d50b5A732438CD0aE02";
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
@@ -86,10 +88,10 @@ let sales: Sale[] = [];
 poolInst.methods
   .getSales()
   .call()
-  .then(function (salesInfo: { upfronts: number[], getbacks: number[], ids: string[], sellers: string[], states: number[] }) {
-    for (let i = 0; i < salesInfo.upfronts.length; i++) {
+  .then(function (salesInfo: { costs: number[], deposits: number[], durations: number[], startTimes: number[], ids: string[], sellers: string[], states: number[] }) {
+    for (let i = 0; i < salesInfo.costs.length; i++) {
       if (salesInfo.sellers[i] === '0x0000000000000000000000000000000000000000') return;
-      sales.push({ upfront: salesInfo.upfronts[i], getback: salesInfo.getbacks[i], seller: salesInfo.sellers[i], asset_id: salesInfo.ids[0], sold: salesInfo.states[i] });
+      sales.push({ cost: salesInfo.costs[i], deposit: salesInfo.deposits[i], duration: salesInfo.durations[i], startTime: salesInfo.startTimes[i], seller: salesInfo.sellers[i], asset_id: salesInfo.ids[i], sold: salesInfo.states[i] });
     }
   });
 
