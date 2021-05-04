@@ -7,7 +7,11 @@
         "type": "uint256"
       },
       {
-        "name": "_price",
+        "name": "_upfront",
+        "type": "uint256"
+      },
+      {
+        "name": "_getback",
         "type": "uint256"
       }
     ],
@@ -32,12 +36,58 @@
     "type": "function"
   },
   {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_sale_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "returnLoan",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_sale_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "collectLoan",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_sale_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "collectLoanFail",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "getSales",
     "outputs": [
       {
-        "name": "prices",
+        "name": "upfronts",
+        "type": "uint[100]"
+      },
+      {
+        "name": "getbacks",
         "type": "uint[100]"
       },
       {
@@ -49,8 +99,8 @@
         "type": "address[100]"
       },
       {
-        "name": "solds",
-        "type": "bool[100]"
+        "name": "states",
+        "type": "uint8[100]"
       }
     ],
     "payable": false,

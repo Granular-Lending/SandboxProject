@@ -18,8 +18,6 @@ interface MarketplaceProps {
 }
 
 const Marketplace = (props: MarketplaceProps) => {
-  const [price, setPrice] = React.useState(5);
-
   const [chosenAsset, setChosenAsset] = useState(
     {
       id: "-1",
@@ -68,10 +66,10 @@ const Marketplace = (props: MarketplaceProps) => {
           <p>You own {balance}</p>
           <div style={{ display: "flex" }}>
             <Button variant="contained" onClick={() => handleOpenCreate(a)}>
-              Create a sale
+              Create a listing
             </Button>
             <Button variant="contained" onClick={() => handleOpenBrowse(a)}>
-              Browse sales
+              Browse listings
             </Button>
           </div>
         </div>
@@ -106,7 +104,7 @@ const Marketplace = (props: MarketplaceProps) => {
           </div>
         </Tabs>
       </div>
-      <CreatePopup price={price} setPrice={setPrice} open={open} handleClose={handleClose} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+      <CreatePopup open={open} handleClose={handleClose} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
       <SalesPopup open={open2} handleClose={handleCloseBrowse} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
     </div>
   );

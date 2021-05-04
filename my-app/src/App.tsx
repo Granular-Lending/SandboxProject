@@ -17,10 +17,11 @@ export interface Asset {
 }
 
 export interface Sale {
-  price: number;
+  upfront: number;
+  getback: number;
   asset_id: string;
   seller: string;
-  sold: boolean
+  sold: number;
 }
 
 export const EQUIPMENT_TOKEN_IDS = [
@@ -63,13 +64,13 @@ const USE_MAIN = false;
 
 const SAND_TOKEN_ADDRESS = USE_MAIN ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0" : "0xF217FD6336182395B53d9d55881a0D838a6CCc9A";
 const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x767c98f260585e9da36faef70d1691992bc1addf";
-export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x6e36B92cbb3094B273bDB8D43bA1F11A18614Bbf";
+export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x64F57ef8574D3F756155EB6d20D3FABbb4Bb1B0f";
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
 const poolInst = new web3.eth.Contract(poolabi, POOL_ADDRESS);
 
-let sym: string;
+let sym = "XXXX";
 sandTokenInst.methods
   .symbol()
   .call()
@@ -85,10 +86,10 @@ let sales: Sale[] = [];
 poolInst.methods
   .getSales()
   .call()
-  .then(function (salesInfo: { prices: number[], sellers: string[], solds: boolean[], ids: string[] }) {
-    for (let i = 0; i < salesInfo.prices.length; i++) {
+  .then(function (salesInfo: { upfronts: number[], getbacks: number[], ids: string[], sellers: string[], states: number[] }) {
+    for (let i = 0; i < salesInfo.upfronts.length; i++) {
       if (salesInfo.sellers[i] === '0x0000000000000000000000000000000000000000') return;
-      sales.push({ price: salesInfo.prices[i], seller: salesInfo.sellers[i], asset_id: salesInfo.ids[0], sold: salesInfo.solds[i] });
+      sales.push({ upfront: salesInfo.upfronts[i], getback: salesInfo.getbacks[i], seller: salesInfo.sellers[i], asset_id: salesInfo.ids[0], sold: salesInfo.states[i] });
     }
   });
 

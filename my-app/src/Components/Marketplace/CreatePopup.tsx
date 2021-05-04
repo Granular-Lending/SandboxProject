@@ -2,30 +2,38 @@ import sandIcon from "./assets/sandIcon.png";
 import "./Marketplace.css";
 import { Button, Dialog, TextField, DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
 import { PopupProps } from "./SalesPopup";
+import React from "react";
 
-
-interface CreateProps extends PopupProps {
-  price: number;
-  setPrice: any;
+const transferAsset = (inst: any, from: string, asset_id: string, cost: number, deposit: number) => {
+  inst.methods.createSale(asset_id, cost, deposit).send({ from: from }).then(console.log);
 }
 
-const transferAsset = (inst: any, from: string, asset_id: string, price: number) => {
-  inst.methods.createSale(asset_id, price).send({ from: from }).then(console.log);
-}
+const CreatePopup = (props: PopupProps) => {
+  const [cost, setCost] = React.useState(5);
+  const [deposit, setDeposit] = React.useState(5);
 
-const CreatePopup = (props: CreateProps) =>
-  <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title">
-    <DialogTitle id="form-dialog-title">Create a sale</DialogTitle>
+  return <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title">
+    <DialogTitle id="form-dialog-title">Create a loan</DialogTitle>
     <DialogContent>
-      Selling 1 {props.a.name} for:
-    <div style={{ display: 'flex' }}>
+      Loaning 1 {props.a.name} for:
+      <div style={{ display: 'flex' }}>
         <img style={{ objectFit: "contain", width: 20 }} src={sandIcon} alt="SAND logo" />
         <TextField
           autoFocus
           margin="dense"
-          label="Price"
+          label="Cost"
           fullWidth
-          onChange={(e: any) => props.setPrice(e.target.value)}
+          onChange={(e: any) => setCost(e.target.value)}
+        />
+      </div>
+      <div style={{ display: 'flex' }}>
+        <img style={{ objectFit: "contain", width: 20 }} src={sandIcon} alt="SAND logo" />
+        <TextField
+          autoFocus
+          margin="dense"
+          label="Deposit"
+          fullWidth
+          onChange={(e: any) => setDeposit(e.target.value)}
         />
       </div>
     </DialogContent>
@@ -34,12 +42,12 @@ const CreatePopup = (props: CreateProps) =>
         Cancel
     </Button>
       <Button onClick={() => {
-        transferAsset(props.poolInst, props.accounts[0], props.a.id, props.price);
+        transferAsset(props.poolInst, props.accounts[0], props.a.id, cost, deposit);
         props.handleClose();
       }} color="primary">
         Create
     </Button>
     </DialogActions>
   </Dialog>;
-
+}
 export default CreatePopup;
