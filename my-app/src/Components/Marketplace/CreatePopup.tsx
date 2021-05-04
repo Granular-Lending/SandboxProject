@@ -4,13 +4,14 @@ import { Button, Dialog, TextField, DialogActions, DialogContent, DialogTitle } 
 import { PopupProps } from "./SalesPopup";
 import React from "react";
 
-const transferAsset = (inst: any, from: string, asset_id: string, cost: number, deposit: number) => {
-  inst.methods.createSale(asset_id, cost, deposit).send({ from: from }).then(console.log);
+const transferAsset = (inst: any, from: string, asset_id: string, cost: number, deposit: number, duration: number) => {
+  inst.methods.createSale(asset_id, cost, deposit, duration).send({ from: from }).then(console.log);
 }
 
 const CreatePopup = (props: PopupProps) => {
   const [cost, setCost] = React.useState(5);
   const [deposit, setDeposit] = React.useState(5);
+  const [duration, setDuration] = React.useState(5);
 
   return <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title">
     <DialogTitle id="form-dialog-title">Create a loan</DialogTitle>
@@ -29,11 +30,18 @@ const CreatePopup = (props: PopupProps) => {
       <div style={{ display: 'flex' }}>
         <img style={{ objectFit: "contain", width: 20 }} src={sandIcon} alt="SAND logo" />
         <TextField
-          autoFocus
           margin="dense"
           label="Deposit"
           fullWidth
           onChange={(e: any) => setDeposit(e.target.value)}
+        />
+      </div>
+      <div style={{ display: 'flex' }}>
+        <TextField
+          margin="dense"
+          label="Duration (seconds)"
+          fullWidth
+          onChange={(e: any) => setDuration(e.target.value)}
         />
       </div>
     </DialogContent>
@@ -42,7 +50,7 @@ const CreatePopup = (props: PopupProps) => {
         Cancel
     </Button>
       <Button onClick={() => {
-        transferAsset(props.poolInst, props.accounts[0], props.a.id, cost, deposit);
+        transferAsset(props.poolInst, props.accounts[0], props.a.id, cost, deposit, duration);
         props.handleClose();
       }} color="primary">
         Create

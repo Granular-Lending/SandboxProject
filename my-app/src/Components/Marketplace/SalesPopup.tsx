@@ -35,37 +35,15 @@ const mappings: Record<number, string> = {
   3: "Collected",
 };
 
-const mappingsFunction: Record<number, any> = {
-  0: buyAsset,
-  1: returnAsset,
-  2: collectAsset,
-  3: () => null,
-};
+const SalesPopup = (props: PopupProps) => {
+  const buttonMapping: Record<number, any> = {
+    0: (l: Sale) => <Button variant="contained" onClick={() => buyAsset(props.poolInst, props.accounts[0], props.sales.indexOf(l).toString())}>Rent</Button>,
+    1: (l: Sale) => <div><Button variant="contained" onClick={() => returnAsset(props.poolInst, props.accounts[0], props.sales.indexOf(l).toString())}>Return</Button ><Button variant="contained" onClick={() => collectAssetFail(props.poolInst, props.accounts[0], props.sales.indexOf(l).toString())}>Time out</Button></div>,
+    2: (l: Sale) => <Button variant="contained" onClick={() => collectAsset(props.poolInst, props.accounts[0], props.sales.indexOf(l).toString())}>Collect</Button >,
+    3: (l: Sale) => null
+  }
 
-const mappingsT: Record<number, string> = {
-  0: "Rent",
-  1: "Return",
-  2: "Collect",
-  3: "",
-};
-
-
-const mappingsFailFunction: Record<number, any> = {
-  0: () => null,
-  1: collectAssetFail,
-  2: () => null,
-  3: () => null,
-};
-
-const mappingsFail: Record<number, string> = {
-  0: "",
-  1: "Timeout",
-  2: "",
-  3: "",
-};
-
-const SalesPopup = (props: PopupProps) =>
-  <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title">
+  return <Dialog open={props.open} onClose={props.handleClose} aria-labelledby="form-dialog-title">
     <DialogTitle id="form-dialog-title">Listings for {props.a.name}</DialogTitle>
     <DialogContent>
       <TableContainer component={Paper}>
@@ -75,14 +53,16 @@ const SalesPopup = (props: PopupProps) =>
               <TableCell>Item</TableCell>
               <TableCell>Cost</TableCell>
               <TableCell>Deposit</TableCell>
-              <TableCell>Seller</TableCell>
+              <TableCell>Duration</TableCell>
+              <TableCell>Start time</TableCell>
+              <TableCell>Loaner</TableCell>
               <TableCell>Status</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {props.sales.map((l: Sale) => (l.asset_id === props.a.id ?
-              <TableRow key={l.upfront}>
+              <TableRow key={l.cost}>
                 <TableCell >
                   <img
                     alt="missing metadata"
@@ -94,19 +74,20 @@ const SalesPopup = (props: PopupProps) =>
                   <span>
                     <img style={{ width: 15 }} src={sandIcon} alt="SAND logo" />
                   </span>
-                  {l.upfront}
+                  {l.cost}
                 </TableCell>
                 <TableCell >
                   <span>
                     <img style={{ width: 15 }} src={sandIcon} alt="SAND logo" />
                   </span>
-                  {l.getback}
+                  {l.deposit}
                 </TableCell>
+                <TableCell>{l.duration}</TableCell>
+                <TableCell>{l.startTime}</TableCell>
                 <TableCell>{l.seller.slice(0, 12)}...</TableCell>
                 <TableCell>{mappings[l.sold]}</TableCell>
                 <TableCell>
-                  <Button variant="contained" onClick={() => mappingsFunction[l.sold](props.poolInst, props.accounts[0], props.sales.indexOf(l).toString())}>{mappingsT[l.sold]}</Button>
-                  <Button variant="contained" onClick={() => mappingsFailFunction[l.sold](props.poolInst, props.accounts[0], props.sales.indexOf(l).toString())}>{mappingsFail[l.sold]}</Button>
+                  {buttonMapping[l.sold](l)}
                 </TableCell>
               </TableRow> : null
             ))}
@@ -119,6 +100,7 @@ const SalesPopup = (props: PopupProps) =>
         Cancel
     </Button>
     </DialogActions>
-  </Dialog >;
+  </Dialog >
+};
 
 export default SalesPopup;
