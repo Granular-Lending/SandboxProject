@@ -66,10 +66,10 @@ const Marketplace = (props: MarketplaceProps) => {
           <p>You own {balance}</p>
           <div style={{ display: "flex" }}>
             <Button variant="contained" onClick={() => handleOpenCreate(a)}>
-              Create a listing
+              Create a loan
             </Button>
             <Button variant="contained" onClick={() => handleOpenBrowse(a)}>
-              Browse listings
+              Browse loans
             </Button>
           </div>
         </div>
