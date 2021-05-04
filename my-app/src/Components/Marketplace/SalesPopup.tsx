@@ -47,7 +47,7 @@ const SalesPopup = (props: PopupProps) => {
     <DialogTitle id="form-dialog-title">Listings for {props.a.name}</DialogTitle>
     <DialogContent>
       <TableContainer component={Paper}>
-        <Table >
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>Item</TableCell>
