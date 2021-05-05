@@ -1,10 +1,14 @@
-import React, { useState } from "react";
-import Tabs from "../Tabs/Tabs";
-import { Asset, Sale } from "../../App";
-import SalesPopup from "./SalesPopup";
-import CreatePopup from "./CreatePopup";
+import { useState } from "react";
+import { Asset, Loan } from "../../App";
 import "./Marketplace.css";
 import { Button } from "@material-ui/core";
+import {
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
+import Loans from "./Loans";
+import CreateLoan from "./CreateLoan";
 
 interface MarketplaceProps {
   assets: Asset[];
@@ -14,39 +18,35 @@ interface MarketplaceProps {
   accounts: string[];
   assetTokenInst: any;
   poolInst: any;
-  sales: Sale[];
+  sales: Loan[];
 }
+
+const Home = () =>
+  <div data-label="Home">
+    <div style={{ color: 'white' }}>
+      Granular Lending is a portal that lets you loan & borrow Sandbox NFT's.
+      </div>
+  </div>;
+
 
 const Marketplace = (props: MarketplaceProps) => {
   const [chosenAsset, setChosenAsset] = useState(
     {
-      id: "-1",
+      id: "",
       name: "missing metadata",
-      image: "",
+      description: "missing metadata",
+      image: "missing metadata",
+      creator_profile_url: "missing metadata",
       classification: {
         type: "missing metadata",
         theme: "missing metadata",
         categories: [""],
-      },
+      }
     }
   );
 
-  const [open, setOpen] = React.useState(false);
-  const handleOpenCreate = (a: Asset) => {
-    setChosenAsset(a);
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const [open2, setOpen2] = React.useState(false);
   const handleOpenBrowse = (a: Asset) => {
     setChosenAsset(a);
-    setOpen2(true);
-  };
-  const handleCloseBrowse = () => {
-    setOpen2(false);
   };
 
   const AssetCard = (a: Asset, balance: number) => {
@@ -64,48 +64,41 @@ const Marketplace = (props: MarketplaceProps) => {
           <h4>{a.classification.type} | {a.classification.theme}</h4>
 
           <p>You own {balance}</p>
-          <div style={{ display: "flex" }}>
-            <Button variant="contained" onClick={() => handleOpenCreate(a)}>
-              Create a loan
-            </Button>
-            <Button variant="contained" onClick={() => handleOpenBrowse(a)}>
-              Browse loans
-            </Button>
-          </div>
+          <Button variant='contained' color='primary' onClick={() => handleOpenBrowse(a)} style={{ margin: 8, fontSize: '1em' }}>
+            <Link to="/asset">View loans</Link>
+          </Button>
         </div>
       </div>
-    </div >
+    </div>
   };
 
-  const ownedAssets = props.assets.filter((a: Asset) => props.assetBalances[props.tokenids.indexOf(a.id)] > 0);
+  const Assets = () =>
+    <div data-label="Assets">
+      <div className="card-container">
+        {props.assets.map((a: Asset) =>
+          AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)]))
+        }
+      </div>
+    </div>
 
   return (
     <div className="Marketplace">
       <div className="marketplace-container">
-        <Tabs>
-          <div data-label="Home">
-            <div style={{ color: 'white' }}>
-              Granular Lending is a portal that lets you loan & borrow Sandbox NFT's.
-            </div>
-          </div>
-          <div data-label="Your Items">
-            <div className="card-container">
-              {ownedAssets.map((a: Asset) =>
-                AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)]))
-              }
-            </div>
-          </div>
-          <div data-label="Pool">
-            <div className="card-container">
-              {props.assets.map((a: Asset) =>
-                AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)]))
-              }
-            </div>
-          </div>
-        </Tabs>
+        <Switch>
+          <Route path="/asset">
+            <Loans sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+          </Route>
+          <Route path="/createLoan">
+            <CreateLoan sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+          </Route>
+          <Route path="/assets">
+            <Assets />
+          </Route>
+          <Route path="/">
+            <Home />
+          </Route>
+        </Switch>
       </div>
-      <CreatePopup open={open} handleClose={handleClose} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
-      <SalesPopup open={open2} handleClose={handleCloseBrowse} sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
     </div>
   );
 };
