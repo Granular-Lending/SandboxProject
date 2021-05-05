@@ -1,6 +1,6 @@
 import sandIcon from "./assets/sandIcon.png";
 import "./Marketplace.css";
-import { Button, Dialog, TextField, DialogActions, DialogContent, DialogTitle } from "@material-ui/core";
+import { Button, TextField } from "@material-ui/core";
 import { PopupProps } from "./Loans";
 import React from "react";
 import {

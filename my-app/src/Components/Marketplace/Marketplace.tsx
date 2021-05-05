@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Asset, Loan } from "../../App";
 import "./Marketplace.css";
 import { Button } from "@material-ui/core";
 import {
-  BrowserRouter as Router,
   Switch,
   Route,
   Link
