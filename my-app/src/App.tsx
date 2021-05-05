@@ -4,6 +4,12 @@ import Web3 from "web3";
 
 import Navbar from "./Components/Navbar/Navbar";
 import Hero from "./Components/Hero/Hero";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");
@@ -12,17 +18,20 @@ const poolabi = require("./abis/pool.json");
 export interface Asset {
   id: string;
   name: string;
+  description: string;
   image: string;
+  creator_profile_url: string;
   classification: { type: string; theme: string; categories: string[] };
 }
 
-export interface Sale {
+export interface Loan {
   cost: number;
   deposit: number;
   duration: number;
   startTime: number;
   asset_id: string;
-  seller: string;
+  loaner: string;
+  loanee: string;
   state: number;
 }
 
@@ -66,7 +75,7 @@ const USE_MAIN = false;
 
 const SAND_TOKEN_ADDRESS = USE_MAIN ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0" : "0xF217FD6336182395B53d9d55881a0D838a6CCc9A";
 const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8";
-export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x82e9b61E99E488088a1a93fF50636Cd8e59bF0C8";
+export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x8F59F9CaA3739DA29EB0097094752Ce6e0F82481";
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
@@ -84,14 +93,14 @@ const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
-let sales: Sale[] = [];
+let sales: Loan[] = [];
 poolInst.methods
   .getSales()
   .call()
-  .then(function (salesInfo: { costs: number[], deposits: number[], durations: number[], startTimes: number[], ids: string[], sellers: string[], states: number[] }) {
+  .then(function (salesInfo: { costs: number[], deposits: number[], durations: number[], startTimes: number[], ids: string[], loaners: string[], loanees: string[], states: number[] }) {
     for (let i = 0; i < salesInfo.costs.length; i++) {
-      if (salesInfo.sellers[i] === '0x0000000000000000000000000000000000000000') return;
-      sales.push({ cost: salesInfo.costs[i], deposit: salesInfo.deposits[i], duration: salesInfo.durations[i], startTime: salesInfo.startTimes[i], seller: salesInfo.sellers[i], asset_id: salesInfo.ids[i], state: salesInfo.states[i] });
+      if (salesInfo.loaners[i] === '0x0000000000000000000000000000000000000000') return;
+      sales.push({ cost: salesInfo.costs[i], deposit: salesInfo.deposits[i], duration: salesInfo.durations[i], startTime: salesInfo.startTimes[i], loaner: salesInfo.loaners[i], loanee: salesInfo.loanees[i], asset_id: salesInfo.ids[i], state: salesInfo.states[i] });
     }
   });
 
@@ -121,15 +130,19 @@ function App() {
               tempy.push({
                 id: EQUIPMENT_TOKEN_IDS[i],
                 name: metadata.name,
+                description: metadata.description,
                 classification: metadata.sandbox.classification,
-                image: metadata.image.slice(6)
+                image: metadata.image.slice(6),
+                creator_profile_url: metadata.creator_profile_url
               })
             } catch {
               const tempy = assets;
               tempy.push({
                 id: EQUIPMENT_TOKEN_IDS[i],
                 name: "missing metadata",
+                description: "missing metadata",
                 image: "missing metadata",
+                creator_profile_url: "missing metadata",
                 classification: {
                   type: "missing metadata",
                   theme: "missing metadata",
@@ -146,15 +159,19 @@ function App() {
           tempy.push({
             id: EQUIPMENT_TOKEN_IDS[i],
             name: metadata.name,
+            description: metadata.description,
             classification: metadata.sandbox.classification,
-            image: metadata.image.slice(6)
+            image: metadata.image.slice(6),
+            creator_profile_url: metadata.creator_profile_url
           })
         } catch {
           const tempy = assets;
           tempy.push({
             id: EQUIPMENT_TOKEN_IDS[i],
             name: "missing metadata",
+            description: "missing metadata",
             image: "missing metadata",
+            creator_profile_url: "missing metadata",
             classification: {
               type: "missing metadata",
               theme: "missing metadata",
@@ -235,7 +252,7 @@ function App() {
   };
 
   return (
-    <div>
+    <Router>
       <Navbar
         disabled={isDisabled}
         onClick={metaMaskLogin}
@@ -253,7 +270,7 @@ function App() {
         sandTokenInst={sandTokenInst}
         sales={sales}
       />
-    </div >
+    </Router>
   );
 }
 
