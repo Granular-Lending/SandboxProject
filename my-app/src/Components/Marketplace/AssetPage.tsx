@@ -42,8 +42,9 @@ const AssetCard = (a: Asset, balance: number) => {
           style={{ objectFit: "contain", width: 250, padding: 20 }}
           src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
         />
-        <div>
+        <div style={{ width: "100%" }}>
           <h1>{a.name}</h1>
+          <h3>You own {balance}</h3>
           <div
             style={{
               padding: 8,
