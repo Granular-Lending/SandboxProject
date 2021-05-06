@@ -1,23 +1,17 @@
 import React from "react";
 
 import "./Hero.css";
-
-import Sidebar from "../Sidebar/Sidebar";
 import Marketplace from "../Marketplace/Marketplace";
 
 const Hero = (props: any) => {
   return (
     <div className="Hero">
       <div className="hero-container">
-        <Sidebar
-          accounts={props.accounts}
+        <Marketplace
           sym={props.sym}
           sandBalance={props.sandBalance}
           landBalance={props.landBalance}
           sandTokenInst={props.sandTokenInst}
-          assetTokenInst={props.assetTokenInst}
-        />
-        <Marketplace
           loans={props.loans}
           accounts={props.accounts}
           assets={props.assets}
