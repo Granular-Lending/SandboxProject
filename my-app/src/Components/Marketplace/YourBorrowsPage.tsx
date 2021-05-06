@@ -48,7 +48,7 @@ const YourBorrowsPage = (props: PopupProps) => {
   return (
     <div style={{ padding: 40 }}>
       <h2>Your Current Borrows</h2>
-      <TableContainer>
+      <TableContainer style={{ backgroundColor: "#1b2030" }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -130,7 +130,7 @@ const YourBorrowsPage = (props: PopupProps) => {
       </TableContainer>
 
       <h2>Your Previous Borrows</h2>
-      <TableContainer>
+      <TableContainer style={{ backgroundColor: "#1b2030" }}>
         <Table>
           <TableHead>
             <TableRow>

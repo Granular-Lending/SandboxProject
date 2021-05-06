@@ -43,7 +43,7 @@ const YourLoansPage = (props: PopupProps) => {
       <NavLink style={{ textDecoration: "none" }} to="/createLoanChoice">
         <Button variant="contained">Create a loan</Button>
       </NavLink>
-      <TableContainer>
+      <TableContainer style={{ backgroundColor: "#1b2030" }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -150,7 +150,7 @@ const YourLoansPage = (props: PopupProps) => {
       </TableContainer>
 
       <h2>Your Previous Loans</h2>
-      <TableContainer>
+      <TableContainer style={{ backgroundColor: "#1b2030" }}>
         <Table>
           <TableHead>
             <TableRow>
