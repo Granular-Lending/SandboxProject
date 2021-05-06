@@ -18,6 +18,7 @@ export interface Asset {
   description: string;
   image: string;
   creator_profile_url: string;
+  creator: string;
   classification: { type: string; theme: string; categories: string[] };
 }
 
@@ -28,8 +29,8 @@ export interface Loan {
   startTime: number;
   asset_id: string;
   loaner: string;
-  loanee: string;
-  state: number;
+  borrower: string;
+  state: string;
 }
 
 export const EQUIPMENT_TOKEN_IDS = [
@@ -90,17 +91,6 @@ const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
-let sales: Loan[] = [];
-poolInst.methods
-  .getSales()
-  .call()
-  .then(function (salesInfo: { costs: number[], deposits: number[], durations: number[], startTimes: number[], ids: string[], loaners: string[], loanees: string[], states: number[] }) {
-    for (let i = 0; i < salesInfo.costs.length; i++) {
-      if (salesInfo.loaners[i] === '0x0000000000000000000000000000000000000000') return;
-      sales.push({ cost: salesInfo.costs[i], deposit: salesInfo.deposits[i], duration: salesInfo.durations[i], startTime: salesInfo.startTimes[i], loaner: salesInfo.loaners[i], loanee: salesInfo.loanees[i], asset_id: salesInfo.ids[i], state: salesInfo.states[i] });
-    }
-  });
-
 function App() {
   const [loginButtonText, setLoginButtonText] = React.useState(ONBOARD_TEXT);
   const [isDisabled, setDisabled] = React.useState(false);
@@ -108,11 +98,39 @@ function App() {
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
   const [sandBalance, setSandBalance] = React.useState(-1);
-  const [assetBalances, setAssetBalances] = React.useState(
-    Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
-  );
+  const [assetBalances, setAssetBalances] = React.useState(Array(EQUIPMENT_TOKEN_IDS.length).fill(-1));
 
-  const [assets, setAssets]: [Asset[], any] = React.useState([]);
+  const [loans, setLoans]: [Loan[], any] = React.useState([]);
+
+  React.useEffect(() => {
+    poolInst.methods
+      .getSales()
+      .call()
+      .then(function (salesInfo: { costs: number[], deposits: number[], durations: number[], startTimes: number[], ids: string[], loaners: string[], loanees: string[], states: number[] }) {
+        const temp = loans;
+        for (let i = 0; i < salesInfo.costs.length; i++) {
+          if (salesInfo.loaners[i] === '0x0000000000000000000000000000000000000000') return;
+          temp.push({ cost: salesInfo.costs[i], deposit: salesInfo.deposits[i], duration: salesInfo.durations[i], startTime: salesInfo.startTimes[i], loaner: salesInfo.loaners[i], borrower: salesInfo.loanees[i], asset_id: salesInfo.ids[i], state: salesInfo.states[i].toString() });
+        }
+        setLoans(temp);
+      });
+  }, [loans]);
+
+  const [assets, setAssets]: [Asset[], any] = React.useState(EQUIPMENT_TOKEN_IDS.map((id: string) => {
+    return {
+      id: id,
+      name: "missing metadata",
+      description: "missing metadata",
+      image: "missing metadata",
+      creator: "missing metadata",
+      creator_profile_url: "missing metadata",
+      classification: {
+        type: "missing metadata",
+        theme: "missing metadata",
+        categories: [""],
+      }
+    }
+  }));
 
   React.useEffect(() => {
     for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
@@ -124,28 +142,30 @@ function App() {
             const tempy = assets;
             try {
               const metadata = require(`./metadata/${u.slice(7)}`)
-              tempy.push({
+              tempy[i] = {
                 id: EQUIPMENT_TOKEN_IDS[i],
                 name: metadata.name,
                 description: metadata.description,
                 classification: metadata.sandbox.classification,
+                creator: metadata.sandbox.creator,
                 image: metadata.image.slice(6),
-                creator_profile_url: metadata.creator_profile_url
-              })
+                creator_profile_url: metadata.creator_profile_urlc
+              }
             } catch {
               const tempy = assets;
-              tempy.push({
+              tempy[i] = {
                 id: EQUIPMENT_TOKEN_IDS[i],
                 name: "missing metadata",
                 description: "missing metadata",
                 image: "missing metadata",
+                creator: "missing metadata",
                 creator_profile_url: "missing metadata",
                 classification: {
                   type: "missing metadata",
                   theme: "missing metadata",
                   categories: [""],
                 }
-              });
+              };
             }
             setAssets(tempy)
           });
@@ -153,28 +173,30 @@ function App() {
         const tempy = assets;
         try {
           const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`)
-          tempy.push({
+          tempy[i] = {
             id: EQUIPMENT_TOKEN_IDS[i],
             name: metadata.name,
             description: metadata.description,
             classification: metadata.sandbox.classification,
+            creator: metadata.sandbox.creator,
             image: metadata.image.slice(6),
             creator_profile_url: metadata.creator_profile_url
-          })
+          }
         } catch {
           const tempy = assets;
-          tempy.push({
+          tempy[i] = {
             id: EQUIPMENT_TOKEN_IDS[i],
             name: "missing metadata",
             description: "missing metadata",
             image: "missing metadata",
             creator_profile_url: "missing metadata",
+            creator: "missing metadata",
             classification: {
               type: "missing metadata",
               theme: "missing metadata",
               categories: [""],
             }
-          });
+          };
         }
       }
     }
@@ -254,6 +276,7 @@ function App() {
         disabled={isDisabled}
         onClick={metaMaskLogin}
         loginButtonText={loginButtonText}
+        sandBalance={sandBalance}
       />
       <Hero
         accounts={accounts}
@@ -265,7 +288,7 @@ function App() {
         poolInst={poolInst}
         tokenids={EQUIPMENT_TOKEN_IDS}
         sandTokenInst={sandTokenInst}
-        sales={sales}
+        loans={loans}
       />
     </Router>
   );

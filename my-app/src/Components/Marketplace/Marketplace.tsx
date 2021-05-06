@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Asset, Loan } from "../../App";
 import "./Marketplace.css";
-import { Button } from "@material-ui/core";
 import {
   Switch,
   Route,
   Link
 } from "react-router-dom";
-import Loans from "./Loans";
+import AssetPage from "./AssetPage";
 import CreateLoan from "./CreateLoan";
+import CreateLoanChoice from "./CreateLoanChoice";
+import YourLoansPage from "./YourLoansPage";
+import YourBorrowsPage from "./YourBorrowsPage";
 
 interface MarketplaceProps {
   assets: Asset[];
@@ -18,7 +20,7 @@ interface MarketplaceProps {
   accounts: string[];
   assetTokenInst: any;
   poolInst: any;
-  sales: Loan[];
+  loans: Loan[];
 }
 
 const Home = () =>
@@ -30,46 +32,33 @@ const Home = () =>
 
 
 const Marketplace = (props: MarketplaceProps) => {
-  const [chosenAsset, setChosenAsset] = useState(
-    {
-      id: "",
-      name: "missing metadata",
-      description: "missing metadata",
-      image: "missing metadata",
-      creator_profile_url: "missing metadata",
-      classification: {
-        type: "missing metadata",
-        theme: "missing metadata",
-        categories: [""],
-      }
-    }
-  );
+  const [chosenAsset, setChosenAsset] = useState(props.assets[0]);
 
   const handleOpenBrowse = (a: Asset) => {
     setChosenAsset(a);
   };
 
   const AssetCard = (a: Asset, balance: number) => {
-    return <div className="productCard">
-      <div className="card-container-data">
-        <img
-          alt="missing metadata"
-          style={{ objectFit: "contain" }}
-          src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
-        />
-        <div className="cardData">
-          <h3>
-            {a.name}
-          </h3>
-          <h4>{a.classification.type} | {a.classification.theme}</h4>
-
-          <p>You own {balance}</p>
-          <Button variant='contained' color='primary' onClick={() => handleOpenBrowse(a)} style={{ margin: 8, fontSize: '1em' }}>
-            <Link to="/asset">View loans</Link>
-          </Button>
+    const numberOfLoans = props.loans.filter((l: Loan) => l.asset_id === a.id && l.borrower === '0x0000000000000000000000000000000000000000').length;
+    return <Link to="/asset" onClick={() => handleOpenBrowse(a)}>
+      <div className="productCard">
+        <div className="card-container-data">
+          <img
+            alt="missing metadata"
+            style={{ objectFit: "contain" }}
+            src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
+          />
+          <div className="cardData">
+            <h3>
+              {a.name}
+            </h3>
+            <h4>{a.classification.type} | {a.classification.theme}</h4>
+            <p>{numberOfLoans} {numberOfLoans === 1 ? 'loan' : 'loans'} available</p>
+          </div>
         </div>
-      </div>
-    </div>
+      </div >
+    </Link>
+
   };
 
   const Assets = () =>
@@ -86,13 +75,22 @@ const Marketplace = (props: MarketplaceProps) => {
       <div className="marketplace-container">
         <Switch>
           <Route path="/asset">
-            <Loans sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+            <AssetPage tokenids={props.tokenids} assetBalances={props.assetBalances} loans={props.loans} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+          </Route>
+          <Route path="/createLoanChoice">
+            <CreateLoanChoice assets={props.assets} tokenids={props.tokenids} assetBalances={props.assetBalances} poolInst={props.poolInst} accounts={props.accounts} />
           </Route>
           <Route path="/createLoan">
-            <CreateLoan sales={props.sales} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+            <CreateLoan tokenids={props.tokenids} assetBalances={props.assetBalances} loans={props.loans} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
           </Route>
           <Route path="/assets">
             <Assets />
+          </Route>
+          <Route path="/yourLoans">
+            <YourLoansPage assets={props.assets} tokenids={props.tokenids} assetBalances={props.assetBalances} loans={props.loans} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
+          </Route>
+          <Route path="/yourBorrows">
+            <YourBorrowsPage assets={props.assets} tokenids={props.tokenids} assetBalances={props.assetBalances} loans={props.loans} poolInst={props.poolInst} accounts={props.accounts} a={chosenAsset} />
           </Route>
           <Route path="/">
             <Home />

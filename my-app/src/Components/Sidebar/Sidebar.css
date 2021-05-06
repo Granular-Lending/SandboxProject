@@ -2,11 +2,8 @@
 
 
 .Sidebar {
-    width:35%;
     height:100%;
     display:flex;
-    justify-content: center;
-    text-align: center;
     font-family: 'Ruda';
     background: #212730
    

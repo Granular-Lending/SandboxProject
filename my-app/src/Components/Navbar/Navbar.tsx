@@ -1,9 +1,9 @@
-import React from "react";
 import {
   Link
 } from "react-router-dom";
 import "./Navbar.css";
 import logo from "./assets/LogoTrans.png"
+import sandIcon from "./assets/sandIcon.png";
 
 const Navbar = (props: any) => {
   return (
@@ -14,23 +14,46 @@ const Navbar = (props: any) => {
           <h1>Granular Lending</h1>
         </div>
         <div style={{
-          backgroundColor: 'white',
           display: "flex",
           fontSize: "1.3em"
         }}>
-          <div style={{ margin: 8 }}>
-            <Link to="/">Home</Link>
+          <Link to="/">
+            <div style={{ margin: 8, color: 'white' }}>
+              Home
+            </div>
+          </Link>
+          <Link to="/assets">
+            <div style={{ margin: 8, color: 'white' }}>
+              Assets
           </div>
-          <div style={{ margin: 8 }}>
-            <Link to="/assets">Assets</Link>
-          </div>
+          </Link>
+          <Link to="/yourLoans">
+            <div style={{ margin: 8, color: 'white' }}>
+              Your Loans
+            </div>
+          </Link>
+          <Link to="/yourBorrows">
+            <div style={{ margin: 8, color: 'white' }}>
+              Your Borrows
+            </div>
+          </Link>
         </div>
 
-        <button disabled={props.disabled} onClick={props.onClick}>
-          {props.loginButtonText}
-        </button>
+        <span>
+          <button style={{ marginRight: 40 }} disabled={props.disabled} onClick={props.onClick}>
+            {props.loginButtonText}
+          </button>
+          <img className="sandIcon" src={sandIcon} alt="SAND logo" style={{
+            height: 30,
+            width: 30,
+          }} />
+          <b style={{
+            color: 'white',
+            fontSize: "1.3em"
+          }}>{props.sandBalance}</b>
+        </span>
       </div>
-    </div>
+    </div >
   );
 };
 

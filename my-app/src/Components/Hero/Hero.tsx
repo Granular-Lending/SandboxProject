@@ -18,7 +18,7 @@ const Hero = (props: any) => {
           assetTokenInst={props.assetTokenInst}
         />
         <Marketplace
-          sales={props.sales}
+          loans={props.loans}
           accounts={props.accounts}
           assets={props.assets}
           assetBalances={props.assetBalances}
