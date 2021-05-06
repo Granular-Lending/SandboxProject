@@ -4,9 +4,7 @@ import Web3 from "web3";
 
 import Navbar from "./Components/Navbar/Navbar";
 import Hero from "./Components/Hero/Hero";
-import {
-  BrowserRouter as Router,
-} from "react-router-dom";
+import { BrowserRouter as Router } from "react-router-dom";
 
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");
@@ -58,8 +56,8 @@ const TEST_URIS = [
   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/2.json",
   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/3.json",
   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/4.json",
-  "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/5.json"
-]
+  "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/5.json",
+];
 
 declare global {
   interface Window {
@@ -71,9 +69,15 @@ const web3 = new Web3(window.ethereum);
 
 const USE_MAIN = false;
 
-const SAND_TOKEN_ADDRESS = USE_MAIN ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0" : "0xF217FD6336182395B53d9d55881a0D838a6CCc9A";
-const ASSET_TOKEN_ADDRESS = USE_MAIN ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5" : "0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8";
-export const POOL_ADDRESS = USE_MAIN ? "0x0000000000000000000000000000000000000000" : "0x8F59F9CaA3739DA29EB0097094752Ce6e0F82481";
+const SAND_TOKEN_ADDRESS = USE_MAIN
+  ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0"
+  : "0x7a9b15d226078aCAaeEC83Ff3f2F7609a59228A6";
+const ASSET_TOKEN_ADDRESS = USE_MAIN
+  ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5"
+  : "0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8";
+export const POOL_ADDRESS = USE_MAIN
+  ? "0x0000000000000000000000000000000000000000"
+  : "0x36CF7D7F35266e1b3217f3c9C0AD02B8f72c4fe2";
 
 const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
 const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
@@ -98,7 +102,9 @@ function App() {
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
   const [sandBalance, setSandBalance] = React.useState(-1);
-  const [assetBalances, setAssetBalances] = React.useState(Array(EQUIPMENT_TOKEN_IDS.length).fill(-1));
+  const [assetBalances, setAssetBalances] = React.useState(
+    Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
+  );
 
   const [loans, setLoans]: [Loan[], any] = React.useState([]);
 
@@ -106,31 +112,55 @@ function App() {
     poolInst.methods
       .getSales()
       .call()
-      .then(function (salesInfo: { costs: number[], deposits: number[], durations: number[], startTimes: number[], ids: string[], loaners: string[], loanees: string[], states: number[] }) {
+      .then(function (salesInfo: {
+        costs: number[];
+        deposits: number[];
+        durations: number[];
+        startTimes: number[];
+        ids: string[];
+        loaners: string[];
+        loanees: string[];
+        states: number[];
+      }) {
         const temp = loans;
         for (let i = 0; i < salesInfo.costs.length; i++) {
-          if (salesInfo.loaners[i] === '0x0000000000000000000000000000000000000000') return;
-          temp.push({ cost: salesInfo.costs[i], deposit: salesInfo.deposits[i], duration: salesInfo.durations[i], startTime: salesInfo.startTimes[i], loaner: salesInfo.loaners[i], borrower: salesInfo.loanees[i], asset_id: salesInfo.ids[i], state: salesInfo.states[i].toString() });
+          if (
+            salesInfo.loaners[i] ===
+            "0x0000000000000000000000000000000000000000"
+          )
+            return;
+          temp.push({
+            cost: salesInfo.costs[i],
+            deposit: salesInfo.deposits[i],
+            duration: salesInfo.durations[i],
+            startTime: salesInfo.startTimes[i],
+            loaner: salesInfo.loaners[i],
+            borrower: salesInfo.loanees[i],
+            asset_id: salesInfo.ids[i],
+            state: salesInfo.states[i].toString(),
+          });
         }
         setLoans(temp);
       });
   }, [loans]);
 
-  const [assets, setAssets]: [Asset[], any] = React.useState(EQUIPMENT_TOKEN_IDS.map((id: string) => {
-    return {
-      id: id,
-      name: "missing metadata",
-      description: "missing metadata",
-      image: "missing metadata",
-      creator: "missing metadata",
-      creator_profile_url: "missing metadata",
-      classification: {
-        type: "missing metadata",
-        theme: "missing metadata",
-        categories: [""],
-      }
-    }
-  }));
+  const [assets, setAssets]: [Asset[], any] = React.useState(
+    EQUIPMENT_TOKEN_IDS.map((id: string) => {
+      return {
+        id: id,
+        name: "missing metadata",
+        description: "missing metadata",
+        image: "missing metadata",
+        creator: "missing metadata",
+        creator_profile_url: "missing metadata",
+        classification: {
+          type: "missing metadata",
+          theme: "missing metadata",
+          categories: [""],
+        },
+      };
+    })
+  );
 
   React.useEffect(() => {
     for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
@@ -141,7 +171,7 @@ function App() {
           .then(function (u: string) {
             const tempy = assets;
             try {
-              const metadata = require(`./metadata/${u.slice(7)}`)
+              const metadata = require(`./metadata/${u.slice(7)}`);
               tempy[i] = {
                 id: EQUIPMENT_TOKEN_IDS[i],
                 name: metadata.name,
@@ -149,8 +179,8 @@ function App() {
                 classification: metadata.sandbox.classification,
                 creator: metadata.sandbox.creator,
                 image: metadata.image.slice(6),
-                creator_profile_url: metadata.creator_profile_urlc
-              }
+                creator_profile_url: metadata.creator_profile_urlc,
+              };
             } catch {
               const tempy = assets;
               tempy[i] = {
@@ -164,15 +194,15 @@ function App() {
                   type: "missing metadata",
                   theme: "missing metadata",
                   categories: [""],
-                }
+                },
               };
             }
-            setAssets(tempy)
+            setAssets(tempy);
           });
       } else {
         const tempy = assets;
         try {
-          const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`)
+          const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
           tempy[i] = {
             id: EQUIPMENT_TOKEN_IDS[i],
             name: metadata.name,
@@ -180,8 +210,8 @@ function App() {
             classification: metadata.sandbox.classification,
             creator: metadata.sandbox.creator,
             image: metadata.image.slice(6),
-            creator_profile_url: metadata.creator_profile_url
-          }
+            creator_profile_url: metadata.creator_profile_url,
+          };
         } catch {
           const tempy = assets;
           tempy[i] = {
@@ -195,7 +225,7 @@ function App() {
               type: "missing metadata",
               theme: "missing metadata",
               categories: [""],
-            }
+            },
           };
         }
       }
