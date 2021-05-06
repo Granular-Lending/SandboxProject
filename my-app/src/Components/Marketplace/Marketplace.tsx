@@ -26,13 +26,27 @@ interface MarketplaceProps {
 
 const Home = () => (
   <div style={{ padding: 10 }} data-label="Home">
+    <h1>Introduction</h1>
     <p style={{ color: "white" }}>
       Granular Lending is a portal that lets you loan & borrow Sandbox NFT's.
     </p>
+    <h3>Permission</h3>
     <p style={{ color: "white" }}>
-      To take out a loan or create your own loan, we need your approval to
-      transfer both SAND tokens and ASSETS on your behalf. Head to the
-      Permissions page and click 'approve' on both buttons.
+      Firstly, to create or take out a loan, we need your approval to transfer
+      both SAND tokens and ASSETS on your behalf. Head to the Permissions page
+      and click 'approve' on both buttons.
+    </p>
+    <h3>Taking out a loan</h3>
+    <p style={{ color: "white" }}>
+      To take out a loan, head to the Assets page and click on an ASSET to learn
+      more about it. The current loans are listed at the bottom of the page,
+      along with their terms. Click "borrow item" to accept the terms of the
+      loan. You will now be able to see the loan on the "Your Borrows" page.
+    </p>
+    <h3>Creating a loan</h3>
+    <p style={{ color: "white" }}>
+      To create out a loan, head to the Your Loans page. Click "create a loan",
+      then select an ASSET and the terms of the loan.
     </p>
   </div>
 );
