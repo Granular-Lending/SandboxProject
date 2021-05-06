@@ -23,8 +23,8 @@ contract Pool is ERC1155TokenReceiver {
     }
     Sale[] public sales;
     
-    ERC1155 assetContract = ERC1155(0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8);
     ERC20 sandToken = ERC20(0xF217FD6336182395B53d9d55881a0D838a6CCc9A);
+    ERC1155 assetContract = ERC1155(0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8);
 
     constructor() ERC1155TokenReceiver() { }
     
@@ -92,7 +92,7 @@ contract Pool is ERC1155TokenReceiver {
         sandToken.transfer(sales[_sale_index].loaner, sales[_sale_index].cost + sales[_sale_index].deposit);
     }
     
-    function getSales() public view returns (uint[100] memory costs, uint[100] memory deposits, uint[100] memory durations, uint[100] memory startTimes, uint[100] memory ids, address[100] memory loaners, address[100] memory loanees, LoanState[100] memory states) {
+    function getSales() public view returns (uint[1000] memory costs, uint[1000] memory deposits, uint[1000] memory durations, uint[1000] memory startTimes, uint[1000] memory ids, address[1000] memory loaners, address[1000] memory loanees, LoanState[1000] memory states) {
         for (uint i=0; i < sales.length; i++){
             costs[i] = sales[i].cost;
         }
