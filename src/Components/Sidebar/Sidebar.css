@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Ruda&display=swap');
+
+
+.Sidebar {
+    height:100%;
+    display:flex;
+    font-family: 'Ruda';
+    background: #212730;
+}
+.sidebar-container {
+    justify-content: space-around;
+    flex-wrap: wrap;
+    align-items: center;
+    color:#ffffff;
+    padding:10;
+}

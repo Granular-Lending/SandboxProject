@@ -1,0 +1,126 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_asset_id",
+        "type": "uint256"
+      },
+      {
+        "name": "_cost",
+        "type": "uint256"
+      },
+      {
+        "name": "_deposit",
+        "type": "uint256"
+      },
+      {
+        "name": "_duration",
+        "type": "uint256"
+      }
+    ],
+    "name": "createLoan",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_sale_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "acceptLoan",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_sale_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "returnLoan",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_sale_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "collectLoan",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_sale_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "collectLoanFail",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getSales",
+    "outputs": [
+      {
+        "name": "costs",
+        "type": "uint[1000]"
+      },
+      {
+        "name": "deposits",
+        "type": "uint[1000]"
+      },
+      {
+        "name": "durations",
+        "type": "uint[1000]"
+      },
+      {
+        "name": "startTimes",
+        "type": "uint[1000]"
+      },
+      {
+        "name": "ids",
+        "type": "uint[1000]"
+      },
+      {
+        "name": "loaners",
+        "type": "address[1000]"
+      },
+      {
+        "name": "loanees",
+        "type": "address[1000]"
+      },
+      {
+        "name": "states",
+        "type": "uint8[1000]"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

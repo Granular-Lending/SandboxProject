@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Ruda&display=swap');
+
+
+.Marketplace{
+    height:100%;
+    width:100%;
+    justify-content:center;
+    flex-wrap: wrap;
+    background: #1b2026;
+    color:white;
+    overflow:scroll;
+}
+
+.marketplace-container h2{
+    color:#ffffff;
+    font-family: 'Ruda';
+    text-align: center;
+}
+
+.card-container {
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.productCard {
+    width: 250px;
+    border:2.5px;
+    background: #1b2026; 
+    background: -webkit-linear-gradient(to right, #493240, #FF0099);
+    background: linear-gradient(to right, #493240, #FF0099);
+    margin: 30px 45px 50px 45px;
+    font-family: 'Ruda';
+    color:#ffffff;
+    border-radius: 25px;
+    padding:1.75px;
+}
+
+.productCard img {
+    height: 75px;
+    margin: 45px 0px 15px 45px;
+    width: 140px;
+}
+
+.productCard .card-container-data {
+    background: #1b2026; 
+    border-radius:25px;
+    padding:10px;
+}
+
+.cardData h3{
+    font-size: 1.25rem;
+}
+
+.cardData h4{
+    font-size: 1.0rem;
+}
