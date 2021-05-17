@@ -8,6 +8,9 @@ const Hero = (props: any) => {
     <div className="Hero">
       <div className="hero-container">
         <Marketplace
+          sandAllowance={props.sandAllowance}
+          assetsApproved={props.assetsApproved}
+          poolAddress={props.poolAddress}
           sym={props.sym}
           sandBalance={props.sandBalance}
           landBalance={props.landBalance}
