@@ -137,77 +137,6 @@ function App() {
   }, [accounts]);
 
   React.useEffect(() => {
-
-    const makeAssets = () => {
-      for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-        if (useMain) {
-          assetTokenInst.methods
-            .uri(EQUIPMENT_TOKEN_IDS[i])
-            .call()
-            .then(function (u: string) {
-              const tempy = assets;
-              try {
-                const metadata = require(`./metadata/${u.slice(7)}`);
-                tempy[i] = {
-                  id: EQUIPMENT_TOKEN_IDS[i],
-                  name: metadata.name,
-                  description: metadata.description,
-                  classification: metadata.sandbox.classification,
-                  creator: metadata.sandbox.creator,
-                  image: metadata.image.slice(6),
-                  creator_profile_url: metadata.creator_profile_urlc,
-                };
-              } catch {
-                const tempy = assets;
-                tempy[i] = {
-                  id: EQUIPMENT_TOKEN_IDS[i],
-                  name: "missing metadata",
-                  description: "missing metadata",
-                  image: "missing metadata",
-                  creator: "missing metadata",
-                  creator_profile_url: "missing metadata",
-                  classification: {
-                    type: "missing metadata",
-                    theme: "missing metadata",
-                    categories: [""],
-                  },
-                };
-              }
-              setAssets(tempy);
-            });
-        } else {
-          const tempy = assets;
-          try {
-            const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
-            tempy[i] = {
-              id: EQUIPMENT_TOKEN_IDS[i],
-              name: metadata.name,
-              description: metadata.description,
-              classification: metadata.sandbox.classification,
-              creator: metadata.sandbox.creator,
-              image: metadata.image.slice(6),
-              creator_profile_url: metadata.creator_profile_url,
-            };
-          } catch {
-            const tempy = assets;
-            tempy[i] = {
-              id: EQUIPMENT_TOKEN_IDS[i],
-              name: "missing metadata",
-              description: "missing metadata",
-              image: "missing metadata",
-              creator_profile_url: "missing metadata",
-              creator: "missing metadata",
-              classification: {
-                type: "missing metadata",
-                theme: "missing metadata",
-                categories: [""],
-              },
-            };
-          }
-        }
-      }
-    }
-
     function handleNewAccounts(newAccounts: string[]) {
       setAccounts(newAccounts);
       web3.eth.net.getNetworkType().then((n: string) => {
@@ -293,7 +222,74 @@ function App() {
             }
             setLoans(temp);
           });
-        makeAssets();
+
+        for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
+          if (useMain) {
+            assetTokenInstHi.methods
+              .uri(EQUIPMENT_TOKEN_IDS[i])
+              .call()
+              .then(function (u: string) {
+                const tempy = assets;
+                try {
+                  const metadata = require(`./metadata/${u.slice(7)}`);
+                  tempy[i] = {
+                    id: EQUIPMENT_TOKEN_IDS[i],
+                    name: metadata.name,
+                    description: metadata.description,
+                    classification: metadata.sandbox.classification,
+                    creator: metadata.sandbox.creator,
+                    image: metadata.image.slice(6),
+                    creator_profile_url: metadata.creator_profile_urlc,
+                  };
+                } catch {
+                  const tempy = assets;
+                  tempy[i] = {
+                    id: EQUIPMENT_TOKEN_IDS[i],
+                    name: "missing metadata",
+                    description: "missing metadata",
+                    image: "missing metadata",
+                    creator: "missing metadata",
+                    creator_profile_url: "missing metadata",
+                    classification: {
+                      type: "missing metadata",
+                      theme: "missing metadata",
+                      categories: [""],
+                    },
+                  };
+                }
+                setAssets(tempy);
+              });
+          } else {
+            const tempy = assets;
+            try {
+              const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
+              tempy[i] = {
+                id: EQUIPMENT_TOKEN_IDS[i],
+                name: metadata.name,
+                description: metadata.description,
+                classification: metadata.sandbox.classification,
+                creator: metadata.sandbox.creator,
+                image: metadata.image.slice(6),
+                creator_profile_url: metadata.creator_profile_url,
+              };
+            } catch {
+              const tempy = assets;
+              tempy[i] = {
+                id: EQUIPMENT_TOKEN_IDS[i],
+                name: "missing metadata",
+                description: "missing metadata",
+                image: "missing metadata",
+                creator_profile_url: "missing metadata",
+                creator: "missing metadata",
+                classification: {
+                  type: "missing metadata",
+                  theme: "missing metadata",
+                  categories: [""],
+                },
+              };
+            }
+          }
+        }
 
       });
     }
@@ -306,7 +302,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
-  }, [loans, assetTokenInst.methods, assets, useMain]);
+  }, []);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
