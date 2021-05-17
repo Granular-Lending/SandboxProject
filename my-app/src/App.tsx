@@ -302,6 +302,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
+    // eslint-disable-next-line
   }, []);
 
   const metaMaskLogin = () => {
