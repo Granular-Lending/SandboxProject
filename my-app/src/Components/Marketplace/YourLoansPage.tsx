@@ -105,7 +105,7 @@ const YourLoansPage = (props: PopupProps) => {
                     </TableCell>
                     <TableCell style={{ color: "white" }}>
                       {l.borrower ===
-                      "0x0000000000000000000000000000000000000000"
+                        "0x0000000000000000000000000000000000000000"
                         ? "None"
                         : l.borrower}
                     </TableCell>
@@ -126,7 +126,7 @@ const YourLoansPage = (props: PopupProps) => {
                         </Button>
                       ) : null}
                       {l.state === "1" &&
-                      Date.now() > l.startTime + l.duration ? (
+                        Date.now() > l.startTime + l.duration ? (
                         <Button
                           variant="contained"
                           onClick={() =>

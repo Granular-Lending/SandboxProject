@@ -24,7 +24,7 @@ const CreatePopup = (props: PopupProps) => {
         Back
       </Button>
     </Link>
-  Loaning 1 {props.a.name} for:
+  Loaning 1 {props.chosenAsset.name} for:
     <div style={{ backgroundColor: 'white' }}>
       <div style={{ display: 'flex' }}>
         <img style={{ objectFit: "contain", width: 20 }} src={sandIcon} alt="SAND logo" />
@@ -53,7 +53,7 @@ const CreatePopup = (props: PopupProps) => {
           onChange={(e: any) => setDuration(e.target.value)}
         />
       </div>
-      <Button onClick={() => transferAsset(props.poolInst, props.accounts[0], props.a.id, cost, deposit, duration)}>Submit</Button>
+      <Button onClick={() => transferAsset(props.poolInst, props.accounts[0], props.chosenAsset.id, cost, deposit, duration)}>Submit</Button>
     </div ></div >
 }
 export default CreatePopup;

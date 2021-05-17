@@ -69,12 +69,6 @@ const Home = (props: HomeProps) => {
 };
 
 const Marketplace = (props: MarketplaceProps) => {
-  const [chosenAsset, setChosenAsset] = useState(props.assets[0]);
-
-  const handleOpenBrowse = (a: Asset) => {
-    setChosenAsset(a);
-  };
-
   const AssetCard = (a: Asset, balance: number) => {
     const numberOfLoans = props.loans.filter(
       (l: Loan) =>
@@ -84,8 +78,7 @@ const Marketplace = (props: MarketplaceProps) => {
     return (
       <Link
         style={{ textDecoration: "none" }}
-        to="/asset"
-        onClick={() => handleOpenBrowse(a)}
+        to={`/asset/${a.id}`}
       >
         <div className="productCard">
           <div className="card-container-data">
@@ -106,7 +99,7 @@ const Marketplace = (props: MarketplaceProps) => {
             </div>
           </div>
         </div>
-      </Link>
+      </Link >
     );
   };
 
@@ -124,14 +117,14 @@ const Marketplace = (props: MarketplaceProps) => {
     <div className="Marketplace">
       <div className="marketplace-container">
         <Switch>
-          <Route path="/asset">
+          <Route path="/asset/:id">
             <AssetPage
               tokenids={props.tokenids}
               assetBalances={props.assetBalances}
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              a={chosenAsset}
+              assets={props.assets}
             />
           </Route>
           <Route path="/whitepaper">
@@ -154,7 +147,6 @@ const Marketplace = (props: MarketplaceProps) => {
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              a={chosenAsset}
             />
           </Route>
           <Route path="/assets">
@@ -168,7 +160,6 @@ const Marketplace = (props: MarketplaceProps) => {
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              a={chosenAsset}
             />
           </Route>
           <Route path="/yourBorrows">
@@ -179,7 +170,6 @@ const Marketplace = (props: MarketplaceProps) => {
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              a={chosenAsset}
             />
           </Route>
           <Route path="/permissions">
