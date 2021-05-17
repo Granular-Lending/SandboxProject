@@ -7,7 +7,9 @@ import CreateLoan from "./CreateLoan";
 import CreateLoanChoice from "./CreateLoanChoice";
 import YourLoansPage from "./YourLoansPage";
 import YourBorrowsPage from "./YourBorrowsPage";
+import Sample from "./Whitepaper";
 import Sidebar from "../Sidebar/Sidebar";
+import { Button } from "@material-ui/core";
 
 interface MarketplaceProps {
   assets: Asset[];
@@ -24,16 +26,19 @@ interface MarketplaceProps {
   sandTokenInst: any;
 }
 
-const Home = () => (
-  <div style={{ padding: 10 }} data-label="Home">
+interface HomeProps {
+  sym: string;
+}
+const Home = (props: HomeProps) => {
+  return <div style={{ padding: 10 }} data-label="Home">
     <h1>Introduction</h1>
     <p style={{ color: "white" }}>
       Granular Lending is a portal that lets you loan & borrow Sandbox NFT's.
     </p>
-    <h3>Permission</h3>
+    <h3>Permissions</h3>
     <p style={{ color: "white" }}>
       Firstly, to create or take out a loan, we need your approval to transfer
-      both SAND tokens and ASSETS on your behalf. Head to the Permissions page
+      both {props.sym} tokens and ASSETS on your behalf. Head to the Permissions page
       and click 'approve' on both buttons.
     </p>
     <h3>Taking out a loan</h3>
@@ -48,8 +53,14 @@ const Home = () => (
       To create out a loan, head to the Your Loans page. Click "create a loan",
       then select an ASSET and the terms of the loan.
     </p>
+    <h3>Whitepaper</h3>
+    <Link to="/whitepaper">
+      <Button variant='contained' style={{ margin: 8, fontSize: '1em' }}>
+        View the whitepaper
+      </Button>
+    </Link>
   </div>
-);
+};
 
 const Marketplace = (props: MarketplaceProps) => {
   const [chosenAsset, setChosenAsset] = useState(props.assets[0]);
@@ -117,6 +128,10 @@ const Marketplace = (props: MarketplaceProps) => {
               a={chosenAsset}
             />
           </Route>
+          <Route path="/whitepaper">
+            <Sample
+            />
+          </Route>
           <Route path="/createLoanChoice">
             <CreateLoanChoice
               assets={props.assets}
@@ -172,7 +187,7 @@ const Marketplace = (props: MarketplaceProps) => {
             />
           </Route>
           <Route path="/">
-            <Home />
+            <Home sym={props.sym} />
           </Route>
         </Switch>
       </div>
