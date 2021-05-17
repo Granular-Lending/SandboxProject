@@ -7,19 +7,18 @@ const Navbar = (props: any) => {
   return (
     <div className="Navbar">
       <div className="navbar-container">
-        <div className="icon-container">
-          <img className="logo-icon" src={logo} alt="logo" />
-          <h1>Granular Lending</h1>
-        </div>
+        <Link style={{ textDecoration: "none" }} to="/">
+          <div className="icon-container">
+            <img className="logo-icon" src={logo} alt="logo" />
+            <h1>Granular Lending</h1>
+          </div>
+        </Link>
         <div
           style={{
             display: "flex",
             fontSize: "1.3em",
           }}
         >
-          <Link style={{ textDecoration: "none" }} to="/">
-            <div style={{ margin: 8, color: "white" }}>Home</div>
-          </Link>
           <Link style={{ textDecoration: "none" }} to="/assets">
             <div style={{ margin: 8, color: "white" }}>Assets</div>
           </Link>
