@@ -15,7 +15,6 @@ import { NavLink } from "react-router-dom";
 import { mappings } from "./YourBorrowsPage";
 
 export interface PopupProps {
-  a: Asset;
   poolInst: any;
   accounts: string[];
   loans: Loan[];
@@ -40,7 +39,7 @@ const YourLoansPage = (props: PopupProps) => {
   return (
     <div style={{ padding: 40 }}>
       <h2>Your Current Loans</h2>
-      <NavLink style={{ textDecoration: "none" }} to="/createLoanChoice">
+      <NavLink style={{ textDecoration: "none" }} to="/createLoan">
         <Button variant="contained">Create a loan</Button>
       </NavLink>
       <TableContainer style={{ backgroundColor: "#1b2030" }}>
@@ -105,7 +104,7 @@ const YourLoansPage = (props: PopupProps) => {
                     </TableCell>
                     <TableCell style={{ color: "white" }}>
                       {l.borrower ===
-                      "0x0000000000000000000000000000000000000000"
+                        "0x0000000000000000000000000000000000000000"
                         ? "None"
                         : l.borrower}
                     </TableCell>
@@ -126,7 +125,7 @@ const YourLoansPage = (props: PopupProps) => {
                         </Button>
                       ) : null}
                       {l.state === "1" &&
-                      Date.now() > l.startTime + l.duration ? (
+                        Date.now() > l.startTime + l.duration ? (
                         <Button
                           variant="contained"
                           onClick={() =>

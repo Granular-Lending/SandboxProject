@@ -10,17 +10,22 @@ import {
   TableHead,
   TableRow,
 } from "@material-ui/core";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+import React from "react";
 
 export interface PopupProps {
-  a: Asset;
   poolInst: any;
   accounts: string[];
   loans: Loan[];
   assetBalances: number[];
   tokenids: string[];
+  assets: Asset[];
+}
+
+interface ParamTypes {
+  id: string
 }
 
 const buyAsset = (inst: any, from: string, index: string) => {
@@ -28,6 +33,7 @@ const buyAsset = (inst: any, from: string, index: string) => {
 };
 
 const AssetCard = (a: Asset, balance: number) => {
+
   return (
     <div>
       <Link style={{ textDecoration: "none" }} to="/assets">
@@ -64,15 +70,26 @@ const AssetCard = (a: Asset, balance: number) => {
 };
 
 const AssetPage = (props: PopupProps) => {
+  let { id } = useParams<ParamTypes>();
+
+  const [chosenAsset, setChosenAsset] = React.useState(props.assets[0]);
+
+  React.useEffect(() => {
+    const hi = props.assets.find(
+      (a: Asset) => a.id === id
+    );
+    if (hi) { setChosenAsset(hi); }
+  }, [id, props.assets]);
+
   const loansToShow = props.loans.filter(
-    (l: Loan) => l.asset_id === props.a.id && l.state === "0"
+    (l: Loan) => l.asset_id === chosenAsset.id && l.state === "0"
   );
 
   return (
     <div style={{ padding: 10 }}>
       {AssetCard(
-        props.a,
-        props.assetBalances[props.tokenids.indexOf(props.a.id)]
+        chosenAsset,
+        props.assetBalances[props.tokenids.indexOf(chosenAsset.id)]
       )}
       <div style={{ backgroundColor: "#1b2030", paddingTop: 4 }}>
         <h2>Loans</h2>
@@ -98,7 +115,7 @@ const AssetPage = (props: PopupProps) => {
                       alt="missing metadata"
                       style={{ objectFit: "contain", width: 25 }}
                       src={
-                        process.env.PUBLIC_URL + `/equipment/${props.a.image}`
+                        process.env.PUBLIC_URL + `/equipment/${chosenAsset.image}`
                       }
                     />
                   </TableCell>

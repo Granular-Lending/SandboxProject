@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Asset, Loan } from "../../App";
 import "./Marketplace.css";
 import { Switch, Route, Link } from "react-router-dom";
 import AssetPage from "./AssetPage";
-import CreateLoan from "./CreateLoan";
 import CreateLoanChoice from "./CreateLoanChoice";
 import YourLoansPage from "./YourLoansPage";
 import YourBorrowsPage from "./YourBorrowsPage";
@@ -24,6 +23,9 @@ interface MarketplaceProps {
   sandBalance: number;
   sym: string;
   sandTokenInst: any;
+  poolAddress: string;
+  assetsApproved: boolean;
+  sandAllowance: boolean;
 }
 
 interface HomeProps {
@@ -33,11 +35,14 @@ const Home = (props: HomeProps) => {
   return <div style={{ padding: 10 }} data-label="Home">
     <h1>Introduction</h1>
     <p style={{ color: "white" }}>
-      Granular Lending is a portal that lets you loan & borrow Sandbox NFT's.
+      Granular Lending is website that lets you borrow & lend NFT's from The Sandbox ecosystem!
+    </p>
+    <p style={{ color: "white" }}>
+      The project is currently in testing. Therefore, loans are bought with the Ropsten Faucet ({props.sym}) token, instead of SAND. Get some {props.sym} <a href="https://erc20faucet.com/" target="_blank" rel="noreferrer">here</a>.
     </p>
     <h3>Permissions</h3>
     <p style={{ color: "white" }}>
-      Firstly, to create or take out a loan, we need your approval to transfer
+      To create or take out a loan, we need approval to transfer
       both {props.sym} tokens and ASSETS on your behalf. Head to the Permissions page
       and click 'approve' on both buttons.
     </p>
@@ -59,16 +64,10 @@ const Home = (props: HomeProps) => {
         View the whitepaper
       </Button>
     </Link>
-  </div>
+  </div >
 };
 
 const Marketplace = (props: MarketplaceProps) => {
-  const [chosenAsset, setChosenAsset] = useState(props.assets[0]);
-
-  const handleOpenBrowse = (a: Asset) => {
-    setChosenAsset(a);
-  };
-
   const AssetCard = (a: Asset, balance: number) => {
     const numberOfLoans = props.loans.filter(
       (l: Loan) =>
@@ -78,8 +77,7 @@ const Marketplace = (props: MarketplaceProps) => {
     return (
       <Link
         style={{ textDecoration: "none" }}
-        to="/asset"
-        onClick={() => handleOpenBrowse(a)}
+        to={`/asset/${a.id}`}
       >
         <div className="productCard">
           <div className="card-container-data">
@@ -100,7 +98,7 @@ const Marketplace = (props: MarketplaceProps) => {
             </div>
           </div>
         </div>
-      </Link>
+      </Link >
     );
   };
 
@@ -118,37 +116,27 @@ const Marketplace = (props: MarketplaceProps) => {
     <div className="Marketplace">
       <div className="marketplace-container">
         <Switch>
-          <Route path="/asset">
+          <Route path="/asset/:id">
             <AssetPage
               tokenids={props.tokenids}
               assetBalances={props.assetBalances}
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              a={chosenAsset}
+              assets={props.assets}
             />
           </Route>
           <Route path="/whitepaper">
             <Sample
             />
           </Route>
-          <Route path="/createLoanChoice">
+          <Route path="/createLoan">
             <CreateLoanChoice
               assets={props.assets}
               tokenids={props.tokenids}
               assetBalances={props.assetBalances}
               poolInst={props.poolInst}
               accounts={props.accounts}
-            />
-          </Route>
-          <Route path="/createLoan">
-            <CreateLoan
-              tokenids={props.tokenids}
-              assetBalances={props.assetBalances}
-              loans={props.loans}
-              poolInst={props.poolInst}
-              accounts={props.accounts}
-              a={chosenAsset}
             />
           </Route>
           <Route path="/assets">
@@ -162,7 +150,6 @@ const Marketplace = (props: MarketplaceProps) => {
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              a={chosenAsset}
             />
           </Route>
           <Route path="/yourBorrows">
@@ -173,17 +160,19 @@ const Marketplace = (props: MarketplaceProps) => {
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              a={chosenAsset}
             />
           </Route>
           <Route path="/permissions">
             <Sidebar
+              assetsApproved={props.assetsApproved}
+              sandAllowance={props.sandAllowance}
               accounts={props.accounts}
               sym={props.sym}
               sandBalance={props.sandBalance}
               landBalance={props.landBalance}
               sandTokenInst={props.sandTokenInst}
               assetTokenInst={props.assetTokenInst}
+              pool_address={props.poolAddress}
             />
           </Route>
           <Route path="/">
@@ -191,7 +180,7 @@ const Marketplace = (props: MarketplaceProps) => {
           </Route>
         </Switch>
       </div>
-    </div>
+    </div >
   );
 };
 

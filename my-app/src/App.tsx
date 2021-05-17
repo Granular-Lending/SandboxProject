@@ -5,6 +5,7 @@ import Web3 from "web3";
 import Navbar from "./Components/Navbar/Navbar";
 import Hero from "./Components/Hero/Hero";
 import { BrowserRouter as Router } from "react-router-dom";
+import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
 
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");
@@ -67,35 +68,23 @@ declare global {
 
 const web3 = new Web3(window.ethereum);
 
-const USE_MAIN = false;
-
-const SAND_TOKEN_ADDRESS = USE_MAIN
-  ? "0x3845badAde8e6dFF049820680d1F14bD3903a5d0"
-  : "0xFab46E002BbF0b4509813474841E0716E6730136";
-const ASSET_TOKEN_ADDRESS = USE_MAIN
-  ? "0xa342f5D851E866E18ff98F351f2c6637f4478dB5"
-  : "0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8";
-export const POOL_ADDRESS = USE_MAIN
-  ? "0x0000000000000000000000000000000000000000"
-  : "0x36CF7D7F35266e1b3217f3c9C0AD02B8f72c4fe2";
-
-const sandTokenInst = new web3.eth.Contract(erc20abi, SAND_TOKEN_ADDRESS);
-const assetTokenInst = new web3.eth.Contract(erc1155abi, ASSET_TOKEN_ADDRESS);
-const poolInst = new web3.eth.Contract(poolabi, POOL_ADDRESS);
-
-let sym = "XXXX";
-sandTokenInst.methods
-  .symbol()
-  .call()
-  .then(function (s: string) {
-    sym = s;
-  });
-
 const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
 function App() {
+  const [useMain, setUseMain] = React.useState(false);
+
+  const [sandTokenAddress, setSandTokenAddress] = React.useState("");
+  const [assetTokenAddress, setAssetTokenAddress] = React.useState("");
+  const [poolAddress, setPoolAddress] = React.useState("");
+
+  const [sandTokenInst, setSandTokenInst] = React.useState(new web3.eth.Contract(erc20abi, sandTokenAddress));
+  const [assetTokenInst, setAssetTokenInst] = React.useState(new web3.eth.Contract(erc1155abi, assetTokenAddress));
+  const [poolInst, setPoolTokenInst] = React.useState(new web3.eth.Contract(poolabi, poolAddress));
+
+  const [sym, setSym] = React.useState("XXXX");
+
   const [loginButtonText, setLoginButtonText] = React.useState(ONBOARD_TEXT);
   const [isDisabled, setDisabled] = React.useState(false);
   const [accounts, setAccounts] = React.useState([""]);
@@ -105,44 +94,10 @@ function App() {
   const [assetBalances, setAssetBalances] = React.useState(
     Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
   );
+  const [sandApproved, setSandApproved] = React.useState(true);
+  const [assetsApproved, setAssetsApproved] = React.useState(true);
 
   const [loans, setLoans]: [Loan[], any] = React.useState([]);
-
-  React.useEffect(() => {
-    poolInst.methods
-      .getSales()
-      .call()
-      .then(function (salesInfo: {
-        costs: number[];
-        deposits: number[];
-        durations: number[];
-        startTimes: number[];
-        ids: string[];
-        loaners: string[];
-        loanees: string[];
-        states: number[];
-      }) {
-        const temp = loans;
-        for (let i = 0; i < salesInfo.costs.length; i++) {
-          if (
-            salesInfo.loaners[i] ===
-            "0x0000000000000000000000000000000000000000"
-          )
-            return;
-          temp.push({
-            cost: salesInfo.costs[i],
-            deposit: salesInfo.deposits[i],
-            duration: salesInfo.durations[i],
-            startTime: salesInfo.startTimes[i],
-            loaner: salesInfo.loaners[i],
-            borrower: salesInfo.loanees[i],
-            asset_id: salesInfo.ids[i],
-            state: salesInfo.states[i].toString(),
-          });
-        }
-        setLoans(temp);
-      });
-  }, [loans]);
 
   const [assets, setAssets]: [Asset[], any] = React.useState(
     EQUIPMENT_TOKEN_IDS.map((id: string) => {
@@ -161,76 +116,6 @@ function App() {
       };
     })
   );
-
-  React.useEffect(() => {
-    for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-      if (USE_MAIN) {
-        assetTokenInst.methods
-          .uri(EQUIPMENT_TOKEN_IDS[i])
-          .call()
-          .then(function (u: string) {
-            const tempy = assets;
-            try {
-              const metadata = require(`./metadata/${u.slice(7)}`);
-              tempy[i] = {
-                id: EQUIPMENT_TOKEN_IDS[i],
-                name: metadata.name,
-                description: metadata.description,
-                classification: metadata.sandbox.classification,
-                creator: metadata.sandbox.creator,
-                image: metadata.image.slice(6),
-                creator_profile_url: metadata.creator_profile_urlc,
-              };
-            } catch {
-              const tempy = assets;
-              tempy[i] = {
-                id: EQUIPMENT_TOKEN_IDS[i],
-                name: "missing metadata",
-                description: "missing metadata",
-                image: "missing metadata",
-                creator: "missing metadata",
-                creator_profile_url: "missing metadata",
-                classification: {
-                  type: "missing metadata",
-                  theme: "missing metadata",
-                  categories: [""],
-                },
-              };
-            }
-            setAssets(tempy);
-          });
-      } else {
-        const tempy = assets;
-        try {
-          const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
-          tempy[i] = {
-            id: EQUIPMENT_TOKEN_IDS[i],
-            name: metadata.name,
-            description: metadata.description,
-            classification: metadata.sandbox.classification,
-            creator: metadata.sandbox.creator,
-            image: metadata.image.slice(6),
-            creator_profile_url: metadata.creator_profile_url,
-          };
-        } catch {
-          const tempy = assets;
-          tempy[i] = {
-            id: EQUIPMENT_TOKEN_IDS[i],
-            name: "missing metadata",
-            description: "missing metadata",
-            image: "missing metadata",
-            creator_profile_url: "missing metadata",
-            creator: "missing metadata",
-            classification: {
-              type: "missing metadata",
-              theme: "missing metadata",
-              categories: [""],
-            },
-          };
-        }
-      }
-    }
-  }, [assets]);
 
   React.useEffect(() => {
     if (!onboarding.current) {
@@ -252,8 +137,161 @@ function App() {
   }, [accounts]);
 
   React.useEffect(() => {
-    function handleNewAccounts(newAccounts: React.SetStateAction<string[]>) {
+    function handleNewAccounts(newAccounts: string[]) {
       setAccounts(newAccounts);
+      web3.eth.net.getNetworkType().then((n: string) => {
+        const is_ropsten = n === 'ropsten';
+        setUseMain(!is_ropsten);
+        let sandAddy = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
+        let assetAddy = '0xa342f5D851E866E18ff98F351f2c6637f4478dB5';
+        let poolAddy = '0x0000000000000000000000000000000000000000';
+        if (is_ropsten) {
+          sandAddy = '0xFab46E002BbF0b4509813474841E0716E6730136';
+          assetAddy = '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8';
+          poolAddy = '0x26eAAFb64Ccc6f07473Abf844284e84649DdE3d4';
+        }
+        const sandTokenInstHi = new web3.eth.Contract(erc20abi, sandAddy);
+        const assetTokenInstHi = new web3.eth.Contract(erc1155abi, assetAddy);
+        const poolInstHi = new web3.eth.Contract(poolabi, poolAddy);
+        setSandTokenAddress(sandAddy);
+        setAssetTokenAddress(assetAddy);
+        setPoolAddress(poolAddy);
+        setSandTokenInst(sandTokenInstHi);
+        setAssetTokenInst(assetTokenInstHi);
+        setPoolTokenInst(poolInstHi);
+        sandTokenInstHi.methods
+          .symbol()
+          .call()
+          .then(function (s: string) {
+            setSym(s);
+          });
+        sandTokenInstHi.methods
+          .balanceOf(newAccounts[0])
+          .call()
+          .then(function (bal: string) {
+            setSandBalance(parseFloat(bal));
+          });
+        assetTokenInstHi.methods
+          .balanceOfBatch(
+            Array(EQUIPMENT_TOKEN_IDS.length).fill(newAccounts[0]),
+            EQUIPMENT_TOKEN_IDS
+          )
+          .call()
+          .then(function (bals: number[]) {
+            setAssetBalances(bals);
+          });
+
+        sandTokenInstHi.methods
+          .allowance(newAccounts[0], poolAddy)
+          .call()
+          .then((s: number) => setSandApproved(s > 0))
+        assetTokenInstHi.methods
+          .isApprovedForAll(newAccounts[0], poolAddy)
+          .call()
+          .then((s: boolean) => setAssetsApproved(s))
+        poolInstHi.methods
+          .getSales()
+          .call()
+          .then(function (salesInfo: {
+            costs: number[];
+            deposits: number[];
+            durations: number[];
+            startTimes: number[];
+            ids: string[];
+            loaners: string[];
+            loanees: string[];
+            states: number[];
+          }) {
+            const temp = loans; // why is this set to loans?
+            for (let i = 0; i < salesInfo.costs.length; i++) {
+              if (
+                salesInfo.loaners[i] ===
+                "0x0000000000000000000000000000000000000000"
+              ) return;
+
+              temp.push({
+                cost: salesInfo.costs[i],
+                deposit: salesInfo.deposits[i],
+                duration: salesInfo.durations[i],
+                startTime: salesInfo.startTimes[i],
+                loaner: salesInfo.loaners[i],
+                borrower: salesInfo.loanees[i],
+                asset_id: salesInfo.ids[i],
+                state: salesInfo.states[i].toString(),
+              });
+            }
+            setLoans(temp);
+          });
+
+        for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
+          if (useMain) {
+            assetTokenInstHi.methods
+              .uri(EQUIPMENT_TOKEN_IDS[i])
+              .call()
+              .then(function (u: string) {
+                const tempy = assets;
+                try {
+                  const metadata = require(`./metadata/${u.slice(7)}`);
+                  tempy[i] = {
+                    id: EQUIPMENT_TOKEN_IDS[i],
+                    name: metadata.name,
+                    description: metadata.description,
+                    classification: metadata.sandbox.classification,
+                    creator: metadata.sandbox.creator,
+                    image: metadata.image.slice(6),
+                    creator_profile_url: metadata.creator_profile_urlc,
+                  };
+                } catch {
+                  const tempy = assets;
+                  tempy[i] = {
+                    id: EQUIPMENT_TOKEN_IDS[i],
+                    name: "missing metadata",
+                    description: "missing metadata",
+                    image: "missing metadata",
+                    creator: "missing metadata",
+                    creator_profile_url: "missing metadata",
+                    classification: {
+                      type: "missing metadata",
+                      theme: "missing metadata",
+                      categories: [""],
+                    },
+                  };
+                }
+                setAssets(tempy);
+              });
+          } else {
+            const tempy = assets;
+            try {
+              const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
+              tempy[i] = {
+                id: EQUIPMENT_TOKEN_IDS[i],
+                name: metadata.name,
+                description: metadata.description,
+                classification: metadata.sandbox.classification,
+                creator: metadata.sandbox.creator,
+                image: metadata.image.slice(6),
+                creator_profile_url: metadata.creator_profile_url,
+              };
+            } catch {
+              const tempy = assets;
+              tempy[i] = {
+                id: EQUIPMENT_TOKEN_IDS[i],
+                name: "missing metadata",
+                description: "missing metadata",
+                image: "missing metadata",
+                creator_profile_url: "missing metadata",
+                creator: "missing metadata",
+                classification: {
+                  type: "missing metadata",
+                  theme: "missing metadata",
+                  categories: [""],
+                },
+              };
+            }
+          }
+        }
+
+      });
     }
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
@@ -264,34 +302,16 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
+    // eslint-disable-next-line
   }, []);
-
-  React.useEffect(() => {
-    if (accounts[0] !== "") {
-      sandTokenInst.methods
-        .balanceOf(accounts[0])
-        .call()
-        .then(function (bal: string) {
-          setSandBalance(parseFloat(bal));
-        });
-      assetTokenInst.methods
-        .balanceOfBatch(
-          Array(EQUIPMENT_TOKEN_IDS.length).fill(accounts[0]),
-          EQUIPMENT_TOKEN_IDS
-        )
-        .call()
-        .then(function (bals: number[]) {
-          setAssetBalances(bals);
-        });
-    }
-  }, [accounts]);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
         .request({ method: "eth_requestAccounts" })
-        .then((newAccounts: React.SetStateAction<string[]>) =>
-          setAccounts(newAccounts)
+        .then((newAccounts: React.SetStateAction<string[]>) => {
+          setAccounts(newAccounts);
+        }
         );
     } else {
       if (onboarding.current) {
@@ -302,6 +322,20 @@ function App() {
 
   return (
     <Router>
+      {sandApproved}
+      <Dialog
+        open={useMain}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Wrong network"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            This project is currently in beta - please switch to the Ropsten testnet and refresh the page.
+          </DialogContentText>
+        </DialogContent>
+      </Dialog>
+
       <Navbar
         disabled={isDisabled}
         onClick={metaMaskLogin}
@@ -309,6 +343,9 @@ function App() {
         sandBalance={sandBalance}
       />
       <Hero
+        assetsApproved={assetsApproved}
+        sandAllowance={sandApproved}
+        poolAddress={poolAddress}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}
@@ -320,7 +357,7 @@ function App() {
         sandTokenInst={sandTokenInst}
         loans={loans}
       />
-    </Router>
+    </Router >
   );
 }
 
