@@ -13,7 +13,6 @@ import {
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 
 export interface PopupProps {
-  a: Asset;
   poolInst: any;
   accounts: string[];
   loans: Loan[];

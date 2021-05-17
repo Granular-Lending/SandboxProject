@@ -79,7 +79,7 @@ const AssetPage = (props: PopupProps) => {
       (a: Asset) => a.id === id
     );
     if (hi) { setChosenAsset(hi); }
-  }, []);
+  }, [id, props.assets]);
 
   const loansToShow = props.loans.filter(
     (l: Loan) => l.asset_id === chosenAsset.id && l.state === "0"

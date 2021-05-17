@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Asset, Loan } from "../../App";
 import "./Marketplace.css";
 import { Switch, Route, Link } from "react-router-dom";
 import AssetPage from "./AssetPage";
-import CreateLoan from "./CreateLoan";
 import CreateLoanChoice from "./CreateLoanChoice";
 import YourLoansPage from "./YourLoansPage";
 import YourBorrowsPage from "./YourBorrowsPage";
@@ -39,7 +38,7 @@ const Home = (props: HomeProps) => {
       Granular Lending is website that lets you borrow & lend NFT's from The Sandbox ecosystem!
     </p>
     <p style={{ color: "white" }}>
-      The project is currently in testing. Therefore, loans are bought with the Ropsten Faucet ({props.sym}) token, instead of SAND. Get some {props.sym} <a href="https://erc20faucet.com/" target="_blank">here</a>.
+      The project is currently in testing. Therefore, loans are bought with the Ropsten Faucet ({props.sym}) token, instead of SAND. Get some {props.sym} <a href="https://erc20faucet.com/" target="_blank" rel="noreferrer">here</a>.
     </p>
     <h3>Permissions</h3>
     <p style={{ color: "white" }}>
@@ -131,20 +130,11 @@ const Marketplace = (props: MarketplaceProps) => {
             <Sample
             />
           </Route>
-          <Route path="/createLoanChoice">
+          <Route path="/createLoan">
             <CreateLoanChoice
               assets={props.assets}
               tokenids={props.tokenids}
               assetBalances={props.assetBalances}
-              poolInst={props.poolInst}
-              accounts={props.accounts}
-            />
-          </Route>
-          <Route path="/createLoan">
-            <CreateLoan
-              tokenids={props.tokenids}
-              assetBalances={props.assetBalances}
-              loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
             />
@@ -190,7 +180,7 @@ const Marketplace = (props: MarketplaceProps) => {
           </Route>
         </Switch>
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -15,7 +15,6 @@ import { NavLink } from "react-router-dom";
 import { mappings } from "./YourBorrowsPage";
 
 export interface PopupProps {
-  a: Asset;
   poolInst: any;
   accounts: string[];
   loans: Loan[];
@@ -40,7 +39,7 @@ const YourLoansPage = (props: PopupProps) => {
   return (
     <div style={{ padding: 40 }}>
       <h2>Your Current Loans</h2>
-      <NavLink style={{ textDecoration: "none" }} to="/createLoanChoice">
+      <NavLink style={{ textDecoration: "none" }} to="/createLoan">
         <Button variant="contained">Create a loan</Button>
       </NavLink>
       <TableContainer style={{ backgroundColor: "#1b2030" }}>
