@@ -18,7 +18,7 @@ function Sample() {
   }
 
   return (
-    <div>
+    <div style={{ display: 'flex', justifyContent: 'center' }} >
       <Document
         file="./Whitepaper.pdf"
         onLoadSuccess={onDocumentLoadSuccess}
@@ -27,7 +27,7 @@ function Sample() {
           <Page pageNumber={page} />
         ))}
       </Document>
-    </div>
+    </div >
   );
 }
 
