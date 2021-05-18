@@ -1,5 +1,5 @@
 import MetaMaskOnboarding from "@metamask/onboarding";
-import React from "react";
+import React, { useState } from "react";
 import Web3 from "web3";
 
 import Navbar from "./Components/Navbar/Navbar";
@@ -73,33 +73,33 @@ const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
 function App() {
-  const [useMain, setUseMain] = React.useState(false);
+  const [useMain, setUseMain] = useState(false);
 
-  const [sandTokenAddress, setSandTokenAddress] = React.useState("");
-  const [assetTokenAddress, setAssetTokenAddress] = React.useState("");
-  const [poolAddress, setPoolAddress] = React.useState("");
+  const [sandTokenAddress, setSandTokenAddress] = useState("");
+  const [assetTokenAddress, setAssetTokenAddress] = useState("");
+  const [poolAddress, setPoolAddress] = useState("");
 
-  const [sandTokenInst, setSandTokenInst] = React.useState(new web3.eth.Contract(erc20abi, sandTokenAddress));
-  const [assetTokenInst, setAssetTokenInst] = React.useState(new web3.eth.Contract(erc1155abi, assetTokenAddress));
-  const [poolInst, setPoolTokenInst] = React.useState(new web3.eth.Contract(poolabi, poolAddress));
+  const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, sandTokenAddress));
+  const [assetTokenInst, setAssetTokenInst] = useState(new web3.eth.Contract(erc1155abi, assetTokenAddress));
+  const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, poolAddress));
 
-  const [sym, setSym] = React.useState("XXXX");
+  const [sym, setSym] = useState("XXXX");
 
-  const [loginButtonText, setLoginButtonText] = React.useState(ONBOARD_TEXT);
-  const [isDisabled, setDisabled] = React.useState(false);
-  const [accounts, setAccounts] = React.useState([""]);
+  const [loginButtonText, setLoginButtonText] = useState(ONBOARD_TEXT);
+  const [isDisabled, setDisabled] = useState(false);
+  const [accounts, setAccounts] = useState([""]);
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
-  const [sandBalance, setSandBalance] = React.useState(-1);
-  const [assetBalances, setAssetBalances] = React.useState(
+  const [sandBalance, setSandBalance] = useState(-1);
+  const [assetBalances, setAssetBalances] = useState(
     Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
   );
-  const [sandApproved, setSandApproved] = React.useState(true);
-  const [assetsApproved, setAssetsApproved] = React.useState(true);
+  const [sandApproved, setSandApproved] = useState(true);
+  const [assetsApproved, setAssetsApproved] = useState(true);
 
-  const [loans, setLoans]: [Loan[], any] = React.useState([]);
+  const [loans, setLoans]: [Loan[], any] = useState([]);
 
-  const [assets, setAssets]: [Asset[], any] = React.useState(
+  const [assets, setAssets]: [Asset[], any] = useState(
     EQUIPMENT_TOKEN_IDS.map((id: string) => {
       return {
         id: id,
@@ -189,6 +189,7 @@ function App() {
           .isApprovedForAll(newAccounts[0], poolAddy)
           .call()
           .then((s: boolean) => setAssetsApproved(s))
+
         poolInstHi.methods
           .getSales()
           .call()
@@ -202,12 +203,12 @@ function App() {
             loanees: string[];
             states: number[];
           }) {
-            const temp = loans; // why is this set to loans?
+            const temp: Loan[] = [];
             for (let i = 0; i < salesInfo.costs.length; i++) {
               if (
                 salesInfo.loaners[i] ===
                 "0x0000000000000000000000000000000000000000"
-              ) return;
+              ) break;
 
               temp.push({
                 cost: salesInfo.costs[i],
@@ -302,8 +303,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
-    // eslint-disable-next-line
-  }, []);
+  }, [assets, useMain]);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
@@ -322,7 +322,6 @@ function App() {
 
   return (
     <Router>
-      {sandApproved}
       <Dialog
         open={useMain}
         aria-labelledby="alert-dialog-title"
