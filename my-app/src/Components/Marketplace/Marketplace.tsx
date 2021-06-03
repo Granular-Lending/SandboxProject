@@ -7,7 +7,7 @@ import CreateLoanChoice from "./CreateLoanChoice";
 import YourLoansPage from "./YourLoansPage";
 import YourBorrowsPage from "./YourBorrowsPage";
 import Sample from "./Whitepaper";
-import Sidebar from "../Sidebar/Sidebar";
+import Permissions from "../Permissions/Permissions";
 import { Button } from "@material-ui/core";
 
 interface MarketplaceProps {
@@ -163,7 +163,7 @@ const Marketplace = (props: MarketplaceProps) => {
             />
           </Route>
           <Route path="/permissions">
-            <Sidebar
+            <Permissions
               assetsApproved={props.assetsApproved}
               sandAllowance={props.sandAllowance}
               accounts={props.accounts}

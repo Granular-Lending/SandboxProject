@@ -1,9 +1,9 @@
 import React from "react";
 
-import "./Sidebar.css";
+import "./Permissions.css";
 import { Button } from "@material-ui/core";
 
-interface SidebarProps {
+interface PermissionsProps {
   landBalance: number;
   sandBalance: number;
   accounts: string[];
@@ -15,9 +15,9 @@ interface SidebarProps {
   sandAllowance: boolean;
 }
 
-const Sidebar = (props: SidebarProps) => {
+const Permissions = (props: PermissionsProps) => {
   return (
-    <div style={{ padding: 10 }} className="Sidebar">
+    <div style={{ padding: 10 }} >
       <div className="sidebar-container">
         <h2>Permissions</h2>
         <p>To create or take out a loan, we need approval to transfer both FAU tokens and ASSETS on your behalf.</p>
@@ -65,4 +65,4 @@ const Sidebar = (props: SidebarProps) => {
   );
 };
 
-export default Sidebar;
+export default Permissions;

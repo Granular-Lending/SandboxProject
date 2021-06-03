@@ -14,6 +14,7 @@ import { Link, useParams } from "react-router-dom";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import React from "react";
+import Blockies from 'react-blockies';
 
 export interface PopupProps {
   poolInst: any;
@@ -140,7 +141,16 @@ const AssetPage = (props: PopupProps) => {
                     {l.deposit}
                   </TableCell>
                   <TableCell style={{ color: "white" }}>{l.duration}</TableCell>
-                  <TableCell style={{ color: "white" }}>{l.loaner}</TableCell>
+                  <TableCell style={{ color: "white" }}>
+                    <Blockies
+                      seed={l.loaner}
+                      size={10}
+                      scale={5}
+                      color="#000"
+                      bgColor="#ffe"
+                      spotColor="#fff"
+                      className="identicon"
+                    />{l.loaner}</TableCell>
                   <TableCell style={{ color: "white" }}>
                     <Button
                       variant="contained"
