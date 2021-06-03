@@ -13,13 +13,11 @@ import { Button } from "@material-ui/core";
 interface MarketplaceProps {
   assets: Asset[];
   assetBalances: number[];
-  assetBalancesPool: number[];
   tokenids: string[];
   accounts: string[];
   assetTokenInst: any;
   poolInst: any;
   loans: Loan[];
-  landBalance: number;
   sandBalance: number;
   sym: string;
   sandTokenInst: any;
@@ -116,6 +114,9 @@ const Marketplace = (props: MarketplaceProps) => {
     <div className="Marketplace">
       <div className="marketplace-container">
         <Switch>
+          <Route path="/assets">
+            <Assets />
+          </Route>
           <Route path="/asset/:id">
             <AssetPage
               tokenids={props.tokenids}
@@ -138,9 +139,6 @@ const Marketplace = (props: MarketplaceProps) => {
               poolInst={props.poolInst}
               accounts={props.accounts}
             />
-          </Route>
-          <Route path="/assets">
-            <Assets />
           </Route>
           <Route path="/yourLoans">
             <YourLoansPage
@@ -169,7 +167,6 @@ const Marketplace = (props: MarketplaceProps) => {
               accounts={props.accounts}
               sym={props.sym}
               sandBalance={props.sandBalance}
-              landBalance={props.landBalance}
               sandTokenInst={props.sandTokenInst}
               assetTokenInst={props.assetTokenInst}
               pool_address={props.poolAddress}

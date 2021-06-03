@@ -110,7 +110,7 @@ const YourLoansPage = (props: PopupProps) => {
                     </TableCell>
                     <TableCell style={{ color: "white" }}>
                       {l.state === "2" ? (
-                        <Button
+                        <Button style={{ width: '100%' }}
                           variant="contained"
                           onClick={() =>
                             collectAsset(
@@ -126,7 +126,7 @@ const YourLoansPage = (props: PopupProps) => {
                       ) : null}
                       {l.state === "1" &&
                         Date.now() > l.startTime + l.duration ? (
-                        <Button
+                        <Button style={{ width: '100%' }}
                           variant="contained"
                           onClick={() =>
                             collectAssetFail(

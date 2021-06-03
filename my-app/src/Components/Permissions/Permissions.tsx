@@ -4,7 +4,6 @@ import "./Permissions.css";
 import { Button } from "@material-ui/core";
 
 interface PermissionsProps {
-  landBalance: number;
   sandBalance: number;
   accounts: string[];
   sym: string;
