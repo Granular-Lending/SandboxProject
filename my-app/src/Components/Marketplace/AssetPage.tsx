@@ -98,6 +98,7 @@ const AssetPage = (props: PopupProps) => {
       (a: Asset) => a.id === id
     );
     if (assetWithID) { setChosenAsset(assetWithID); }
+    // eslint-disable-next-line 
   }, [id, props.assets, props.assets[0]]); // run this function when metadata filled
 
   const loansToShow = props.loans.filter(
