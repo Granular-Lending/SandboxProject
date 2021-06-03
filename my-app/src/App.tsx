@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import Web3 from "web3";
 
 import Navbar from "./Components/Navbar/Navbar";
-import Hero from "./Components/Hero/Hero";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
+import Marketplace from "./Components/Marketplace/Marketplace";
 
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");
@@ -139,8 +139,8 @@ function App() {
   React.useEffect(() => {
     function handleNewAccounts(newAccounts: string[]) {
       setAccounts(newAccounts);
-      web3.eth.net.getNetworkType().then((n: string) => {
-        const is_ropsten = n === 'ropsten';
+      web3.eth.net.getNetworkType().then((networkType: string) => {
+        const is_ropsten = networkType === 'ropsten';
         setUseMain(!is_ropsten);
         let sandAddy = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
         let assetAddy = '0xa342f5D851E866E18ff98F351f2c6637f4478dB5';
@@ -341,7 +341,7 @@ function App() {
         loginButtonText={loginButtonText}
         sandBalance={sandBalance}
       />
-      <Hero
+      <Marketplace
         assetsApproved={assetsApproved}
         sandAllowance={sandApproved}
         poolAddress={poolAddress}

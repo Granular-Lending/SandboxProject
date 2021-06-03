@@ -5,7 +5,7 @@ import sandIcon from "./assets/sandIcon.png";
 
 const Navbar = (props: any) => {
   return (
-    <div className="Navbar">
+    <div className="Navbar" style={{ position: 'sticky', top: 0 }}>
       <div className="navbar-container">
         <Link style={{ textDecoration: "none" }} to="/">
           <div className="icon-container">
