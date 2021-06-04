@@ -23,8 +23,8 @@ contract Pool is ERC1155TokenReceiver {
     }
     Sale[] public sales;
     
-    ERC1155 assetContract = ERC1155(0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8);
     ERC20 sandToken = ERC20(0xFab46E002BbF0b4509813474841E0716E6730136);
+    ERC1155 assetContract = ERC1155(0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8);
 
     constructor() ERC1155TokenReceiver() { }
     

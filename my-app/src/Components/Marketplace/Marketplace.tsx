@@ -32,11 +32,10 @@ interface HomeProps {
 const Home = (props: HomeProps) => {
   return <div style={{ padding: 10 }} data-label="Home">
     <h1>Introduction</h1>
+    <h2>Borrow & lend NFT's from The Sandbox!</h2>
+    <h3>Tokens</h3>
     <p style={{ color: "white" }}>
-      Granular Lending is website that lets you borrow & lend NFT's from The Sandbox ecosystem!
-    </p>
-    <p style={{ color: "white" }}>
-      The project is currently in testing. Therefore, loans are bought with the Ropsten Faucet ({props.sym}) token, instead of SAND. Get some {props.sym} <a href="https://erc20faucet.com/" target="_blank" rel="noreferrer">here</a>.
+      The project is currently in testing, so loans are bought with the Ropsten Faucet ({props.sym}) token. Get some free {props.sym} <a href="https://erc20faucet.com/" target="_blank" rel="noreferrer">here</a>.
     </p>
     <h3>Permissions</h3>
     <p style={{ color: "white" }}>
@@ -46,10 +45,11 @@ const Home = (props: HomeProps) => {
     </p>
     <h3>Taking out a loan</h3>
     <p style={{ color: "white" }}>
-      To take out a loan, head to the Assets page and click on an ASSET to learn
-      more about it. The current loans are listed at the bottom of the page,
-      along with their terms. Click "borrow item" to accept the terms of the
-      loan. You will now be able to see the loan on the "Your Borrows" page.
+      To take out a loan, head to the Assets page and click on an ASSET. The current loans are listed at the bottom of the page. Click "take out loan" to accept the terms of the
+      loan.
+      </p>
+    <p>
+      You will now be able to see the loan on the "Your Borrows" page.
     </p>
     <h3>Creating a loan</h3>
     <p style={{ color: "white" }}>
@@ -85,9 +85,9 @@ const Marketplace = (props: MarketplaceProps) => {
               src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
             />
             <div className="cardData">
-              <h3>{a.name}</h3>
-              <h4>
-                {a.classification.type} | {a.classification.theme}
+              <h3>{a.name.length > 22 ? `${a.name.slice(0, 22)}...` : a.name}</h3>
+              <h4 style={{ color: 'lightgrey' }}>
+                {a.sandbox.classification.type} | {a.sandbox.classification.theme}
               </h4>
               <p>
                 {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"}{" "}

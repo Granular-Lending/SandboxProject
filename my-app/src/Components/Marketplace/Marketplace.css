@@ -5,12 +5,6 @@
     color:white;
 }
 
-.marketplace-container h2{
-    color:#ffffff;
-    font-family: 'Ruda';
-    text-align: center;
-}
-
 .card-container {
     display:flex;
     flex-wrap: wrap;
@@ -19,11 +13,11 @@
 
 .productCard {
     width: 250px;
-    border:2.5px;
+    border:5px;
     background: #1b2026; 
     background: -webkit-linear-gradient(to right, #493240, #FF0099);
     background: linear-gradient(to right, #493240, #FF0099);
-    margin: 30px 45px 50px 45px;
+    margin:  15px 15px;
     font-family: 'Ruda';
     color:#ffffff;
     border-radius: 25px;
