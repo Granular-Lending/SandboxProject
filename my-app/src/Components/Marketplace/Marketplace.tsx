@@ -110,7 +110,7 @@ const Marketplace = (props: MarketplaceProps) => {
           id="demo-simple-select"
           value={assetType}
           onChange={(e: any) => setAssetType(e.target.value as string)}
-          style={{ padding: 10, marginBottom: 10, color: 'white' }}
+          style={{ margin: 20, color: 'white' }}
         >
           <MenuItem value={"All"}>
             All
