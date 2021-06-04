@@ -203,7 +203,7 @@ const YourLoansPage = (props: PopupProps) => {
         </Select>
       </FormControl>
       <NavLink style={{ textDecoration: "none" }} to="/createLoan">
-        <Button variant="contained">Create a loan</Button>
+        <Button style={{ marginLeft: 40 }} variant="contained">Create new loan</Button>
       </NavLink>
       { generateTable(props.loans.filter(
         (l: Loan) =>
