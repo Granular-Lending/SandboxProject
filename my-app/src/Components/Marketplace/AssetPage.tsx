@@ -47,8 +47,8 @@ const buyAsset = (inst: any, from: string, index: string) => {
   inst.methods.acceptLoan(index).send({ from: from }).then(console.log);
 };
 
+const position = { x: 0, y: 0, z: 0 };
 const AssetCard = (props: AssetProps) => {
-  const [position, setPosition] = useState({ x: 0, y: 0, z: 0 });
   const [rotation, setRotation] = useState({ x: 0.5, y: 0, z: 0 });
   const [showModel, setShowModel] = useState(0);
 
@@ -59,7 +59,7 @@ const AssetCard = (props: AssetProps) => {
       setRotation(obj); setModel(
         <GLTFModel
           width={300}
-          height={200}
+          height={250}
           enableZoom={false}
           src={process.env.PUBLIC_URL + `/equipment${props.asset.animation_url}`}
           position={position}
@@ -69,16 +69,10 @@ const AssetCard = (props: AssetProps) => {
     }, 10);
 
     return () => clearInterval(interval);
-  }, [rotation]);
+  });
 
   const [model, setModel] = useState(
-    <GLTFModel
-      enableZoom={false}
-      src={process.env.PUBLIC_URL + `/equipment${props.asset.animation_url}`}
-      position={position}
-      rotation={rotation} >
-      <AmbientLight color='red' />
-    </GLTFModel>
+    <div></div>
   )
   return (
     <div>
@@ -97,7 +91,7 @@ const AssetCard = (props: AssetProps) => {
           display: "flex",
           flexDirection: 'column',
           marginRight: 30,
-          padding: 20
+          padding: 20,
         }}>
           <FormControl>
             <Select
@@ -121,7 +115,9 @@ const AssetCard = (props: AssetProps) => {
               alt="missing metadata"
               src={process.env.PUBLIC_URL + `/equipment${props.asset.image}`}
               style={{
-                objectFit: "contain", width: 300
+                objectFit: "contain",
+                width: 300,
+                height: 250,
               }}
             />}
         </div>
