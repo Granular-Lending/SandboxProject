@@ -85,7 +85,7 @@ const CreateLoanChoice = (props: ChoiceProps) => {
         />
       </div>
     </div >
-    <Button variant='contained' onClick={() => transferAsset(props.poolInst, props.accounts[0], assetID, cost, deposit, duration)}>Submit</Button>
+    <Button style={{ margin: 10 }} variant='contained' onClick={() => transferAsset(props.poolInst, props.accounts[0], assetID, cost, deposit, duration)}>Submit</Button>
   </div >
 }
 export default CreateLoanChoice;
