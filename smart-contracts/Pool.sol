@@ -9,9 +9,9 @@ interface ERC1155TokenReceiver {
 }
 
 contract Pool is ERC1155TokenReceiver {
-    enum LoanState { Listed, Borrowed, Returned, Collected }
+    enum LoanState { Listed, Borrowed, Collected }
 
-    struct Sale { 
+    struct Loan { 
         uint asset_id;
         uint cost; 
         uint deposit; 
@@ -21,7 +21,7 @@ contract Pool is ERC1155TokenReceiver {
         address loanee;
         LoanState state;
     }
-    Sale[] public sales;
+    Loan[] public loans;
     
     ERC20 sandToken = ERC20(0xFab46E002BbF0b4509813474841E0716E6730136);
     ERC1155 assetContract = ERC1155(0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8);
@@ -37,10 +37,8 @@ contract Pool is ERC1155TokenReceiver {
     }
 
     function createLoan(uint _asset_id, uint _cost, uint _deposit, uint _duration) public {
-        require(_cost > _deposit, "Deposit must be less than cost");
-        
-        sales.push(
-            Sale(
+        loans.push(
+            Loan(
             _asset_id,
             _cost, 
             _deposit,
@@ -55,67 +53,59 @@ contract Pool is ERC1155TokenReceiver {
     }
     
     function acceptLoan(uint _sale_index) public {
-        require(sales[_sale_index].state == LoanState.Listed, "Loan must not have been lent yet");
+        require(loans[_sale_index].state == LoanState.Listed, "Loan must not have been lent yet");
         
-        sales[_sale_index].state = LoanState.Borrowed;
-        sales[_sale_index].startTime = block.timestamp;
-        sales[_sale_index].loanee = msg.sender;
+        loans[_sale_index].state = LoanState.Borrowed;
+        loans[_sale_index].startTime = block.timestamp;
+        loans[_sale_index].loanee = msg.sender;
         
-        sandToken.transferFrom(msg.sender, address(this), sales[_sale_index].cost + sales[_sale_index].deposit);
-        assetContract.safeTransferFrom(address(this), msg.sender, sales[_sale_index].asset_id, 1, "");
+        sandToken.transferFrom(msg.sender, loans[_sale_index].loaner, loans[_sale_index].cost);
+        sandToken.transferFrom(msg.sender, address(this), loans[_sale_index].deposit);
+        assetContract.safeTransferFrom(address(this), msg.sender, loans[_sale_index].asset_id, 1, "");
     }
     
     function returnLoan(uint _sale_index) public {
-        require(sales[_sale_index].state == LoanState.Borrowed, "Loan must not have been returned yet");
+        require(loans[_sale_index].state == LoanState.Borrowed, "Loan must not have been returned yet");
 
-        sales[_sale_index].state = LoanState.Returned;
+        loans[_sale_index].state = LoanState.Collected;
         
-        sandToken.transfer(sales[_sale_index].loanee, sales[_sale_index].deposit);
-        assetContract.safeTransferFrom(sales[_sale_index].loanee, address(this), sales[_sale_index].asset_id, 1, "");
+        sandToken.transfer(loans[_sale_index].loanee, loans[_sale_index].deposit);
+        assetContract.safeTransferFrom(loans[_sale_index].loanee, loans[_sale_index].loaner, loans[_sale_index].asset_id, 1, "");
     }
     
-    function collectLoan(uint _sale_index) public {
-        require(sales[_sale_index].state == LoanState.Returned, "Loan must not have been collected yet");
+    function timeoutLoan(uint _sale_index) public {
+        require(loans[_sale_index].state == LoanState.Borrowed, "Loan must not have been collected yet");
+        require(block.timestamp > loans[_sale_index].startTime + loans[_sale_index].duration, "Loan duration has not passed");
 
-        sales[_sale_index].state = LoanState.Collected;
+        loans[_sale_index].state = LoanState.Collected;
         
-        sandToken.transfer(sales[_sale_index].loaner, sales[_sale_index].cost - sales[_sale_index].deposit);
-        assetContract.safeTransferFrom(address(this), sales[_sale_index].loaner, sales[_sale_index].asset_id, 1, "");
+        sandToken.transfer(loans[_sale_index].loaner, loans[_sale_index].deposit);
     }
     
-    function collectLoanFail(uint _sale_index) public {
-        require(sales[_sale_index].state == LoanState.Borrowed, "Loan must not have been collected yet");
-        require(block.timestamp > sales[_sale_index].startTime + sales[_sale_index].duration, "Loan duration has not passed");
-
-        sales[_sale_index].state = LoanState.Collected;
-        
-        sandToken.transfer(sales[_sale_index].loaner, sales[_sale_index].cost + sales[_sale_index].deposit);
-    }
-    
-    function getSales() public view returns (uint[100] memory costs, uint[100] memory deposits, uint[100] memory durations, uint[100] memory startTimes, uint[100] memory ids, address[100] memory loaners, address[100] memory loanees, LoanState[100] memory states) {
-        for (uint i=0; i < sales.length; i++){
-            costs[i] = sales[i].cost;
+    function getLoans() public view returns (uint[100] memory costs, uint[100] memory deposits, uint[100] memory durations, uint[100] memory startTimes, uint[100] memory ids, address[100] memory loaners, address[100] memory loanees, LoanState[100] memory states) {
+        for (uint i=0; i < loans.length; i++){
+            costs[i] = loans[i].cost;
         }
-        for (uint i=0; i < sales.length; i++){
-            deposits[i] = sales[i].deposit;
+        for (uint i=0; i < loans.length; i++){
+            deposits[i] = loans[i].deposit;
         }
-        for (uint i=0; i < sales.length; i++){
-            durations[i] = sales[i].duration;
+        for (uint i=0; i < loans.length; i++){
+            durations[i] = loans[i].duration;
         }
-        for (uint i=0; i < sales.length; i++){
-            startTimes[i] = sales[i].startTime;
+        for (uint i=0; i < loans.length; i++){
+            startTimes[i] = loans[i].startTime;
         }
-        for (uint i=0; i < sales.length; i++){
-            ids[i] = sales[i].asset_id;
+        for (uint i=0; i < loans.length; i++){
+            ids[i] = loans[i].asset_id;
         }
-        for (uint i=0; i < sales.length; i++){
-            loaners[i] = sales[i].loaner;
+        for (uint i=0; i < loans.length; i++){
+            loaners[i] = loans[i].loaner;
         }
-        for (uint i=0; i < sales.length; i++){
-            loanees[i] = sales[i].loanee;
+        for (uint i=0; i < loans.length; i++){
+            loanees[i] = loans[i].loanee;
         }
-        for (uint i=0; i < sales.length; i++){
-            states[i] = sales[i].state;
+        for (uint i=0; i < loans.length; i++){
+            states[i] = loans[i].state;
         }
         
         return (costs, deposits, durations, startTimes, ids, loaners, loanees, states);

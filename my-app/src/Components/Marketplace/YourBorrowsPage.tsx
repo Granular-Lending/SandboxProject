@@ -37,13 +37,6 @@ const returnAsset = (inst: any, from: string, index: string) => {
   inst.methods.returnLoan(index).send({ from: from }).then(console.log);
 };
 
-export const mappings: Record<string, string> = {
-  "0": "Listed",
-  "1": "Borrowed",
-  "2": "Returned",
-  "3": "Collected",
-};
-
 const YourBorrowsPage = (props: PopupProps) => {
   const currentLoans = props.loans.filter(
     (l: Loan) =>
@@ -52,7 +45,7 @@ const YourBorrowsPage = (props: PopupProps) => {
   );
   const completeLoans = props.loans.filter(
     (l: Loan) =>
-      (l.state === "2" || l.state === "3") &&
+      (l.state === "2") &&
       l.borrower.toLowerCase() === props.accounts[0].toLowerCase()
   );
 

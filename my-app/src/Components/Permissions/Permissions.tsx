@@ -21,7 +21,7 @@ const Permissions = (props: PermissionsProps) => {
         <h2>Permissions</h2>
         <p>To create or take out a loan, we need approval to transfer both FAU tokens and ASSETS on your behalf.</p>
 
-        <p>The pool contract can be found at <a href="https://ropsten.etherscan.io/address/0x26eAAFb64Ccc6f07473Abf844284e84649DdE3d4" target="_blank" rel="noreferrer">{props.pool_address}</a></p>
+        <p>The pool contract can be found at <a href={`https://ropsten.etherscan.io/address/${props.pool_address}`} target="_blank" rel="noreferrer">{props.pool_address}</a></p>
         <div>
           <div>
             <h3>For loaning and borrowing</h3>

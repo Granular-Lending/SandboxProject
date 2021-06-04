@@ -193,9 +193,7 @@ const AssetPage = (props: PopupProps) => {
         <DialogTitle id="alert-dialog-title">Checkout</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            <p>
-              You are about to borrow 1 {chosenAsset.name} for {chosenLoan.duration} seconds.
-            </p>
+            You are about to borrow 1 {chosenAsset.name} for {chosenLoan.duration} seconds.
             <p>
               This will cost you {chosenLoan.cost} + {chosenLoan.deposit} = <b>{+chosenLoan.cost + +chosenLoan.deposit} SAND</b>.
             </p>

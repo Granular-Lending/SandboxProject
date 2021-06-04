@@ -33,10 +33,6 @@ export interface PopupProps {
   assets: Asset[];
 }
 
-const collectAsset = (inst: any, from: string, index: string) => {
-  inst.methods.collectLoan(index).send({ from: from }).then(console.log);
-};
-
 const collectAssetFail = (inst: any, from: string, index: string) => {
   inst.methods.collectLoanFail(index).send({ from: from }).then(console.log);
 };
@@ -121,23 +117,6 @@ const YourLoansPage = (props: PopupProps) => {
                     {l.state === '0' ? 'N/A' : new Date(+l.startTime * 1000 + +l.duration * 1000).toLocaleString()}
                   </TableCell>
                   <TableCell style={{ color: "white" }}>
-                    {l.state === "2" ? (
-                      <Button style={{ width: '100%' }}
-                        variant="contained"
-                        onClick={() => {
-                          setShowCollect(true);
-                          setChosenLoan(l);
-                          const assetWithID = props.assets.find(
-                            (a: Asset) => a.id === l.asset_id
-                          );
-                          if (assetWithID) { setChosenAsset(assetWithID); }
-                        }
-                        }
-                      >
-                        Collect item
-                        <ArrowForwardIosIcon />
-                      </Button>
-                    ) : null}
                     {l.state === "1" &&
                       Date.now() > l.startTime * 1000 + l.duration * 1000 ? (
                       <Button style={{ width: '100%' }}
@@ -177,7 +156,6 @@ const YourLoansPage = (props: PopupProps) => {
     state: "",
   });
   const [showTimeout, setShowTimeout] = useState(false);
-  const [showCollect, setShowCollect] = useState(false);
 
   return (
     <div style={{ padding: 40 }}>
@@ -211,37 +189,6 @@ const YourLoansPage = (props: PopupProps) => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Dialog
-        open={showCollect}
-        onClose={() => setShowCollect(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Checkout</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            You are about to collect 1 {chosenAsset.name}.
-
-            <p>
-              The borrower successfuly returned the item in time. This will top up your balance by <b>{+chosenLoan.cost + +chosenLoan.deposit}</b> SAND.
-            </p>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            variant="contained"
-            onClick={() =>
-              collectAsset(
-                props.poolInst,
-                props.accounts[0],
-                props.loans.indexOf(chosenLoan).toString()
-              )}
-          >
-            Accept
-              < ArrowForwardIosIcon />
-          </Button>
-        </DialogActions>
-      </Dialog>
       <h2>Your Loans</h2>
       <FormControl>
         <Select style={{ color: 'white' }}
@@ -251,9 +198,8 @@ const YourLoansPage = (props: PopupProps) => {
           onChange={(event: React.ChangeEvent<{ value: unknown }>) => setLoanFilter(event.target.value as string)}
         >
           <MenuItem value={'0'}>Listed loans</MenuItem>
-          <MenuItem value={'1'}>Borrowed loans</MenuItem>
-          <MenuItem value={'2'}>Returned loans</MenuItem>
-          <MenuItem value={'3'}>Completed loans</MenuItem>
+          <MenuItem value={'1'}>Active loans</MenuItem>
+          <MenuItem value={'2'}>Past loans</MenuItem>
         </Select>
       </FormControl>
       <NavLink style={{ textDecoration: "none" }} to="/createLoan">

@@ -1,0 +1,22 @@
+{
+    "name": "roket back",
+    "description": "Suits that can fly",
+    "image": "ipfs://bafybeicwtsql3d55jbo3cwvaejohsv6dr3gdei3provmdlt7tzdsc47c5u/roket-back.png",
+    "external_url": "https://www.sandbox.game/en/assets/roket-back/afdb1b07-1c1b-4470-80ee-6cd4f615e8d5/",
+    "animation_url": "ipfs://bafybeicwtsql3d55jbo3cwvaejohsv6dr3gdei3provmdlt7tzdsc47c5u/roket-back.gltf",
+    "sandbox": {
+        "version": 2,
+        "creator": "0x7a9fe22691c811ea339d9b73150e6911a5343dca",
+        "classification": {
+            "type": "Equipment",
+            "theme": "Sci-Fi",
+            "categories": [
+                "Machine",
+                "Tool",
+                "Sci-Fi"
+            ]
+        },
+        "voxel_model": "ipfs://bafybeicwtsql3d55jbo3cwvaejohsv6dr3gdei3provmdlt7tzdsc47c5u/roket-back.vxc",
+        "creator_profile_url": "https://www.sandbox.game/en/users/sandboxgame/cfb94ffd-e3b9-4681-850c-95a4c3e65f2f/"
+    }
+}
