@@ -62,17 +62,19 @@ const YourLoansPage = (props: PopupProps) => {
               );
               return (
                 <TableRow key={loans.indexOf(l)}>
-                  <TableCell style={{ color: "white" }}>
-                    <img
-                      alt="missing metadata"
-                      style={{ objectFit: "contain", width: 35 }}
-                      src={
-                        process.env.PUBLIC_URL +
-                        `/equipment/${asset ? asset.image : ""}`
-                      }
-                    />
+                  <TableCell style={{ color: "white", fontSize: "1rem" }}>
+                    <Tooltip title={asset ? asset.name : ""}>
+                      <img
+                        alt="missing metadata"
+                        style={{ objectFit: "contain", width: 35 }}
+                        src={
+                          process.env.PUBLIC_URL +
+                          `/equipment/${asset ? asset.image : ""}`
+                        }
+                      />
+                    </Tooltip>
                   </TableCell>
-                  <TableCell style={{ color: "white" }}>
+                  <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     {l.borrower ===
                       "0x0000000000000000000000000000000000000000"
                       ? "None"
@@ -90,7 +92,7 @@ const YourLoansPage = (props: PopupProps) => {
                         </div>
                       </Tooltip>}
                   </TableCell>
-                  <TableCell style={{ color: "white" }}>
+                  <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     <span>
                       <img
                         style={{ width: 15 }}
@@ -100,7 +102,7 @@ const YourLoansPage = (props: PopupProps) => {
                     </span>
                     {l.cost}
                   </TableCell>
-                  <TableCell style={{ color: "white" }}>
+                  <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     <span>
                       <img
                         style={{ width: 15 }}
@@ -110,13 +112,13 @@ const YourLoansPage = (props: PopupProps) => {
                     </span>
                     {l.deposit}
                   </TableCell>
-                  <TableCell style={{ color: "white" }}>
+                  <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     {l.duration} seconds
                   </TableCell>
                   <TableCell style={{ color: +(l.startTime * 1000 + l.duration * 1000) < Date.now() && l.state === "1" ? "red" : "white", fontSize: '1rem' }}>
                     {l.state === '0' ? 'N/A' : new Date(+l.startTime * 1000 + +l.duration * 1000).toLocaleString()}
                   </TableCell>
-                  <TableCell style={{ color: "white" }}>
+                  <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     {l.state === "1" &&
                       Date.now() > l.startTime * 1000 + l.duration * 1000 ? (
                       <Button style={{ width: '100%' }}
@@ -205,7 +207,7 @@ const YourLoansPage = (props: PopupProps) => {
       <NavLink style={{ textDecoration: "none" }} to="/createLoan">
         <Button style={{ marginLeft: 40 }} variant="contained">Create new loan</Button>
       </NavLink>
-      { generateTable(props.loans.filter(
+      {generateTable(props.loans.filter(
         (l: Loan) =>
           l.state === loanFilter &&
           l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
