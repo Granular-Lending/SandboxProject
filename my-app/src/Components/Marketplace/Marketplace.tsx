@@ -100,41 +100,42 @@ const Marketplace = (props: MarketplaceProps) => {
     );
   };
 
-  const Assets = () => (
-    <div data-label="Assets">
+  const Assets = () => {
+    const [assetType, setAssetType] = React.useState("All");
+
+    return <div data-label="Assets">
+      <FormControl>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={assetType}
+          onChange={(e: any) => setAssetType(e.target.value as string)}
+          style={{ padding: 10, marginBottom: 10, color: 'white' }}
+        >
+          <MenuItem value={"All"}>
+            All
+                </MenuItem>
+          <MenuItem value={"Entity"}>
+            Entity
+                </MenuItem>
+          <MenuItem value={"Equipment"}>
+            Equipment
+                </MenuItem>
+        </Select>
+      </FormControl>
       <div className="card-container">
         {props.assets.filter((a: Asset) => a.sandbox.classification.type === assetType || assetType === 'All').map((a: Asset) =>
           AssetCard(a, props.assetBalances[props.tokenids.indexOf(a.id)])
         )}
       </div>
     </div>
-  );
-  const [assetType, setAssetType] = React.useState("All");
+  };
 
   return (
     <div className="Marketplace">
       <div className="marketplace-container">
         <Switch>
           <Route path="/assets">
-            <FormControl>
-              <Select
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={assetType}
-                onChange={(e: any) => setAssetType(e.target.value as string)}
-                style={{ padding: 10, marginBottom: 10, color: 'white' }}
-              >
-                <MenuItem value={"All"}>
-                  All
-                </MenuItem>
-                <MenuItem value={"Entity"}>
-                  Entity
-                </MenuItem>
-                <MenuItem value={"Equipment"}>
-                  Equipment
-                </MenuItem>
-              </Select>
-            </FormControl>
             <Assets />
           </Route>
           <Route path="/asset/:id">
