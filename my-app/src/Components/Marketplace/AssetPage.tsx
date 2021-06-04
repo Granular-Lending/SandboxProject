@@ -49,7 +49,7 @@ const buyAsset = (inst: any, from: string, index: string) => {
 
 const position = { x: 0, y: 0, z: 0 };
 const AssetCard = (props: AssetProps) => {
-  const [rotation, setRotation] = useState({ x: 0.5, y: 0, z: 0 });
+  const [rotation, setRotation] = useState({ x: 0.3, y: 0, z: 0 });
   const [showModel, setShowModel] = useState(0);
 
   useEffect(() => {

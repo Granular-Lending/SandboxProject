@@ -79,7 +79,7 @@ const YourLoansPage = (props: PopupProps) => {
                       : <Tooltip title={l.borrower}>
                         <div>
                           <Blockies
-                            seed={l.loaner}
+                            seed={l.borrower}
                             size={10}
                             scale={5}
                             color="#fff"
