@@ -61,20 +61,6 @@
         "type": "uint256"
       }
     ],
-    "name": "collectLoan",
-    "outputs": [],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
-        "name": "_sale_index",
-        "type": "uint256"
-      }
-    ],
     "name": "collectLoanFail",
     "outputs": [],
     "payable": false,
@@ -84,39 +70,39 @@
   {
     "constant": true,
     "inputs": [],
-    "name": "getSales",
+    "name": "getLoans",
     "outputs": [
       {
         "name": "costs",
-        "type": "uint[20]"
+        "type": "uint[100]"
       },
       {
         "name": "deposits",
-        "type": "uint[20]"
+        "type": "uint[100]"
       },
       {
         "name": "durations",
-        "type": "uint[20]"
+        "type": "uint[100]"
       },
       {
         "name": "startTimes",
-        "type": "uint[20]"
+        "type": "uint[100]"
       },
       {
         "name": "ids",
-        "type": "uint[20]"
+        "type": "uint[100]"
       },
       {
         "name": "loaners",
-        "type": "address[20]"
+        "type": "address[100]"
       },
       {
         "name": "loanees",
-        "type": "address[20]"
+        "type": "address[100]"
       },
       {
         "name": "states",
-        "type": "uint8[20]"
+        "type": "uint8[100]"
       }
     ],
     "payable": false,

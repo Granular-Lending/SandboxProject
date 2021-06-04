@@ -2,10 +2,12 @@ import { Asset, Loan } from "../../App";
 import sandIcon from "./assets/sandIcon.png";
 import "./Marketplace.css";
 import {
-  Button, Dialog,
+  Button,
+  Dialog,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Grid,
   Table,
   TableBody,
   TableCell, DialogActions,
@@ -13,12 +15,16 @@ import {
   TableHead,
   TableRow,
   Tooltip,
+  FormControl,
+  Select,
+  MenuItem,
 } from "@material-ui/core";
 import { Link, useParams } from "react-router-dom";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Blockies from 'react-blockies';
+import { GLTFModel, AmbientLight } from 'react-3d-viewer'
 
 export interface PopupProps {
   poolInst: any;
@@ -30,7 +36,7 @@ export interface PopupProps {
 }
 
 interface AssetProps {
-  asset: Asset, balance: number
+  asset: Asset, balance: number, loans: Loan[]
 }
 
 interface ParamTypes {
@@ -41,7 +47,33 @@ const buyAsset = (inst: any, from: string, index: string) => {
   inst.methods.acceptLoan(index).send({ from: from }).then(console.log);
 };
 
+const position = { x: 0, y: 0, z: 0 };
 const AssetCard = (props: AssetProps) => {
+  const [rotation, setRotation] = useState({ x: 0.5, y: 0, z: 0 });
+  const [showModel, setShowModel] = useState(0);
+
+  useEffect(() => {
+    let interval: any = null;
+    const obj = { x: rotation.x, y: rotation.y + 0.01, z: rotation.z };
+    interval = setInterval(() => {
+      setRotation(obj); setModel(
+        <GLTFModel
+          width={300}
+          height={250}
+          enableZoom={false}
+          src={process.env.PUBLIC_URL + `/equipment${props.asset.animation_url}`}
+          position={position}
+          rotation={obj} >
+          <AmbientLight color='white' />
+        </GLTFModel>)
+    }, 10);
+
+    return () => clearInterval(interval);
+  });
+
+  const [model, setModel] = useState(
+    <div></div>
+  )
   return (
     <div>
       <Link style={{ textDecoration: "none" }} to="/assets">
@@ -50,15 +82,58 @@ const AssetCard = (props: AssetProps) => {
           Back
         </Button>
       </Link>
-      <div style={{ display: "flex" }}>
-        <img
-          alt="missing metadata"
-          style={{ objectFit: "contain", width: 250, padding: 20 }}
-          src={process.env.PUBLIC_URL + `/equipment/${props.asset.image}`}
-        />
+      <div style={{
+        display: "flex",
+      }} >
+        <div style={{
+          border: '3px solid purple',
+          borderRadius: 25,
+          display: "flex",
+          flexDirection: 'column',
+          marginRight: 30,
+          padding: 20,
+        }}>
+          <FormControl>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={showModel}
+              onChange={(e: any) => setShowModel(e.target.value as number)}
+              style={{ padding: 10, marginBottom: 10, color: 'white' }}
+            >
+              <MenuItem value={0}>
+                Preview
+            </MenuItem>
+              <MenuItem value={1}>
+                View 3D
+            </MenuItem>
+            </Select>
+          </FormControl>
+          {showModel === 1 ?
+            model :
+            <img
+              alt="missing metadata"
+              src={process.env.PUBLIC_URL + `/equipment${props.asset.image}`}
+              style={{
+                objectFit: "contain",
+                width: 300,
+                height: 250,
+              }}
+            />}
+        </div>
         <div style={{ width: "100%" }}>
           <h1>{props.asset.name}</h1>
-          <h3>You own {props.balance}</h3>
+          <h4 style={{ color: 'lightgrey' }}>Token ID: {props.asset.id.slice(0, 4)}...{props.asset.id.slice(-4)}</h4>
+          <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {props.loans.filter(
+            (l: Loan) =>
+              l.asset_id === props.asset.id &&
+              l.borrower === "0x0000000000000000000000000000000000000000"
+          ).length} {props.loans.filter(
+            (l: Loan) =>
+              l.asset_id === props.asset.id &&
+              l.borrower === "0x0000000000000000000000000000000000000000"
+          ).length === 1 ? "loan" : "loans"} available</h4>
+          <h2>About</h2>
           <div
             style={{
               padding: 8,
@@ -66,14 +141,16 @@ const AssetCard = (props: AssetProps) => {
               backgroundColor: "#1b2040",
             }}
           >
-            <h3>{props.asset.description}</h3>
-            <h4>Type: {props.asset.classification.type}</h4>
-            <h4>Theme: {props.asset.classification.theme}</h4>
-            <h4>Categories: {props.asset.classification.categories.join(", ")}</h4>
+            {props.asset.description}
+            <Grid container spacing={10}>
+              <Grid item><h4>Type</h4> {props.asset.sandbox.classification.type}</Grid>
+              <Grid item><h4>Biome</h4>{props.asset.sandbox.classification.theme}</Grid>
+              <Grid item><h4>Tags</h4>{props.asset.sandbox.classification.categories.join(", ")}</Grid>
+            </Grid>
           </div>
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 
@@ -98,7 +175,7 @@ const AssetPage = (props: PopupProps) => {
       (a: Asset) => a.id === id
     );
     if (assetWithID) { setChosenAsset(assetWithID); }
-    // eslint-disable-next-line 
+    // eslint-disable-next-line
   }, [id, props.assets, props.assets[0]]); // run this function when metadata filled
 
   const loansToShow = props.loans.filter(
@@ -116,14 +193,12 @@ const AssetPage = (props: PopupProps) => {
         <DialogTitle id="alert-dialog-title">Checkout</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
+            You are about to borrow 1 {chosenAsset.name} for {chosenLoan.duration} seconds.
             <p>
-              You are about to borrow 1 {chosenAsset.name} for {chosenLoan.duration} seconds.
+              This will cost you {chosenLoan.cost} + {chosenLoan.deposit} = <b>{+chosenLoan.cost + +chosenLoan.deposit} SAND</b>.
             </p>
             <p>
-              This will cost you {chosenLoan.cost} + {chosenLoan.deposit} = <b>{+chosenLoan.cost + +chosenLoan.deposit}</b> SAND.
-            </p>
-            <p>
-              You must return the item before <b>{new Date(Date.now()).toLocaleDateString()}</b> at <b>{new Date(Date.now()).toLocaleTimeString()}</b>, or you forfeit your deposit of {chosenLoan.deposit} SAND.
+              You must return the item before <b>{new Date(+Date.now() + +chosenLoan.duration * 1000).toLocaleDateString()}</b> at <b>{new Date(+Date.now() + +chosenLoan.duration * 1000).toLocaleTimeString()}</b>, or you forfeit your deposit of {chosenLoan.deposit} SAND.
             </p>
           </DialogContentText>
         </DialogContent>
@@ -139,7 +214,7 @@ const AssetPage = (props: PopupProps) => {
             }
             }
           >
-            Take out loan
+            Accept
             <ArrowForwardIosIcon />
           </Button>
         </DialogActions>
@@ -147,9 +222,12 @@ const AssetPage = (props: PopupProps) => {
       <AssetCard
         asset={chosenAsset}
         balance={props.assetBalances[props.tokenids.indexOf(chosenAsset.id)]}
+        loans={props.loans}
       />
       <div style={{ backgroundColor: "#1b2030", paddingTop: 4 }}>
-        <h2>Loans</h2>
+        <h2 style={{
+          textAlign: 'center'
+        }}>Loans</h2>
         <TableContainer>
           <Table>
             <TableHead>

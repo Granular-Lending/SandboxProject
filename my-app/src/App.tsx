@@ -16,9 +16,12 @@ export interface Asset {
   name: string;
   description: string;
   image: string;
+  animation_url: string;
   creator_profile_url: string;
-  creator: string;
-  classification: { type: string; theme: string; categories: string[] };
+  sandbox: {
+    creator: string;
+    classification: { type: string; theme: string; categories: string[] }
+  };
 }
 
 export interface Loan {
@@ -44,6 +47,11 @@ export const EQUIPMENT_TOKEN_IDS = [
   "64946128963576652222538036970165700352413276268630562676894999040163055677443",
   "64946128963576652222538036970165700352413276268630562676894999040163055677444",
   "64946128963576652222538036970165700352413276268630562676894999040163055677445",
+  "55464657044963196816950587289035428064568320970692304673817341489687715414016",
+  "55464657044963196816950587289035428064568320970692304673817341489687715414017",
+  "55464657044963196816950587289035428064568320970692304673817341489687715414018",
+  "55464657044963196816950587289035428064568320970692304673817341489687715414019",
+  "55464657044963196816950587289035428064568320970692304673817341489687715414020",
 ];
 
 const TEST_URIS = [
@@ -58,6 +66,11 @@ const TEST_URIS = [
   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/3.json",
   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/4.json",
   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/5.json",
+  "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/0.json",
+  "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/1.json",
+  "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/2.json",
+  "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/3.json",
+  "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/4.json",
 ];
 
 declare global {
@@ -106,12 +119,15 @@ function App() {
         name: "missing metadata",
         description: "missing metadata",
         image: "missing metadata",
-        creator: "missing metadata",
+        animation_url: "missing metadata",
         creator_profile_url: "missing metadata",
-        classification: {
-          type: "missing metadata",
-          theme: "missing metadata",
-          categories: [""],
+        sandbox: {
+          creator: "missing metadata",
+          classification: {
+            type: "missing metadata",
+            theme: "missing metadata",
+            categories: [""],
+          }
         },
       };
     })
@@ -148,7 +164,7 @@ function App() {
         if (is_ropsten) {
           sandAddy = '0xFab46E002BbF0b4509813474841E0716E6730136';
           assetAddy = '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8';
-          poolAddy = '0x26eAAFb64Ccc6f07473Abf844284e84649DdE3d4';
+          poolAddy = '0x0b054D0FfA0477323da4BC5e1f31a95A6f14bA9F';
         }
         const sandTokenInstHi = new web3.eth.Contract(erc20abi, sandAddy);
         const assetTokenInstHi = new web3.eth.Contract(erc1155abi, assetAddy);
@@ -168,8 +184,8 @@ function App() {
         sandTokenInstHi.methods
           .balanceOf(newAccounts[0])
           .call()
-          .then(function (bal: string) {
-            setSandBalance(parseFloat(bal));
+          .then(function (bal: number) {
+            setSandBalance(bal);
           });
         assetTokenInstHi.methods
           .balanceOfBatch(
@@ -191,7 +207,7 @@ function App() {
           .then((s: boolean) => setAssetsApproved(s))
 
         poolInstHi.methods
-          .getSales()
+          .getLoans()
           .call()
           .then(function (salesInfo: {
             costs: number[];
@@ -225,73 +241,46 @@ function App() {
           });
 
         for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
+          const tempy = assets;
+          let metadata = {
+            name: "missing metadata",
+            description: "missing metadata",
+            image: "missing metadata",
+            creator_profile_url: "missing metadata",
+            animation_url: "missing metadata",
+            sandbox: {
+              creator: "missing metadata",
+              classification: {
+                type: "missing metadata",
+                theme: "missing metadata",
+                categories: [""],
+              }
+            },
+          };
           if (useMain) {
             assetTokenInstHi.methods
               .uri(EQUIPMENT_TOKEN_IDS[i])
               .call()
               .then(function (u: string) {
-                const tempy = assets;
                 try {
-                  const metadata = require(`./metadata/${u.slice(7)}`);
-                  tempy[i] = {
-                    id: EQUIPMENT_TOKEN_IDS[i],
-                    name: metadata.name,
-                    description: metadata.description,
-                    classification: metadata.sandbox.classification,
-                    creator: metadata.sandbox.creator,
-                    image: metadata.image.slice(6),
-                    creator_profile_url: metadata.creator_profile_urlc,
-                  };
+                  metadata = require(`./metadata/${u.slice(7)}`);
                 } catch {
-                  const tempy = assets;
-                  tempy[i] = {
-                    id: EQUIPMENT_TOKEN_IDS[i],
-                    name: "missing metadata",
-                    description: "missing metadata",
-                    image: "missing metadata",
-                    creator: "missing metadata",
-                    creator_profile_url: "missing metadata",
-                    classification: {
-                      type: "missing metadata",
-                      theme: "missing metadata",
-                      categories: [""],
-                    },
-                  };
-                }
+                };
                 setAssets(tempy);
               });
           } else {
-            const tempy = assets;
             try {
-              const metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
-              tempy[i] = {
-                id: EQUIPMENT_TOKEN_IDS[i],
-                name: metadata.name,
-                description: metadata.description,
-                classification: metadata.sandbox.classification,
-                creator: metadata.sandbox.creator,
-                image: metadata.image.slice(6),
-                creator_profile_url: metadata.creator_profile_url,
-              };
+              metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
             } catch {
-              const tempy = assets;
-              tempy[i] = {
-                id: EQUIPMENT_TOKEN_IDS[i],
-                name: "missing metadata",
-                description: "missing metadata",
-                image: "missing metadata",
-                creator_profile_url: "missing metadata",
-                creator: "missing metadata",
-                classification: {
-                  type: "missing metadata",
-                  theme: "missing metadata",
-                  categories: [""],
-                },
-              };
             }
+            tempy[i] = {
+              id: EQUIPMENT_TOKEN_IDS[i],
+              ...metadata,
+              image: metadata.image.slice(6),
+              animation_url: metadata.animation_url.slice(6),
+            };
           }
         }
-
       });
     }
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
