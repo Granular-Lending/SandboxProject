@@ -190,7 +190,7 @@ const Marketplace = (props: MarketplaceProps) => {
               sandBalance={props.sandBalance}
               sandTokenInst={props.sandTokenInst}
               assetTokenInst={props.assetTokenInst}
-              pool_address={props.poolAddress}
+              poolAddress={props.poolAddress}
             />
           </Route>
           <Route path="/">

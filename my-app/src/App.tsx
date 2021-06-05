@@ -73,6 +73,9 @@ const TEST_URIS = [
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/4.json",
 ];
 
+const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0x0b054D0FfA0477323da4BC5e1f31a95A6f14bA9F']
+const MAINNET_ADDRESSES = ['0x3845badAde8e6dFF049820680d1F14bD3903a5d0', '0xa342f5D851E866E18ff98F351f2c6637f4478dB5', '0x0000000000000000000000000000000000000000']
+
 declare global {
   interface Window {
     ethereum: any;
@@ -88,13 +91,11 @@ const CONNECTED_TEXT = "Connected";
 function App() {
   const [useMain, setUseMain] = useState(false);
 
-  const [sandTokenAddress, setSandTokenAddress] = useState("");
-  const [assetTokenAddress, setAssetTokenAddress] = useState("");
   const [poolAddress, setPoolAddress] = useState("");
 
-  const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, sandTokenAddress));
-  const [assetTokenInst, setAssetTokenInst] = useState(new web3.eth.Contract(erc1155abi, assetTokenAddress));
-  const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, poolAddress));
+  const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, ""));
+  const [assetTokenInst, setAssetTokenInst] = useState(new web3.eth.Contract(erc1155abi, ""));
+  const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, ""));
 
   const [sym, setSym] = useState("XXXX");
 
@@ -104,14 +105,12 @@ function App() {
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
   const [sandBalance, setSandBalance] = useState(-1);
-  const [assetBalances, setAssetBalances] = useState(
-    Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
-  );
+  const [assetBalances, setAssetBalances] = useState(Array(EQUIPMENT_TOKEN_IDS.length).fill(-1));
+
   const [sandApproved, setSandApproved] = useState(true);
   const [assetsApproved, setAssetsApproved] = useState(true);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
-
   const [assets, setAssets]: [Asset[], any] = useState(
     EQUIPMENT_TOKEN_IDS.map((id: string) => {
       return {
@@ -162,32 +161,30 @@ function App() {
         let assetAddy = '0xa342f5D851E866E18ff98F351f2c6637f4478dB5';
         let poolAddy = '0x0000000000000000000000000000000000000000';
         if (is_ropsten) {
-          sandAddy = '0xFab46E002BbF0b4509813474841E0716E6730136';
-          assetAddy = '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8';
-          poolAddy = '0x0b054D0FfA0477323da4BC5e1f31a95A6f14bA9F';
+          sandAddy = ROPSTEN_ADDRESSES[0];
+          assetAddy = ROPSTEN_ADDRESSES[1];
+          poolAddy = ROPSTEN_ADDRESSES[2];
         }
-        const sandTokenInstHi = new web3.eth.Contract(erc20abi, sandAddy);
-        const assetTokenInstHi = new web3.eth.Contract(erc1155abi, assetAddy);
-        const poolInstHi = new web3.eth.Contract(poolabi, poolAddy);
-        setSandTokenAddress(sandAddy);
-        setAssetTokenAddress(assetAddy);
+        const sandTokenInstTemp = new web3.eth.Contract(erc20abi, sandAddy);
+        const assetTokenInstTemp = new web3.eth.Contract(erc1155abi, assetAddy);
+        const poolInstTemp = new web3.eth.Contract(poolabi, poolAddy);
         setPoolAddress(poolAddy);
-        setSandTokenInst(sandTokenInstHi);
-        setAssetTokenInst(assetTokenInstHi);
-        setPoolTokenInst(poolInstHi);
-        sandTokenInstHi.methods
+        setSandTokenInst(sandTokenInstTemp);
+        setAssetTokenInst(assetTokenInstTemp);
+        setPoolTokenInst(poolInstTemp);
+        sandTokenInstTemp.methods
           .symbol()
           .call()
           .then(function (s: string) {
             setSym(s);
           });
-        sandTokenInstHi.methods
+        sandTokenInstTemp.methods
           .balanceOf(newAccounts[0])
           .call()
           .then(function (bal: number) {
             setSandBalance(bal);
           });
-        assetTokenInstHi.methods
+        assetTokenInstTemp.methods
           .balanceOfBatch(
             Array(EQUIPMENT_TOKEN_IDS.length).fill(newAccounts[0]),
             EQUIPMENT_TOKEN_IDS
@@ -197,51 +194,50 @@ function App() {
             setAssetBalances(bals);
           });
 
-        sandTokenInstHi.methods
+        sandTokenInstTemp.methods
           .allowance(newAccounts[0], poolAddy)
           .call()
           .then((s: number) => setSandApproved(s > 0))
-        assetTokenInstHi.methods
+        assetTokenInstTemp.methods
           .isApprovedForAll(newAccounts[0], poolAddy)
           .call()
           .then((s: boolean) => setAssetsApproved(s))
+        if (is_ropsten) {
+          poolInstTemp.methods
+            .getLoans()
+            .call()
+            .then(function (loansInfo: {
+              costs: number[];
+              deposits: number[];
+              durations: number[];
+              startTimes: number[];
+              ids: string[];
+              loaners: string[];
+              loanees: string[];
+              states: number[];
+            }) {
+              const temp: Loan[] = [];
+              for (let i = 0; i < loansInfo.costs.length; i++) {
+                if (
+                  loansInfo.loaners[i] ===
+                  "0x0000000000000000000000000000000000000000"
+                ) break;
 
-        poolInstHi.methods
-          .getLoans()
-          .call()
-          .then(function (salesInfo: {
-            costs: number[];
-            deposits: number[];
-            durations: number[];
-            startTimes: number[];
-            ids: string[];
-            loaners: string[];
-            loanees: string[];
-            states: number[];
-          }) {
-            const temp: Loan[] = [];
-            for (let i = 0; i < salesInfo.costs.length; i++) {
-              if (
-                salesInfo.loaners[i] ===
-                "0x0000000000000000000000000000000000000000"
-              ) break;
-
-              temp.push({
-                cost: salesInfo.costs[i],
-                deposit: salesInfo.deposits[i],
-                duration: salesInfo.durations[i],
-                startTime: salesInfo.startTimes[i],
-                loaner: salesInfo.loaners[i],
-                borrower: salesInfo.loanees[i],
-                asset_id: salesInfo.ids[i],
-                state: salesInfo.states[i].toString(),
-              });
-            }
-            setLoans(temp);
-          });
-
+                temp.push({
+                  cost: loansInfo.costs[i],
+                  deposit: loansInfo.deposits[i],
+                  duration: loansInfo.durations[i],
+                  startTime: loansInfo.startTimes[i],
+                  loaner: loansInfo.loaners[i],
+                  borrower: loansInfo.loanees[i],
+                  asset_id: loansInfo.ids[i],
+                  state: loansInfo.states[i].toString(),
+                });
+              }
+              setLoans(temp);
+            });
+        }
         for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-          const tempy = assets;
           let metadata = {
             name: "missing metadata",
             description: "missing metadata",
@@ -257,28 +253,37 @@ function App() {
               }
             },
           };
-          if (useMain) {
-            assetTokenInstHi.methods
+          if (!is_ropsten) {
+            assetTokenInstTemp.methods
               .uri(EQUIPMENT_TOKEN_IDS[i])
               .call()
-              .then(function (u: string) {
+              .then(function (uri: string) {
                 try {
-                  metadata = require(`./metadata/${u.slice(7)}`);
-                } catch {
-                };
-                setAssets(tempy);
+                  const tempy = assets;
+
+                  metadata = require(`./metadata/${uri.slice(7)}`);
+                  metadata.image = metadata.image.slice(6);
+                  metadata.animation_url = metadata.animation_url.slice(6);
+                  tempy[i] = {
+                    id: EQUIPMENT_TOKEN_IDS[i],
+                    ...metadata,
+                  };
+                  setAssets(tempy);
+                } catch { };
               });
           } else {
             try {
+              const tempy = assets;
+
               metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
-            } catch {
-            }
-            tempy[i] = {
-              id: EQUIPMENT_TOKEN_IDS[i],
-              ...metadata,
-              image: metadata.image.slice(6),
-              animation_url: metadata.animation_url.slice(6),
-            };
+              metadata.image = metadata.image.slice(6);
+              metadata.animation_url = metadata.animation_url.slice(6);
+              tempy[i] = {
+                id: EQUIPMENT_TOKEN_IDS[i],
+                ...metadata,
+              };
+              setAssets(tempy);
+            } catch { }
           }
         }
       });
@@ -292,7 +297,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
-  }, [assets, useMain]);
+  }, [assets]);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {

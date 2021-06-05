@@ -7,7 +7,7 @@ interface PermissionsProps {
   sandBalance: number;
   accounts: string[];
   sym: string;
-  pool_address: string;
+  poolAddress: string;
   sandTokenInst: any;
   assetTokenInst: any;
   assetsApproved: boolean;
@@ -21,7 +21,7 @@ const Permissions = (props: PermissionsProps) => {
         <h2>Permissions</h2>
         <p>To create or take out a loan, we need approval to transfer both FAU tokens and ASSETS on your behalf.</p>
 
-        <p>The pool contract can be found at <a href={`https://ropsten.etherscan.io/address/${props.pool_address}`} target="_blank" rel="noreferrer">{props.pool_address}</a></p>
+        <p>The pool contract can be found at <a href={`https://ropsten.etherscan.io/address/${props.poolAddress}`} target="_blank" rel="noreferrer">{props.poolAddress}</a></p>
         <div>
           <div>
             <h3>For loaning and borrowing</h3>
@@ -33,7 +33,7 @@ const Permissions = (props: PermissionsProps) => {
               style={{ marginLeft: 20 }}
               onClick={() =>
                 props.sandTokenInst.methods
-                  .approve(props.pool_address, 100000)
+                  .approve(props.poolAddress, 100000)
                   .send({ from: props.accounts[0] })
                   .then(console.log)
                   .catch(console.error)
@@ -49,7 +49,7 @@ const Permissions = (props: PermissionsProps) => {
               style={{ marginLeft: 20 }}
               onClick={() =>
                 props.assetTokenInst.methods
-                  .setApprovalForAll(props.pool_address, true)
+                  .setApprovalForAll(props.poolAddress, true)
                   .send({ from: props.accounts[0] })
                   .then(console.log)
                   .catch(console.error)
