@@ -3,6 +3,7 @@ import sandIcon from "./assets/sandIcon.png";
 import "./Marketplace.css";
 import {
   Button,
+  Grid,
   Table,
   TableBody,
   TableCell,
@@ -54,6 +55,7 @@ const YourBorrowsPage = (props: PopupProps) => {
     cost: 0,
     deposit: 0,
     duration: 0,
+    entry: 0,
     startTime: 0,
     loaner: "",
     borrower: "",
@@ -70,11 +72,10 @@ const YourBorrowsPage = (props: PopupProps) => {
           <TableRow>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Item</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Loaner</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Cost</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Deposit</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Duration</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Start date</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Due date</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Cost per second</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Collateral</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Loan started on</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Due by</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}></TableCell>
           </TableRow>
         </TableHead>
@@ -131,12 +132,11 @@ const YourBorrowsPage = (props: PopupProps) => {
                   </span>
                   {l.deposit}
                 </TableCell>
-                <TableCell style={{ color: "white", fontSize: '1rem' }}>{l.duration} seconds</TableCell>
                 <TableCell style={{ color: "white", fontSize: '1rem' }}>
-                  {new Date(l.startTime * 1000).toLocaleString()}
+                  {new Date(l.startTime * 1000).toLocaleDateString()}
                 </TableCell>
-                <TableCell style={{ color: +(l.startTime * 1000 + l.duration * 1000) < Date.now() && l.state === "1" ? "red" : "white", fontSize: '1rem' }}>
-                  {new Date(+l.startTime * 1000 + +l.duration * 1000).toLocaleString()}
+                <TableCell style={{ color: l.entry * 1000 + l.duration * 1000 < Date.now() && l.state === "1" ? "red" : "white", fontSize: '1rem' }}>
+                  {new Date(+l.entry * 1000 + +l.duration * 1000).toLocaleString()}
                 </TableCell>
                 <TableCell style={{ color: "white" }}>
                   {l.state === "1" ? (
@@ -165,6 +165,7 @@ const YourBorrowsPage = (props: PopupProps) => {
       </Table>
     </TableContainer>
   }
+
   return (
     <div style={{ padding: 40 }}>
       <Dialog
@@ -173,18 +174,23 @@ const YourBorrowsPage = (props: PopupProps) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Checkout</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            You are about to return 1 {chosenAsset.name}.
-            <p>
-              Following the terms of the loan, this action will refund your <b>{chosenLoan.deposit} SAND</b> deposit.
-            </p>
-            {+chosenLoan.startTime * 1000 + +chosenLoan.duration * 1000 > Date.now() ? <p style={{ color: 'black' }}>
-              This asset is due on {new Date(+Date.now() + +chosenLoan.duration * 1000).toLocaleDateString()} at {new Date(+Date.now() + +chosenLoan.duration * 1000).toLocaleTimeString()}. You still have {((+chosenLoan.startTime + +chosenLoan.duration) - +(Math.round(Date.now() / 1000)))} seconds of use.
-            </p> : <p style={{ color: 'red' }}>
-              This loan is overdue! Return the asset soon or risk forfeiting your deposit.
-            </p>}
+            {+chosenLoan.entry * 1000 + +chosenLoan.duration * 1000 < Date.now() ? <div style={{ border: 'solid', padding: 5, marginBottom: 10 }}>
+              <div style={{ color: 'red' }}>
+                This asset is overdue! Return it soon or risk forfeiting your deposit.
+              </div>
+            </div> : null}
+              You held this ASSET for {Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} seconds at a cost of {chosenLoan.cost} SAND per second.
+
+            <Grid container spacing={6}>
+              <Grid item><h4>Collateral</h4>{chosenLoan.deposit}</Grid>
+              <Grid item><h4>-</h4></Grid>
+              <Grid item><h4>Fee</h4>{chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} SAND</Grid>
+              <Grid item><h4>=</h4></Grid>
+              <Grid item><h4>Total</h4>{chosenLoan.deposit - chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} SAND</Grid>
+            </Grid>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -197,7 +203,7 @@ const YourBorrowsPage = (props: PopupProps) => {
                 props.loans.indexOf(chosenLoan).toString()
               )}
           >
-            Accept
+            Return asset
         <ArrowForwardIosIcon />
           </Button>
         </DialogActions>
@@ -211,7 +217,6 @@ const YourBorrowsPage = (props: PopupProps) => {
           onChange={(event: React.ChangeEvent<{ value: unknown }>) => setShowCurrentLoans(event.target.value as number)}
         >
           <MenuItem value={1}>Active loans</MenuItem>
-          <MenuItem value={0}>Past loans</MenuItem>
         </Select>
       </FormControl>
       {showCurrentLoans ? generateTable(currentLoans) : generateTable(completeLoans)}

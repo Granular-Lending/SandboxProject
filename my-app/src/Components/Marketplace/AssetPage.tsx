@@ -127,11 +127,11 @@ const AssetCard = (props: AssetProps) => {
           <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {props.loans.filter(
             (l: Loan) =>
               l.asset_id === props.asset.id &&
-              l.borrower === "0x0000000000000000000000000000000000000000"
+              l.state === "0"
           ).length} {props.loans.filter(
             (l: Loan) =>
               l.asset_id === props.asset.id &&
-              l.borrower === "0x0000000000000000000000000000000000000000"
+              l.state === "0"
           ).length === 1 ? "loan" : "loans"} available</h4>
           <h2>About</h2>
           <div
@@ -162,6 +162,7 @@ const AssetPage = (props: PopupProps) => {
     cost: 0,
     deposit: 0,
     duration: 0,
+    entry: 0,
     startTime: 0,
     loaner: "",
     borrower: "",
@@ -179,7 +180,7 @@ const AssetPage = (props: PopupProps) => {
   }, [id, props.assets, props.assets[0]]); // run this function when metadata filled
 
   const loansToShow = props.loans.filter(
-    (l: Loan) => l.asset_id === chosenAsset.id && l.state === "0"
+    (l: Loan) => l.asset_id === chosenAsset.id && l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
   );
 
   return (
@@ -190,16 +191,56 @@ const AssetPage = (props: PopupProps) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Checkout</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            You are about to borrow 1 {chosenAsset.name} for {chosenLoan.duration} seconds.
-            <p>
-              This will cost you {chosenLoan.cost} + {chosenLoan.deposit} = <b>{+chosenLoan.cost + +chosenLoan.deposit} SAND</b>.
-            </p>
-            <p>
-              You must return the item before <b>{new Date(+Date.now() + +chosenLoan.duration * 1000).toLocaleDateString()}</b> at <b>{new Date(+Date.now() + +chosenLoan.duration * 1000).toLocaleTimeString()}</b>, or you forfeit your deposit of {chosenLoan.deposit} SAND.
-            </p>
+            <div style={{
+              display: "flex",
+            }}>
+              <div style={{
+                border: '3px solid purple',
+                borderRadius: 25,
+                marginRight: 10,
+                padding: 20,
+              }}>
+                <img
+                  alt="missing metadata"
+                  src={process.env.PUBLIC_URL + `/equipment${chosenAsset.image}`}
+                  style={{
+                    objectFit: "contain",
+                    width: 200,
+                    height: 220,
+                  }}
+                />
+              </div>
+              <div>
+                <div style={{ borderStyle: 'solid', padding: 5 }}>
+                  <div style={{ display: 'flex' }}>
+                    Owner:
+                    <Tooltip title={chosenLoan.loaner}>
+                      <div>
+                        <Blockies
+                          seed={chosenLoan.loaner}
+                          size={10}
+                          scale={3}
+                          color="#fff"
+                          bgColor="#3ce"
+                          spotColor="#f0f"
+                          className="identicon"
+                        />
+                      </div>
+                    </Tooltip>
+                  </div>
+                    Available until: {new Date(chosenLoan.entry * 1000 + chosenLoan.duration * 1000).toLocaleString()}
+                </div>
+                <div style={{ borderStyle: 'solid', padding: 5, borderTop: 0 }}>
+                  <h3>Terms:</h3>
+                  {chosenLoan.deposit} SAND collateral
+                  <br />
+                  {chosenLoan.cost} SAND per second
+                </div>
+              </div>
+            </div>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -214,7 +255,7 @@ const AssetPage = (props: PopupProps) => {
             }
             }
           >
-            Accept
+            Agree to terms and Deposit {chosenLoan.deposit} SAND
             <ArrowForwardIosIcon />
           </Button>
         </DialogActions>
@@ -233,11 +274,9 @@ const AssetPage = (props: PopupProps) => {
             <TableHead>
               <TableRow>
                 <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Loaner</TableCell>
-                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Cost</TableCell>
+                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Cost per second</TableCell>
                 <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Deposit</TableCell>
-                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>
-                  Duration
-                </TableCell>
+                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Due by</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -279,7 +318,7 @@ const AssetPage = (props: PopupProps) => {
                     </span>
                     {l.deposit}
                   </TableCell>
-                  <TableCell style={{ color: "white", fontSize: '1rem' }}>{l.duration} seconds</TableCell>
+                  <TableCell style={{ color: "white", fontSize: '1rem' }}>{new Date(l.entry * 1000).toLocaleDateString()}</TableCell>
                   <TableCell style={{ color: "white" }}>
                     <Button
                       variant="contained"

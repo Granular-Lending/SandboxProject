@@ -33,8 +33,12 @@ export interface PopupProps {
   assets: Asset[];
 }
 
-const collectAssetFail = (inst: any, from: string, index: string) => {
-  inst.methods.collectLoanFail(index).send({ from: from }).then(console.log);
+const collectAsset = (inst: any, from: string, index: string) => {
+  inst.methods.collectLoan(index).send({ from: from }).then(console.log);
+};
+
+const collectTimeout = (inst: any, from: string, index: string) => {
+  inst.methods.timeoutLoan(index).send({ from: from }).then(console.log);
 };
 
 const YourLoansPage = (props: PopupProps) => {
@@ -47,10 +51,10 @@ const YourLoansPage = (props: PopupProps) => {
           <TableRow>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Item</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Borrower</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Cost</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Cost per second</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Deposit</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Duration</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Due date</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Due by</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}></TableCell>
           </TableRow>
         </TableHead >
@@ -75,10 +79,8 @@ const YourLoansPage = (props: PopupProps) => {
                     </Tooltip>
                   </TableCell>
                   <TableCell style={{ color: "white", fontSize: "1rem" }}>
-                    {l.borrower ===
-                      "0x0000000000000000000000000000000000000000"
-                      ? "None"
-                      : <Tooltip title={l.borrower}>
+                    {l.state === "1"
+                      ? <Tooltip title={l.borrower}>
                         <div>
                           <Blockies
                             seed={l.borrower}
@@ -90,7 +92,8 @@ const YourLoansPage = (props: PopupProps) => {
                             className="identicon"
                           />
                         </div>
-                      </Tooltip>}
+                      </Tooltip>
+                      : "None"}
                   </TableCell>
                   <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     <span>
@@ -115,12 +118,12 @@ const YourLoansPage = (props: PopupProps) => {
                   <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     {l.duration} seconds
                   </TableCell>
-                  <TableCell style={{ color: +(l.startTime * 1000 + l.duration * 1000) < Date.now() && l.state === "1" ? "red" : "white", fontSize: '1rem' }}>
-                    {l.state === '0' ? 'N/A' : new Date(+l.startTime * 1000 + +l.duration * 1000).toLocaleString()}
+                  <TableCell style={{ color: Date.now() > l.entry * 1000 + l.duration * 1000 && (l.state === "0" || l.state === "1") ? "red" : "white", fontSize: '1rem' }}>
+                    {new Date(l.entry * 1000 + l.duration * 1000).toLocaleString()}
                   </TableCell>
                   <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     {l.state === "1" &&
-                      Date.now() > l.startTime * 1000 + l.duration * 1000 ? (
+                      Date.now() > l.entry * 1000 + l.duration * 1000 ? (
                       <Button style={{ width: '100%' }}
                         variant="contained"
                         onClick={() => {
@@ -134,6 +137,23 @@ const YourLoansPage = (props: PopupProps) => {
                         }
                       >
                         Timeout
+                        <ArrowForwardIosIcon />
+                      </Button>
+                    ) : null}
+                    {l.state === "0" ? (
+                      <Button style={{ width: '100%' }}
+                        variant="contained"
+                        onClick={() => {
+                          setShowCollect(true);
+                          setChosenLoan(l);
+                          const assetWithID = props.assets.find(
+                            (a: Asset) => a.id === l.asset_id
+                          );
+                          if (assetWithID) { setChosenAsset(assetWithID); }
+                        }
+                        }
+                      >
+                        Collect ASSET
                         <ArrowForwardIosIcon />
                       </Button>
                     ) : null}
@@ -151,12 +171,14 @@ const YourLoansPage = (props: PopupProps) => {
     cost: 0,
     deposit: 0,
     duration: 0,
+    entry: 0,
     startTime: 0,
     loaner: "",
     borrower: "",
     asset_id: "",
     state: "",
   });
+  const [showCollect, setShowCollect] = useState(false);
   const [showTimeout, setShowTimeout] = useState(false);
 
   return (
@@ -167,20 +189,44 @@ const YourLoansPage = (props: PopupProps) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">Checkout</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            You are about to timeout 1 {chosenAsset.name}.
-            <p>
-              As they failed to return, this action will give you their <b>{chosenLoan.deposit} SAND</b> deposit.
-            </p>
+            As the borrower has failed to return this ASSET, this action will give you their <b>{chosenLoan.deposit} SAND</b> deposit.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button
             variant="contained"
             onClick={() =>
-              collectAssetFail(
+              collectTimeout(
+                props.poolInst,
+                props.accounts[0],
+                props.loans.indexOf(chosenLoan).toString()
+              )}
+          >
+            Accept
+              < ArrowForwardIosIcon />
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={showCollect}
+        onClose={() => setShowCollect(false)}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            You are about to collect this asset and take it out of the pool.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant="contained"
+            onClick={() =>
+              collectAsset(
                 props.poolInst,
                 props.accounts[0],
                 props.loans.indexOf(chosenLoan).toString()
@@ -201,7 +247,6 @@ const YourLoansPage = (props: PopupProps) => {
         >
           <MenuItem value={'0'}>Listed loans</MenuItem>
           <MenuItem value={'1'}>Active loans</MenuItem>
-          <MenuItem value={'2'}>Past loans</MenuItem>
         </Select>
       </FormControl>
       <NavLink style={{ textDecoration: "none" }} to="/createLoan">

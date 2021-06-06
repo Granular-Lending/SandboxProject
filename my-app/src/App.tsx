@@ -28,6 +28,7 @@ export interface Loan {
   cost: number;
   deposit: number;
   duration: number;
+  entry: number;
   startTime: number;
   asset_id: string;
   loaner: string;
@@ -73,7 +74,7 @@ const TEST_URIS = [
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/4.json",
 ];
 
-const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0x0b054D0FfA0477323da4BC5e1f31a95A6f14bA9F']
+const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0xAd2Bb244d5D2aF999aDF91ebb8d5Bd218053c407']
 const MAINNET_ADDRESSES = ['0x3845badAde8e6dFF049820680d1F14bD3903a5d0', '0xa342f5D851E866E18ff98F351f2c6637f4478dB5', '0x0000000000000000000000000000000000000000']
 
 declare global {
@@ -157,9 +158,9 @@ function App() {
       web3.eth.net.getNetworkType().then((networkType: string) => {
         const is_ropsten = networkType === 'ropsten';
         setUseMain(!is_ropsten);
-        let sandAddy = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
-        let assetAddy = '0xa342f5D851E866E18ff98F351f2c6637f4478dB5';
-        let poolAddy = '0x0000000000000000000000000000000000000000';
+        let sandAddy = MAINNET_ADDRESSES[0];
+        let assetAddy = MAINNET_ADDRESSES[1];
+        let poolAddy = MAINNET_ADDRESSES[2];
         if (is_ropsten) {
           sandAddy = ROPSTEN_ADDRESSES[0];
           assetAddy = ROPSTEN_ADDRESSES[1];
@@ -210,6 +211,7 @@ function App() {
               costs: number[];
               deposits: number[];
               durations: number[];
+              entry: number[];
               startTimes: number[];
               ids: string[];
               loaners: string[];
@@ -227,6 +229,7 @@ function App() {
                   cost: loansInfo.costs[i],
                   deposit: loansInfo.deposits[i],
                   duration: loansInfo.durations[i],
+                  entry: loansInfo.entry[i],
                   startTime: loansInfo.startTimes[i],
                   loaner: loansInfo.loaners[i],
                   borrower: loansInfo.loanees[i],

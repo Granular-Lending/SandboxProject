@@ -61,7 +61,21 @@
         "type": "uint256"
       }
     ],
-    "name": "collectLoanFail",
+    "name": "collectLoan",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_sale_index",
+        "type": "uint256"
+      }
+    ],
+    "name": "timeoutLoan",
     "outputs": [],
     "payable": false,
     "stateMutability": "nonpayable",
@@ -86,6 +100,10 @@
       },
       {
         "name": "startTimes",
+        "type": "uint[100]"
+      },
+      {
+        "name": "entry",
         "type": "uint[100]"
       },
       {

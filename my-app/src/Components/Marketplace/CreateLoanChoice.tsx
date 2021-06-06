@@ -61,7 +61,7 @@ const CreateLoanChoice = (props: ChoiceProps) => {
         <TextField
           autoFocus
           margin="dense"
-          label="Cost"
+          label="Cost per second"
           fullWidth
           onChange={(e: any) => setCost(e.target.value)}
           style={{ color: 'white' }}

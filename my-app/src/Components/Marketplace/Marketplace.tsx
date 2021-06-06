@@ -70,7 +70,7 @@ const Marketplace = (props: MarketplaceProps) => {
     const numberOfLoans = props.loans.filter(
       (l: Loan) =>
         l.asset_id === a.id &&
-        l.borrower === "0x0000000000000000000000000000000000000000"
+        l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
     ).length;
     return (
       <Link
