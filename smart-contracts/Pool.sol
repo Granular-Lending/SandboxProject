@@ -116,8 +116,8 @@ contract Pool is ERC1155TokenReceiver {
     
     /// @notice Returns the loans in range [_startIndex, _startIndex + 100)
     /// @dev Data is flattened to be read by Javascript
-    /// @param _startIndex The index is the loans array to return from
-    function getLoans(uint _startIndex) public view returns (uint[100] costs, uint[100] memory deposits, uint[100] memory durations, uint[100] memory startTimes, uint[100] memory entrys, uint[100] memory ids, address[100] memory loaners, address[100] memory loanees, LoanState[100] memory states) {
+    function getLoans() public view returns (uint[100] memory costs, uint[100] memory deposits, uint[100] memory durations, uint[100] memory startTimes, uint[100] memory entrys, uint[100] memory ids, address[100] memory loaners, address[100] memory loanees, LoanState[100] memory states) {
+        uint _startIndex = 0; // TODO make me a parameter
         require(_startIndex < loans.length, "Index must be in array");
         
         for (uint i=_startIndex; i < loans.length && i < _startIndex + 100; i++){
