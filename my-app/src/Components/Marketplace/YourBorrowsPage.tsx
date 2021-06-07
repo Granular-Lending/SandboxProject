@@ -73,7 +73,7 @@ const YourBorrowsPage = (props: PopupProps) => {
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Item</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Loaner</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Cost per second</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Collateral</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Deposit</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Loan started on</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Available until</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}></TableCell>
@@ -185,7 +185,7 @@ const YourBorrowsPage = (props: PopupProps) => {
               You held this ASSET for {Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} seconds at a cost of {chosenLoan.cost} SAND per second.
 
             <Grid container spacing={6}>
-              <Grid item><h4>Collateral</h4>{chosenLoan.deposit}</Grid>
+              <Grid item><h4>Deposit</h4>{chosenLoan.deposit}</Grid>
               <Grid item><h4>-</h4></Grid>
               <Grid item><h4>Fee</h4>{chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} SAND</Grid>
               <Grid item><h4>=</h4></Grid>

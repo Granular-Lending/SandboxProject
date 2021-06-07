@@ -234,7 +234,7 @@ const AssetPage = (props: PopupProps) => {
                 </div>
                 <div style={{ borderStyle: 'solid', padding: 5, borderTop: 0 }}>
                   <h3>Terms:</h3>
-                  {chosenLoan.deposit} SAND collateral
+                  {chosenLoan.deposit} SAND deposit
                   <br />
                   {chosenLoan.cost} SAND per second
                 </div>
