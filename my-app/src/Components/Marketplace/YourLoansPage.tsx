@@ -54,7 +54,7 @@ const YourLoansPage = (props: PopupProps) => {
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Cost per second</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Deposit</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Duration</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Due by</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Available until</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}></TableCell>
           </TableRow>
         </TableHead >

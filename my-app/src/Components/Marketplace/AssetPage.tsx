@@ -276,7 +276,7 @@ const AssetPage = (props: PopupProps) => {
                 <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Loaner</TableCell>
                 <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Cost per second</TableCell>
                 <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Deposit</TableCell>
-                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Due by</TableCell>
+                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Available until</TableCell>
                 <TableCell></TableCell>
               </TableRow>
             </TableHead>
@@ -318,7 +318,7 @@ const AssetPage = (props: PopupProps) => {
                     </span>
                     {l.deposit}
                   </TableCell>
-                  <TableCell style={{ color: "white", fontSize: '1rem' }}>{new Date(l.entry * 1000).toLocaleDateString()}</TableCell>
+                  <TableCell style={{ color: "white", fontSize: '1rem' }}>{new Date(l.entry * 1000 + l.duration * 1000).toLocaleDateString()}</TableCell>
                   <TableCell style={{ color: "white" }}>
                     <Button
                       variant="contained"

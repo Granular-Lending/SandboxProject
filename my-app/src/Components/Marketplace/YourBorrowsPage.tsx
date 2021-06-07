@@ -75,7 +75,7 @@ const YourBorrowsPage = (props: PopupProps) => {
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Cost per second</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Collateral</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Loan started on</TableCell>
-            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Due by</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.2rem' }}>Available until</TableCell>
             <TableCell style={{ color: "white", fontSize: '1.2rem' }}></TableCell>
           </TableRow>
         </TableHead>
@@ -203,7 +203,7 @@ const YourBorrowsPage = (props: PopupProps) => {
                 props.loans.indexOf(chosenLoan).toString()
               )}
           >
-            Return asset
+            Return asset and pay fee
         <ArrowForwardIosIcon />
           </Button>
         </DialogActions>
