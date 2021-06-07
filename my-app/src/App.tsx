@@ -74,7 +74,7 @@ const TEST_URIS = [
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/4.json",
 ];
 
-const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0x451A66fe66495A36973Bb8FA181AE1214Cac492f']
+const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0x84D55A16bc51E557B4fd0F7D485C4C3372Bf30Ee']
 const MAINNET_ADDRESSES = ['0x3845badAde8e6dFF049820680d1F14bD3903a5d0', '0xa342f5D851E866E18ff98F351f2c6637f4478dB5', '0x0000000000000000000000000000000000000000']
 
 declare global {
@@ -211,7 +211,7 @@ function App() {
               costs: number[];
               deposits: number[];
               durations: number[];
-              entry: number[];
+              entrys: number[];
               startTimes: number[];
               ids: string[];
               loaners: string[];
@@ -229,7 +229,7 @@ function App() {
                   cost: loansInfo.costs[i],
                   deposit: loansInfo.deposits[i],
                   duration: loansInfo.durations[i],
-                  entry: loansInfo.entry[i],
+                  entry: loansInfo.entrys[i],
                   startTime: loansInfo.startTimes[i],
                   loaner: loansInfo.loaners[i],
                   borrower: loansInfo.loanees[i],

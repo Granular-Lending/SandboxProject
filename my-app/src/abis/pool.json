@@ -103,7 +103,7 @@
         "type": "uint[100]"
       },
       {
-        "name": "entry",
+        "name": "entrys",
         "type": "uint[100]"
       },
       {

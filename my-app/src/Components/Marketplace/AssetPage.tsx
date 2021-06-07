@@ -73,7 +73,14 @@ const AssetCard = (props: AssetProps) => {
 
   const [model, setModel] = useState(
     <div></div>
-  )
+  );
+
+  const numberOfLoans = props.loans.filter(
+    (l: Loan) =>
+      l.asset_id === props.asset.id &&
+      l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
+  ).length;
+
   return (
     <div>
       <Link style={{ textDecoration: "none" }} to="/assets">
@@ -124,15 +131,7 @@ const AssetCard = (props: AssetProps) => {
         <div style={{ width: "100%" }}>
           <h1>{props.asset.name}</h1>
           <h4 style={{ color: 'lightgrey' }}>Token ID: {props.asset.id.slice(0, 4)}...{props.asset.id.slice(-4)}</h4>
-          <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {props.loans.filter(
-            (l: Loan) =>
-              l.asset_id === props.asset.id &&
-              l.state === "0"
-          ).length} {props.loans.filter(
-            (l: Loan) =>
-              l.asset_id === props.asset.id &&
-              l.state === "0"
-          ).length === 1 ? "loan" : "loans"} available</h4>
+          <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available</h4>
           <h2>About</h2>
           <div
             style={{
