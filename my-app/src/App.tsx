@@ -430,6 +430,7 @@ function App() {
         onClick={metaMaskLogin}
         loginButtonText={loginButtonText}
         sandBalance={sandBalance}
+        accounts={accounts}
       />
       <Marketplace
         addPendingLoans={addPendingLoans}

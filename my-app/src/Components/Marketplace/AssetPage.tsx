@@ -224,9 +224,9 @@ const AssetPage = (props: PopupProps) => {
                           seed={chosenLoan.loaner}
                           size={10}
                           scale={3}
-                          color="#fff"
-                          bgColor="#3ce"
-                          spotColor="#f0f"
+                          color={`#${chosenLoan.loaner.slice(2, 5)}`}
+                          bgColor={`#${chosenLoan.loaner.slice(2 + 3, 5 + 3)}`}
+                          spotColor={`#${chosenLoan.loaner.slice(2 + 6, 5 + 6)}`}
                           className="identicon"
                         />
                       </div>
@@ -291,9 +291,9 @@ const AssetPage = (props: PopupProps) => {
                           seed={l.loaner}
                           size={10}
                           scale={5}
-                          color="#fff"
-                          bgColor="#3ce"
-                          spotColor="#f0f"
+                          color={`#${l.loaner.slice(2, 5)}`}
+                          bgColor={`#${l.loaner.slice(2 + 3, 5 + 3)}`}
+                          spotColor={`#${l.loaner.slice(2 + 6, 5 + 6)}`}
                           className="identicon"
                         />
                       </div>

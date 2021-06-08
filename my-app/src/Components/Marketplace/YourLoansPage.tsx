@@ -9,6 +9,7 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
+  Grid,
   Link,
   MenuItem,
   Select,
@@ -98,9 +99,9 @@ const YourLoansPage = (props: PopupProps) => {
                             seed={l.borrower}
                             size={10}
                             scale={5}
-                            color="#fff"
-                            bgColor="#3ce"
-                            spotColor="#f0f"
+                            color={`#${l.borrower.slice(2, 5)}`}
+                            bgColor={`#${l.borrower.slice(2 + 3, 5 + 3)}`}
+                            spotColor={`#${l.borrower.slice(2 + 6, 5 + 6)}`}
                             className="identicon"
                           />
                         </div>
@@ -276,35 +277,41 @@ const YourLoansPage = (props: PopupProps) => {
         </DialogActions>
       </Dialog>
       <h2>Your Loans</h2>
-      <FormControl>
-        <Select style={{ color: 'white' }}
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={loanFilter}
-          onChange={(event: React.ChangeEvent<{ value: unknown }>) => {
-            setLoanFilter(event.target.value as string);
+      <Grid container>
+        <Grid item xs>
+          <FormControl>
+            <Select style={{ color: 'white' }}
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={loanFilter}
+              onChange={(event: React.ChangeEvent<{ value: unknown }>) => {
+                setLoanFilter(event.target.value as string);
+                setLoanTable(generateTable(props.loans.filter(
+                  (l: Loan) =>
+                    l.state === event.target.value as string &&
+                    l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
+                )));
+              }}
+            >
+              <MenuItem value={'0'}>Listed loans</MenuItem>
+              <MenuItem value={'1'}>Active loans</MenuItem>
+            </Select>
+          </FormControl>
+          <Button style={{ marginLeft: 40 }} variant='contained' onClick={() => {
+            props.addPendingLoans(props.poolInst, props.accounts[0]);
             setLoanTable(generateTable(props.loans.filter(
               (l: Loan) =>
-                l.state === event.target.value as string &&
+                l.state === loanFilter &&
                 l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
             )));
-          }}
-        >
-          <MenuItem value={'0'}>Listed loans</MenuItem>
-          <MenuItem value={'1'}>Active loans</MenuItem>
-        </Select>
-      </FormControl>
-      <NavLink style={{ textDecoration: "none" }} to="/createLoan">
-        <Button style={{ marginLeft: 40 }} variant="contained">Create new loan</Button>
-      </NavLink>
-      <Button variant='contained' onClick={() => {
-        props.addPendingLoans(props.poolInst, props.accounts[0]);
-        setLoanTable(generateTable(props.loans.filter(
-          (l: Loan) =>
-            l.state === loanFilter &&
-            l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
-        )));
-      }}><CachedIcon /></Button>
+          }}><CachedIcon /></Button>
+        </Grid>
+        <Grid item xs>
+          <NavLink style={{ textDecoration: "none" }} to="/createLoan">
+            <Button style={{ marginLeft: 40 }} variant="contained">Create new loan</Button>
+          </NavLink>
+        </Grid>
+      </Grid>
       {loanTable}
 
     </div>
