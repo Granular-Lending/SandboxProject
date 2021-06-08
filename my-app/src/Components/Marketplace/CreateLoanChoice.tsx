@@ -16,9 +16,6 @@ interface ChoiceProps {
   assets: Asset[];
 }
 
-const transferAsset = (inst: any, from: string, asset_id: string, cost: number, deposit: number, duration: number) => {
-  inst.methods.createLoan(asset_id, cost, deposit, duration).send({ from: from }).then(console.log);
-}
 
 const CreateLoanChoice = (props: ChoiceProps) => {
   const [cost, setCost] = React.useState(5);
@@ -37,31 +34,37 @@ const CreateLoanChoice = (props: ChoiceProps) => {
         Back
       </Button>
     </Link>
-  Loaning 1
-  <FormControl>
-      <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={assetID}
-        onChange={handleChange}
-        style={{ padding: 10, marginLeft: 20, marginRight: 20, color: 'white' }}>
-        {props.assets.filter((a: Asset) => props.assetBalances[props.tokenids.indexOf(a.id)] > 0).map((a: Asset) => <MenuItem value={a.id}>
-          <img
-            alt="missing metadata"
-            style={{ objectFit: "contain", height: 25 }}
-            src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
-          />{a.name}</MenuItem>)}
-      </Select>
-    </FormControl> for:
-    <div style={{ backgroundColor: 'white' }}>
+    <h2 style={{ paddingLeft: 40 }}>Create a new loan</h2>
+    <div style={{ backgroundColor: 'white', padding: 10 }}>
+      <h4 style={{ color: 'black' }}>ASSET</h4>
+      <FormControl>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={assetID}
+          onChange={handleChange}
+          style={{ padding: 10, marginLeft: 20, marginRight: 20 }}>
+          {props.assets.filter((a: Asset) => props.assetBalances[props.tokenids.indexOf(a.id)] > 0).map((a: Asset) =>
+            <MenuItem value={a.id}>
+              {a.name}
+              <img
+                alt="missing metadata"
+                style={{ objectFit: "contain", height: 25, paddingLeft: 10 }}
+                src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
+              />
+            </MenuItem>)}
+        </Select>
+      </FormControl>
+      <h4 style={{ color: 'black' }}>Terms</h4>
       <div style={{
         display: 'flex'
       }}>
+
         <img style={{ objectFit: "contain", width: 20 }} src={sandIcon} alt="SAND logo" />
         <TextField
           autoFocus
           margin="dense"
-          label="Cost"
+          label="Cost per second"
           fullWidth
           onChange={(e: any) => setCost(e.target.value)}
           style={{ color: 'white' }}
@@ -85,7 +88,9 @@ const CreateLoanChoice = (props: ChoiceProps) => {
         />
       </div>
     </div >
-    <Button variant='contained' onClick={() => transferAsset(props.poolInst, props.accounts[0], assetID, cost, deposit, duration)}>Submit</Button>
+    <Button style={{ margin: 10 }} variant='contained' onClick={() => {
+      props.poolInst.methods.createLoan(assetID, cost, deposit, duration).send({ from: props.accounts[0] }).then();
+    }}>Submit</Button>
   </div >
 }
 export default CreateLoanChoice;

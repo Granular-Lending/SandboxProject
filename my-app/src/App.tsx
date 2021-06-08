@@ -7,6 +7,62 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
 import Marketplace from "./Components/Marketplace/Marketplace";
 
+interface Transaction {
+  hash: string;
+  nonce: number;
+  blockHash: string | null;
+  blockNumber: number | null;
+  transactionIndex: number | null;
+  from: string;
+  to: string | null;
+  value: string;
+  gasPrice: string;
+  gas: number;
+  input: string;
+}
+
+interface BlockHeader {
+  number: number;
+  hash: string;
+  parentHash: string;
+  nonce: string;
+  sha3Uncles: string;
+  logsBloom: string;
+  transactionRoot: string;
+  stateRoot: string;
+  receiptRoot: string;
+  miner: string;
+  extraData: string;
+  gasLimit: number;
+  gasUsed: number;
+  timestamp: number | string;
+}
+interface BlockTransactionBase extends BlockHeader {
+  size: number;
+  difficulty: number;
+  totalDifficulty: number;
+  uncles: string[];
+}
+interface BlockTransactionObject extends BlockTransactionBase {
+  transactions: Transaction[];
+}
+const hexToDec = (s: string) => {
+  var i, j, digits = [0], carry;
+  for (i = 0; i < s.length; i += 1) {
+    carry = parseInt(s.charAt(i), 16);
+    for (j = 0; j < digits.length; j += 1) {
+      digits[j] = digits[j] * 16 + carry;
+      carry = digits[j] / 10 | 0;
+      digits[j] %= 10;
+    }
+    while (carry > 0) {
+      digits.push(carry % 10);
+      carry = carry / 10 | 0;
+    }
+  }
+  return digits.reverse().join('');
+}
+
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");
 const poolabi = require("./abis/pool.json");
@@ -28,11 +84,14 @@ export interface Loan {
   cost: number;
   deposit: number;
   duration: number;
+  entry: number;
   startTime: number;
   asset_id: string;
   loaner: string;
   borrower: string;
   state: string;
+  tx: string;
+  pendingFunction: string;
 }
 
 export const EQUIPMENT_TOKEN_IDS = [
@@ -73,6 +132,9 @@ const TEST_URIS = [
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/4.json",
 ];
 
+const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0x84D55A16bc51E557B4fd0F7D485C4C3372Bf30Ee']
+const MAINNET_ADDRESSES = ['0x3845badAde8e6dFF049820680d1F14bD3903a5d0', '0xa342f5D851E866E18ff98F351f2c6637f4478dB5', '0x0000000000000000000000000000000000000000']
+
 declare global {
   interface Window {
     ethereum: any;
@@ -85,16 +147,14 @@ const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
+const theMap: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
+
 function App() {
   const [useMain, setUseMain] = useState(false);
 
-  const [sandTokenAddress, setSandTokenAddress] = useState("");
-  const [assetTokenAddress, setAssetTokenAddress] = useState("");
-  const [poolAddress, setPoolAddress] = useState("");
-
-  const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, sandTokenAddress));
-  const [assetTokenInst, setAssetTokenInst] = useState(new web3.eth.Contract(erc1155abi, assetTokenAddress));
-  const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, poolAddress));
+  const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, ""));
+  const [assetTokenInst, setAssetTokenInst] = useState(new web3.eth.Contract(erc1155abi, ""));
+  const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, ""));
 
   const [sym, setSym] = useState("XXXX");
 
@@ -104,14 +164,12 @@ function App() {
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
   const [sandBalance, setSandBalance] = useState(-1);
-  const [assetBalances, setAssetBalances] = useState(
-    Array(EQUIPMENT_TOKEN_IDS.length).fill(-1)
-  );
+  const [assetBalances, setAssetBalances] = useState(Array(EQUIPMENT_TOKEN_IDS.length).fill(-1));
+
   const [sandApproved, setSandApproved] = useState(true);
   const [assetsApproved, setAssetsApproved] = useState(true);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
-
   const [assets, setAssets]: [Asset[], any] = useState(
     EQUIPMENT_TOKEN_IDS.map((id: string) => {
       return {
@@ -152,42 +210,108 @@ function App() {
     }
   }, [accounts]);
 
+  const addPendingLoans = (poolInstTemp: any, account: string) => {
+    poolInstTemp.methods
+      .getLoans()
+      .call()
+      .then(function (loansInfo: {
+        costs: number[];
+        deposits: number[];
+        durations: number[];
+        entrys: number[];
+        startTimes: number[];
+        ids: string[];
+        loaners: string[];
+        loanees: string[];
+        states: number[];
+      }) {
+        const temp: Loan[] = [];
+        for (let i = 0; i < loansInfo.costs.length; i++) {
+          if (
+            loansInfo.loaners[i] ===
+            "0x0000000000000000000000000000000000000000"
+          ) break;
+
+          temp.push({
+            cost: loansInfo.costs[i],
+            deposit: loansInfo.deposits[i],
+            duration: loansInfo.durations[i],
+            entry: loansInfo.entrys[i],
+            startTime: loansInfo.startTimes[i],
+            loaner: loansInfo.loaners[i],
+            borrower: loansInfo.loanees[i],
+            asset_id: loansInfo.ids[i],
+            state: loansInfo.states[i].toString(),
+            tx: '',
+            pendingFunction: ''
+          });
+        }
+        web3.eth.getBlock("pending", true).then((value: BlockTransactionObject) => {
+          for (let i = 0; i < value.transactions.length; i++) {
+            const x = value.transactions[i];
+            const pendingFunction = theMap[x.input.slice(0, 10)]
+            if (x.to === poolInstTemp.options.address && !temp.some(el => el.tx === x.hash)) {
+              if (pendingFunction === 'create' && x.from.toLowerCase() === account.toLowerCase()) {
+                temp.push({
+                  deposit: parseInt(`0x${x.input.slice(-128, -64)}`),
+                  cost: parseInt(`0x${x.input.slice(-192, -128)}`),
+                  duration: parseInt(`0x${x.input.slice(-64)}`),
+                  entry: 0,
+                  startTime: 0,
+                  loaner: account,
+                  borrower: '0x0000000000000000000000000000000000000000',
+                  asset_id: hexToDec(x.input.slice(9, 74)),
+                  state: '0',
+                  tx: x.hash,
+                  pendingFunction: pendingFunction
+                });
+              } else if (['collect', 'timeout', 'accept', 'return'].includes(pendingFunction)) {
+                temp[parseInt(x.input.slice(-64), 16)].tx = x.hash;
+                temp[parseInt(x.input.slice(-64), 16)].pendingFunction = pendingFunction
+              }
+            }
+          }
+          setLoans(temp);
+        });
+      });
+  }
+
   React.useEffect(() => {
     function handleNewAccounts(newAccounts: string[]) {
       setAccounts(newAccounts);
+
       web3.eth.net.getNetworkType().then((networkType: string) => {
         const is_ropsten = networkType === 'ropsten';
         setUseMain(!is_ropsten);
-        let sandAddy = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
-        let assetAddy = '0xa342f5D851E866E18ff98F351f2c6637f4478dB5';
-        let poolAddy = '0x0000000000000000000000000000000000000000';
+        let sandAddy = MAINNET_ADDRESSES[0];
+        let assetAddy = MAINNET_ADDRESSES[1];
+        let poolAddy = MAINNET_ADDRESSES[2];
         if (is_ropsten) {
-          sandAddy = '0xFab46E002BbF0b4509813474841E0716E6730136';
-          assetAddy = '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8';
-          poolAddy = '0x0b054D0FfA0477323da4BC5e1f31a95A6f14bA9F';
+          sandAddy = ROPSTEN_ADDRESSES[0];
+          assetAddy = ROPSTEN_ADDRESSES[1];
+          poolAddy = ROPSTEN_ADDRESSES[2];
         }
-        const sandTokenInstHi = new web3.eth.Contract(erc20abi, sandAddy);
-        const assetTokenInstHi = new web3.eth.Contract(erc1155abi, assetAddy);
-        const poolInstHi = new web3.eth.Contract(poolabi, poolAddy);
-        setSandTokenAddress(sandAddy);
-        setAssetTokenAddress(assetAddy);
-        setPoolAddress(poolAddy);
-        setSandTokenInst(sandTokenInstHi);
-        setAssetTokenInst(assetTokenInstHi);
-        setPoolTokenInst(poolInstHi);
-        sandTokenInstHi.methods
+
+        const sandTokenInstTemp = new web3.eth.Contract(erc20abi, sandAddy);
+        const assetTokenInstTemp = new web3.eth.Contract(erc1155abi, assetAddy);
+        const poolInstTemp = new web3.eth.Contract(poolabi, poolAddy);
+
+        setSandTokenInst(sandTokenInstTemp);
+        setAssetTokenInst(assetTokenInstTemp);
+        setPoolTokenInst(poolInstTemp);
+        sandTokenInstTemp.methods
           .symbol()
           .call()
           .then(function (s: string) {
             setSym(s);
           });
-        sandTokenInstHi.methods
+        sandTokenInstTemp.methods
           .balanceOf(newAccounts[0])
           .call()
           .then(function (bal: number) {
             setSandBalance(bal);
           });
-        assetTokenInstHi.methods
+        assetTokenInstTemp.methods
           .balanceOfBatch(
             Array(EQUIPMENT_TOKEN_IDS.length).fill(newAccounts[0]),
             EQUIPMENT_TOKEN_IDS
@@ -197,51 +321,19 @@ function App() {
             setAssetBalances(bals);
           });
 
-        sandTokenInstHi.methods
+        sandTokenInstTemp.methods
           .allowance(newAccounts[0], poolAddy)
           .call()
           .then((s: number) => setSandApproved(s > 0))
-        assetTokenInstHi.methods
+        assetTokenInstTemp.methods
           .isApprovedForAll(newAccounts[0], poolAddy)
           .call()
           .then((s: boolean) => setAssetsApproved(s))
 
-        poolInstHi.methods
-          .getLoans()
-          .call()
-          .then(function (salesInfo: {
-            costs: number[];
-            deposits: number[];
-            durations: number[];
-            startTimes: number[];
-            ids: string[];
-            loaners: string[];
-            loanees: string[];
-            states: number[];
-          }) {
-            const temp: Loan[] = [];
-            for (let i = 0; i < salesInfo.costs.length; i++) {
-              if (
-                salesInfo.loaners[i] ===
-                "0x0000000000000000000000000000000000000000"
-              ) break;
-
-              temp.push({
-                cost: salesInfo.costs[i],
-                deposit: salesInfo.deposits[i],
-                duration: salesInfo.durations[i],
-                startTime: salesInfo.startTimes[i],
-                loaner: salesInfo.loaners[i],
-                borrower: salesInfo.loanees[i],
-                asset_id: salesInfo.ids[i],
-                state: salesInfo.states[i].toString(),
-              });
-            }
-            setLoans(temp);
-          });
-
+        if (is_ropsten) {
+          addPendingLoans(poolInstTemp, newAccounts[0]);
+        }
         for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-          const tempy = assets;
           let metadata = {
             name: "missing metadata",
             description: "missing metadata",
@@ -257,28 +349,37 @@ function App() {
               }
             },
           };
-          if (useMain) {
-            assetTokenInstHi.methods
+          if (!is_ropsten) {
+            assetTokenInstTemp.methods
               .uri(EQUIPMENT_TOKEN_IDS[i])
               .call()
-              .then(function (u: string) {
+              .then(function (uri: string) {
                 try {
-                  metadata = require(`./metadata/${u.slice(7)}`);
-                } catch {
-                };
-                setAssets(tempy);
+                  const tempy = assets;
+
+                  metadata = require(`./metadata/${uri.slice(7)}`);
+                  metadata.image = metadata.image.slice(6);
+                  metadata.animation_url = metadata.animation_url.slice(6);
+                  tempy[i] = {
+                    id: EQUIPMENT_TOKEN_IDS[i],
+                    ...metadata,
+                  };
+                  setAssets(tempy);
+                } catch { };
               });
           } else {
             try {
+              const tempy = assets;
+
               metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
-            } catch {
-            }
-            tempy[i] = {
-              id: EQUIPMENT_TOKEN_IDS[i],
-              ...metadata,
-              image: metadata.image.slice(6),
-              animation_url: metadata.animation_url.slice(6),
-            };
+              metadata.image = metadata.image.slice(6);
+              metadata.animation_url = metadata.animation_url.slice(6);
+              tempy[i] = {
+                id: EQUIPMENT_TOKEN_IDS[i],
+                ...metadata,
+              };
+              setAssets(tempy);
+            } catch { }
           }
         }
       });
@@ -292,7 +393,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
-  }, [assets, useMain]);
+  }, [assets]);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
@@ -329,11 +430,12 @@ function App() {
         onClick={metaMaskLogin}
         loginButtonText={loginButtonText}
         sandBalance={sandBalance}
+        accounts={accounts}
       />
       <Marketplace
+        addPendingLoans={addPendingLoans}
         assetsApproved={assetsApproved}
         sandAllowance={sandApproved}
-        poolAddress={poolAddress}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}

@@ -2,6 +2,11 @@ import { Link } from "react-router-dom";
 import "./Navbar.css";
 import logo from "./assets/LogoTrans.png";
 import sandIcon from "./assets/sandIcon.png";
+import Blockies from 'react-blockies';
+
+import {
+  Tooltip,
+} from "@material-ui/core";
 
 const Navbar = (props: any) => {
   return (
@@ -33,14 +38,27 @@ const Navbar = (props: any) => {
           </Link>
         </div>
 
-        <span>
+        <div>
           <button
-            style={{ marginRight: 40 }}
+            style={{ marginRight: 20 }}
             disabled={props.disabled}
             onClick={props.onClick}
           >
             {props.loginButtonText}
           </button>
+          <Tooltip title={props.accounts[0]}>
+            <Blockies
+              seed={props.accounts[0]}
+              size={10}
+              scale={4}
+              color={`#${props.accounts[0].slice(2, 5)}`}
+              bgColor={`#${props.accounts[0].slice(2 + 3, 5 + 3)}`}
+              spotColor={`#${props.accounts[0].slice(2 + 6, 5 + 6)}`}
+              className="identicon"
+            />
+          </Tooltip>
+        </div>
+        <span>
           <img
             className="sandIcon"
             src={sandIcon}
@@ -60,7 +78,7 @@ const Navbar = (props: any) => {
           </b>
         </span>
       </div>
-    </div>
+    </div >
   );
 };
 
