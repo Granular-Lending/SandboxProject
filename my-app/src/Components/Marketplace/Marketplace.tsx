@@ -11,6 +11,7 @@ import Permissions from "../Permissions/Permissions";
 import { Button, FormControl, MenuItem, Select } from "@material-ui/core";
 
 interface MarketplaceProps {
+  addPendingLoans: (temp: Loan[], poolInstTemp: any, account: string) => void;
   assets: Asset[];
   assetBalances: number[];
   tokenids: string[];
@@ -21,7 +22,6 @@ interface MarketplaceProps {
   sandBalance: number;
   sym: string;
   sandTokenInst: any;
-  poolAddress: string;
   assetsApproved: boolean;
   sandAllowance: boolean;
 }
@@ -149,8 +149,7 @@ const Marketplace = (props: MarketplaceProps) => {
             />
           </Route>
           <Route path="/whitepaper">
-            <Sample
-            />
+            <Sample />
           </Route>
           <Route path="/createLoan">
             <CreateLoanChoice
@@ -163,16 +162,18 @@ const Marketplace = (props: MarketplaceProps) => {
           </Route>
           <Route path="/yourLoans">
             <YourLoansPage
+              addPendingLoans={props.addPendingLoans}
               assets={props.assets}
+              loans={props.loans}
               tokenids={props.tokenids}
               assetBalances={props.assetBalances}
-              loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
             />
           </Route>
           <Route path="/yourBorrows">
             <YourBorrowsPage
+              addPendingLoans={props.addPendingLoans}
               assets={props.assets}
               tokenids={props.tokenids}
               assetBalances={props.assetBalances}
@@ -190,7 +191,7 @@ const Marketplace = (props: MarketplaceProps) => {
               sandBalance={props.sandBalance}
               sandTokenInst={props.sandTokenInst}
               assetTokenInst={props.assetTokenInst}
-              poolAddress={props.poolAddress}
+              poolAddress={props.poolInst.options.address}
             />
           </Route>
           <Route path="/">

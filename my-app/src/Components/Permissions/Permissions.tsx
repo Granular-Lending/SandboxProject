@@ -33,7 +33,7 @@ const Permissions = (props: PermissionsProps) => {
               style={{ marginLeft: 20 }}
               onClick={() =>
                 props.sandTokenInst.methods
-                  .approve(props.poolAddress, 100000)
+                  .approve(props.poolAddress, 100000000)
                   .send({ from: props.accounts[0] })
                   .then(console.log)
                   .catch(console.error)

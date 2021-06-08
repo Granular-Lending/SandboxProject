@@ -7,6 +7,62 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
 import Marketplace from "./Components/Marketplace/Marketplace";
 
+interface Transaction {
+  hash: string;
+  nonce: number;
+  blockHash: string | null;
+  blockNumber: number | null;
+  transactionIndex: number | null;
+  from: string;
+  to: string | null;
+  value: string;
+  gasPrice: string;
+  gas: number;
+  input: string;
+}
+
+interface BlockHeader {
+  number: number;
+  hash: string;
+  parentHash: string;
+  nonce: string;
+  sha3Uncles: string;
+  logsBloom: string;
+  transactionRoot: string;
+  stateRoot: string;
+  receiptRoot: string;
+  miner: string;
+  extraData: string;
+  gasLimit: number;
+  gasUsed: number;
+  timestamp: number | string;
+}
+interface BlockTransactionBase extends BlockHeader {
+  size: number;
+  difficulty: number;
+  totalDifficulty: number;
+  uncles: string[];
+}
+interface BlockTransactionObject extends BlockTransactionBase {
+  transactions: Transaction[];
+}
+const hexToDec = (s: string) => {
+  var i, j, digits = [0], carry;
+  for (i = 0; i < s.length; i += 1) {
+    carry = parseInt(s.charAt(i), 16);
+    for (j = 0; j < digits.length; j += 1) {
+      digits[j] = digits[j] * 16 + carry;
+      carry = digits[j] / 10 | 0;
+      digits[j] %= 10;
+    }
+    while (carry > 0) {
+      digits.push(carry % 10);
+      carry = carry / 10 | 0;
+    }
+  }
+  return digits.reverse().join('');
+}
+
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");
 const poolabi = require("./abis/pool.json");
@@ -34,6 +90,8 @@ export interface Loan {
   loaner: string;
   borrower: string;
   state: string;
+  tx: string;
+  pendingFunction: string;
 }
 
 export const EQUIPMENT_TOKEN_IDS = [
@@ -89,10 +147,10 @@ const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
+const theMap: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
+
 function App() {
   const [useMain, setUseMain] = useState(false);
-
-  const [poolAddress, setPoolAddress] = useState("");
 
   const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, ""));
   const [assetTokenInst, setAssetTokenInst] = useState(new web3.eth.Contract(erc1155abi, ""));
@@ -152,9 +210,76 @@ function App() {
     }
   }, [accounts]);
 
+  const addPendingLoans = (poolInstTemp: any, account: string) => {
+    poolInstTemp.methods
+      .getLoans()
+      .call()
+      .then(function (loansInfo: {
+        costs: number[];
+        deposits: number[];
+        durations: number[];
+        entrys: number[];
+        startTimes: number[];
+        ids: string[];
+        loaners: string[];
+        loanees: string[];
+        states: number[];
+      }) {
+        const temp: Loan[] = [];
+        for (let i = 0; i < loansInfo.costs.length; i++) {
+          if (
+            loansInfo.loaners[i] ===
+            "0x0000000000000000000000000000000000000000"
+          ) break;
+
+          temp.push({
+            cost: loansInfo.costs[i],
+            deposit: loansInfo.deposits[i],
+            duration: loansInfo.durations[i],
+            entry: loansInfo.entrys[i],
+            startTime: loansInfo.startTimes[i],
+            loaner: loansInfo.loaners[i],
+            borrower: loansInfo.loanees[i],
+            asset_id: loansInfo.ids[i],
+            state: loansInfo.states[i].toString(),
+            tx: '',
+            pendingFunction: ''
+          });
+        }
+        web3.eth.getBlock("pending", true).then((value: BlockTransactionObject) => {
+          for (let i = 0; i < value.transactions.length; i++) {
+            const x = value.transactions[i];
+            const pendingFunction = theMap[x.input.slice(0, 10)]
+            if (x.to === poolInstTemp.options.address && !temp.some(el => el.tx === x.hash)) {
+              if (pendingFunction === 'create' && x.from.toLowerCase() === account.toLowerCase()) {
+                temp.push({
+                  deposit: parseInt(`0x${x.input.slice(-128, -64)}`),
+                  cost: parseInt(`0x${x.input.slice(-192, -128)}`),
+                  duration: parseInt(`0x${x.input.slice(-64)}`),
+                  entry: 0,
+                  startTime: 0,
+                  loaner: account,
+                  borrower: '0x0000000000000000000000000000000000000000',
+                  asset_id: hexToDec(x.input.slice(9, 74)),
+                  state: '0',
+                  tx: x.hash,
+                  pendingFunction: pendingFunction
+                });
+              } else if (['collect', 'timeout', 'accept', 'return'].includes(pendingFunction)) {
+                temp[parseInt(x.input.slice(-64), 16)].tx = x.hash;
+                temp[parseInt(x.input.slice(-64), 16)].pendingFunction = pendingFunction
+              }
+            }
+          }
+          setLoans(temp);
+        });
+      });
+  }
+
   React.useEffect(() => {
     function handleNewAccounts(newAccounts: string[]) {
       setAccounts(newAccounts);
+
       web3.eth.net.getNetworkType().then((networkType: string) => {
         const is_ropsten = networkType === 'ropsten';
         setUseMain(!is_ropsten);
@@ -166,10 +291,11 @@ function App() {
           assetAddy = ROPSTEN_ADDRESSES[1];
           poolAddy = ROPSTEN_ADDRESSES[2];
         }
+
         const sandTokenInstTemp = new web3.eth.Contract(erc20abi, sandAddy);
         const assetTokenInstTemp = new web3.eth.Contract(erc1155abi, assetAddy);
         const poolInstTemp = new web3.eth.Contract(poolabi, poolAddy);
-        setPoolAddress(poolAddy);
+
         setSandTokenInst(sandTokenInstTemp);
         setAssetTokenInst(assetTokenInstTemp);
         setPoolTokenInst(poolInstTemp);
@@ -203,42 +329,9 @@ function App() {
           .isApprovedForAll(newAccounts[0], poolAddy)
           .call()
           .then((s: boolean) => setAssetsApproved(s))
-        if (is_ropsten) {
-          poolInstTemp.methods
-            .getLoans()
-            .call()
-            .then(function (loansInfo: {
-              costs: number[];
-              deposits: number[];
-              durations: number[];
-              entrys: number[];
-              startTimes: number[];
-              ids: string[];
-              loaners: string[];
-              loanees: string[];
-              states: number[];
-            }) {
-              const temp: Loan[] = [];
-              for (let i = 0; i < loansInfo.costs.length; i++) {
-                if (
-                  loansInfo.loaners[i] ===
-                  "0x0000000000000000000000000000000000000000"
-                ) break;
 
-                temp.push({
-                  cost: loansInfo.costs[i],
-                  deposit: loansInfo.deposits[i],
-                  duration: loansInfo.durations[i],
-                  entry: loansInfo.entrys[i],
-                  startTime: loansInfo.startTimes[i],
-                  loaner: loansInfo.loaners[i],
-                  borrower: loansInfo.loanees[i],
-                  asset_id: loansInfo.ids[i],
-                  state: loansInfo.states[i].toString(),
-                });
-              }
-              setLoans(temp);
-            });
+        if (is_ropsten) {
+          addPendingLoans(poolInstTemp, newAccounts[0]);
         }
         for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
           let metadata = {
@@ -339,9 +432,9 @@ function App() {
         sandBalance={sandBalance}
       />
       <Marketplace
+        addPendingLoans={addPendingLoans}
         assetsApproved={assetsApproved}
         sandAllowance={sandApproved}
-        poolAddress={poolAddress}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}

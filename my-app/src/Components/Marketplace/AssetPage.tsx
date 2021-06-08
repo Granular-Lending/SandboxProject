@@ -167,6 +167,8 @@ const AssetPage = (props: PopupProps) => {
     borrower: "",
     asset_id: "",
     state: "",
+    tx: '',
+    pendingFunction: ''
   });
   const [showD, setShowD] = React.useState(false);
 

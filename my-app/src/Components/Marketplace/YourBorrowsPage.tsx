@@ -16,14 +16,14 @@ import {
   DialogContentText,
   DialogTitle,
   DialogActions,
-  FormControl,
-  MenuItem,
-  Select,
+  Link,
 } from "@material-ui/core";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import React, { useState } from "react";
 import Blockies from 'react-blockies';
-
+import CachedIcon from '@material-ui/icons/Cached';
+import { anotherMap } from "./YourLoansPage";
+import LaunchIcon from '@material-ui/icons/Launch';
 
 export interface PopupProps {
   poolInst: any;
@@ -32,6 +32,7 @@ export interface PopupProps {
   assetBalances: number[];
   tokenids: string[];
   assets: Asset[];
+  addPendingLoans: any;
 }
 
 const returnAsset = (inst: any, from: string, index: string) => {
@@ -39,17 +40,6 @@ const returnAsset = (inst: any, from: string, index: string) => {
 };
 
 const YourBorrowsPage = (props: PopupProps) => {
-  const currentLoans = props.loans.filter(
-    (l: Loan) =>
-      l.state === "1" &&
-      l.borrower.toLowerCase() === props.accounts[0].toLowerCase()
-  );
-  const completeLoans = props.loans.filter(
-    (l: Loan) =>
-      (l.state === "2") &&
-      l.borrower.toLowerCase() === props.accounts[0].toLowerCase()
-  );
-
   const [chosenAsset, setChosenAsset] = useState(props.assets[0]);
   const [chosenLoan, setChosenLoan] = useState({
     cost: 0,
@@ -61,9 +51,10 @@ const YourBorrowsPage = (props: PopupProps) => {
     borrower: "",
     asset_id: "",
     state: "",
+    tx: '',
+    pendingFunction: ''
   });
   const [showD, setShowD] = useState(false);
-  const [showCurrentLoans, setShowCurrentLoans] = useState(1);
 
   const generateTable = (loans: Loan[]) => {
     return <TableContainer style={{ backgroundColor: "#1b2030" }}>
@@ -136,10 +127,10 @@ const YourBorrowsPage = (props: PopupProps) => {
                   {new Date(l.startTime * 1000).toLocaleDateString()}
                 </TableCell>
                 <TableCell style={{ color: l.entry * 1000 + l.duration * 1000 < Date.now() && l.state === "1" ? "red" : "white", fontSize: '1rem' }}>
-                  {new Date(+l.entry * 1000 + +l.duration * 1000).toLocaleString()}
+                  {l.tx === '' ? new Date(+l.entry * 1000 + +l.duration * 1000).toLocaleString() : `PENDING ${anotherMap[l.pendingFunction]}`}
                 </TableCell>
                 <TableCell style={{ color: "white" }}>
-                  {l.state === "1" ? (
+                  {l.state === "1" && l.tx === '' ? (
                     <Button
                       style={{ width: '100%' }}
                       variant="contained"
@@ -156,7 +147,10 @@ const YourBorrowsPage = (props: PopupProps) => {
                       Return item
                       <ArrowForwardIosIcon />
                     </Button>
-                  ) : null}
+                  ) :
+                    l.tx !== '' ? (
+                      <Link style={{ fontSize: "1rem" }} rel="noopener" target="_blank" href={`https://ropsten.etherscan.io/tx/${l.tx}`}><LaunchIcon />View on Etherscan</Link>
+                    ) : null}
                 </TableCell>
               </TableRow>
             );
@@ -165,6 +159,21 @@ const YourBorrowsPage = (props: PopupProps) => {
       </Table>
     </TableContainer>
   }
+
+  const [loanTable, setLoanTable] = useState(generateTable(props.loans.filter(
+    (l: Loan) =>
+      l.state === "1" &&
+      l.borrower.toLowerCase() === props.accounts[0].toLowerCase()
+  )));
+
+  React.useEffect(() => {
+    setLoanTable(generateTable(props.loans.filter(
+      (l: Loan) =>
+        l.borrower.toLowerCase() === props.accounts[0].toLowerCase() &&
+        (l.state === "1" || l.tx !== '')
+    )));
+    // eslint-disable-next-line
+  }, [props.loans]); // run this function when loans filled
 
   return (
     <div style={{ padding: 40 }}>
@@ -177,19 +186,50 @@ const YourBorrowsPage = (props: PopupProps) => {
         <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {+chosenLoan.entry * 1000 + +chosenLoan.duration * 1000 < Date.now() ? <div style={{ border: 'solid', padding: 5, marginBottom: 10 }}>
+            {+chosenLoan.entry * 1000 + +chosenLoan.duration * 1000 < Date.now() ? <div style={{ border: 'solid', padding: 5, marginBottom: 10, color: 'red' }}>
               <div style={{ color: 'red' }}>
                 This asset is overdue! Return it soon or risk forfeiting your deposit.
               </div>
             </div> : null}
+            <p>
               You held this ASSET for {Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} seconds at a cost of {chosenLoan.cost} SAND per second.
-
-            <Grid container spacing={6}>
-              <Grid item><h4>Deposit</h4>{chosenLoan.deposit}</Grid>
-              <Grid item><h4>-</h4></Grid>
-              <Grid item><h4>Fee</h4>{chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} SAND</Grid>
-              <Grid item><h4>=</h4></Grid>
-              <Grid item><h4>Total</h4>{chosenLoan.deposit - chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} SAND</Grid>
+              </p>
+            <Grid container >
+              <Grid container spacing={2} >
+                <Grid item xs><i>Cost per second</i><p>{chosenLoan.cost}</p></Grid>
+                <Grid item ><b>*</b></Grid>
+                <Grid item xs><i>Seconds held</i><p>{Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)}</p></Grid>
+                <Grid item ><b>=</b></Grid>
+                <Grid item xs><i><b>Fee</b></i>
+                  <p>
+                    <span>
+                      <img
+                        style={{ width: 18 }}
+                        src={sandIcon}
+                        alt="SAND logo"
+                      />
+                    </span>
+                    {chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)}</p></Grid>
+              </Grid>
+              <Grid container spacing={2} style={{ borderStyle: 'solid' }} >
+                <Grid item xs><b>Deposit</b><p>{chosenLoan.deposit}</p></Grid>
+                <Grid item ><b>-</b></Grid>
+                <Grid item xs><b>Fee</b><p><span>
+                  <img
+                    style={{ width: 18 }}
+                    src={sandIcon}
+                    alt="SAND logo"
+                  />
+                </span>{chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)}</p></Grid>
+                <Grid item ><b>=</b></Grid>
+                <Grid item xs ><b>Total</b><p><span>
+                  <img
+                    style={{ width: 18 }}
+                    src={sandIcon}
+                    alt="SAND logo"
+                  />
+                </span>{chosenLoan.deposit - chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)}</p></Grid>
+              </Grid>
             </Grid>
           </DialogContentText>
         </DialogContent>
@@ -209,18 +249,11 @@ const YourBorrowsPage = (props: PopupProps) => {
         </DialogActions>
       </Dialog>
       <h2>Your Borrows</h2>
-      <FormControl>
-        <Select style={{ color: 'white' }}
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={showCurrentLoans}
-          onChange={(event: React.ChangeEvent<{ value: unknown }>) => setShowCurrentLoans(event.target.value as number)}
-        >
-          <MenuItem value={1}>Active loans</MenuItem>
-        </Select>
-      </FormControl>
-      {showCurrentLoans ? generateTable(currentLoans) : generateTable(completeLoans)}
-    </div>
+      <Button variant='contained' onClick={() => {
+        props.addPendingLoans(props.poolInst, props.accounts[0]);
+      }}><CachedIcon /></Button>
+      { loanTable}
+    </div >
   );
 };
 

@@ -9,6 +9,7 @@ import {
   DialogContentText,
   DialogTitle,
   FormControl,
+  Link,
   MenuItem,
   Select,
   Table,
@@ -23,6 +24,8 @@ import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import { NavLink } from "react-router-dom";
 import Blockies from 'react-blockies';
 import React, { useState } from "react";
+import CachedIcon from '@material-ui/icons/Cached';
+import LaunchIcon from '@material-ui/icons/Launch';
 
 export interface PopupProps {
   poolInst: any;
@@ -31,6 +34,7 @@ export interface PopupProps {
   assetBalances: number[];
   tokenids: string[];
   assets: Asset[];
+  addPendingLoans: any;
 }
 
 const collectAsset = (inst: any, from: string, index: string) => {
@@ -40,6 +44,14 @@ const collectAsset = (inst: any, from: string, index: string) => {
 const collectTimeout = (inst: any, from: string, index: string) => {
   inst.methods.timeoutLoan(index).send({ from: from }).then(console.log);
 };
+
+export const anotherMap: Record<string, string> = {
+  'create': 'CREATION',
+  'accept': 'ACCEPTANCE',
+  'collect': 'COLLECTION',
+  'timeout': 'TIMEOUT',
+  'return': 'RETURN'
+}
 
 const YourLoansPage = (props: PopupProps) => {
   const [loanFilter, setLoanFilter] = React.useState('0');
@@ -118,29 +130,13 @@ const YourLoansPage = (props: PopupProps) => {
                   <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     {l.duration} seconds
                   </TableCell>
-                  <TableCell style={{ color: Date.now() > l.entry * 1000 + l.duration * 1000 && (l.state === "0" || l.state === "1") ? "red" : "white", fontSize: '1rem' }}>
-                    {new Date(l.entry * 1000 + l.duration * 1000).toLocaleString()}
+                  <TableCell style={{ color: l.tx === '' && (Date.now() > l.entry * 1000 + l.duration * 1000 && (l.state === "0" || l.state === "1")) ? "red" : "white", fontSize: '1rem' }}>
+                    {l.tx !== '' ? (
+                      <div>PENDING {anotherMap[l.pendingFunction]}</div>
+                    ) : new Date(l.entry * 1000 + l.duration * 1000).toLocaleString()}
                   </TableCell>
                   <TableCell style={{ color: "white", fontSize: "1rem" }}>
-                    {l.state === "1" &&
-                      Date.now() > l.entry * 1000 + l.duration * 1000 ? (
-                      <Button style={{ width: '100%' }}
-                        variant="contained"
-                        onClick={() => {
-                          setShowTimeout(true);
-                          setChosenLoan(l);
-                          const assetWithID = props.assets.find(
-                            (a: Asset) => a.id === l.asset_id
-                          );
-                          if (assetWithID) { setChosenAsset(assetWithID); }
-                        }
-                        }
-                      >
-                        Timeout
-                        <ArrowForwardIosIcon />
-                      </Button>
-                    ) : null}
-                    {l.state === "0" ? (
+                    {l.state === "0" && l.tx === '' ? (
                       <Button style={{ width: '100%' }}
                         variant="contained"
                         onClick={() => {
@@ -154,6 +150,29 @@ const YourLoansPage = (props: PopupProps) => {
                         }
                       >
                         Collect ASSET
+                        <ArrowForwardIosIcon />
+                      </Button>
+                    ) :
+                      l.tx !== '' ? (
+                        <Link style={{ fontSize: "1rem" }} rel="noopener" target="_blank" href={`https://ropsten.etherscan.io/tx/${l.tx}`}><LaunchIcon />View on Etherscan</Link>
+                      ) : null
+                    }
+                    {l.state === "1" &&
+                      Date.now() > l.entry * 1000 + l.duration * 1000 && l.tx === '' ? (
+                      <Button style={{ width: '100%' }}
+
+                        variant="contained"
+                        onClick={() => {
+                          setShowTimeout(true);
+                          setChosenLoan(l);
+                          const assetWithID = props.assets.find(
+                            (a: Asset) => a.id === l.asset_id
+                          );
+                          if (assetWithID) { setChosenAsset(assetWithID); }
+                        }
+                        }
+                      >
+                        Timeout
                         <ArrowForwardIosIcon />
                       </Button>
                     ) : null}
@@ -177,9 +196,27 @@ const YourLoansPage = (props: PopupProps) => {
     borrower: "",
     asset_id: "",
     state: "",
+    tx: '',
+    pendingFunction: ''
   });
   const [showCollect, setShowCollect] = useState(false);
   const [showTimeout, setShowTimeout] = useState(false);
+
+  const [loanTable, setLoanTable] = useState(generateTable(props.loans.filter(
+    (l: Loan) =>
+      l.state === loanFilter &&
+      l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
+  )));
+
+  React.useEffect(() => {
+    setLoanTable(generateTable(props.loans.filter(
+      (l: Loan) =>
+        l.state === loanFilter &&
+        l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
+    )));
+    // eslint-disable-next-line
+  }, [props.loans]); // run this function when loans filled
+
 
   return (
     <div style={{ padding: 40 }}>
@@ -225,12 +262,13 @@ const YourLoansPage = (props: PopupProps) => {
         <DialogActions>
           <Button
             variant="contained"
-            onClick={() =>
+            onClick={() => {
               collectAsset(
                 props.poolInst,
                 props.accounts[0],
                 props.loans.indexOf(chosenLoan).toString()
-              )}
+              )
+            }}
           >
             Accept
               < ArrowForwardIosIcon />
@@ -243,7 +281,14 @@ const YourLoansPage = (props: PopupProps) => {
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           value={loanFilter}
-          onChange={(event: React.ChangeEvent<{ value: unknown }>) => setLoanFilter(event.target.value as string)}
+          onChange={(event: React.ChangeEvent<{ value: unknown }>) => {
+            setLoanFilter(event.target.value as string);
+            setLoanTable(generateTable(props.loans.filter(
+              (l: Loan) =>
+                l.state === event.target.value as string &&
+                l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
+            )));
+          }}
         >
           <MenuItem value={'0'}>Listed loans</MenuItem>
           <MenuItem value={'1'}>Active loans</MenuItem>
@@ -252,11 +297,16 @@ const YourLoansPage = (props: PopupProps) => {
       <NavLink style={{ textDecoration: "none" }} to="/createLoan">
         <Button style={{ marginLeft: 40 }} variant="contained">Create new loan</Button>
       </NavLink>
-      {generateTable(props.loans.filter(
-        (l: Loan) =>
-          l.state === loanFilter &&
-          l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
-      ))}
+      <Button variant='contained' onClick={() => {
+        props.addPendingLoans(props.poolInst, props.accounts[0]);
+        setLoanTable(generateTable(props.loans.filter(
+          (l: Loan) =>
+            l.state === loanFilter &&
+            l.loaner.toLowerCase() === props.accounts[0].toLowerCase()
+        )));
+      }}><CachedIcon /></Button>
+      {loanTable}
+
     </div>
   );
 };
