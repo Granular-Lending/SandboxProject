@@ -62,7 +62,6 @@ const CreateLoanChoice = (props: ChoiceProps) => {
 
         <img style={{ objectFit: "contain", width: 20 }} src={sandIcon} alt="SAND logo" />
         <TextField
-          autoFocus
           margin="dense"
           label="Cost per second"
           fullWidth
