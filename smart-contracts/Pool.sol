@@ -78,7 +78,7 @@ contract Pool is ERC1155TokenReceiver {
     /// @notice Return a loan, put an ASSET back into the pool
     /// @param _loanIndex yada
     function returnLoan(uint _loanIndex) public {
-        require(msg.sender == loans[_loanIndex].loanee);
+        require(msg.sender == loans[_loanIndex].loanee, "You are not the borrower");
         require(loans[_loanIndex].state == LoanState.Borrowed, "This ASSET is not currently borrowed");
 
         loans[_loanIndex].state = LoanState.Listed;
@@ -94,7 +94,7 @@ contract Pool is ERC1155TokenReceiver {
     /// @notice Collect ASSET from the pool
     /// @param _loanIndex yada
     function collectLoan(uint _loanIndex) public {
-        require(msg.sender == loans[_loanIndex].loaner);
+        require(msg.sender == loans[_loanIndex].loaner, "You are not the loaner");
         require(loans[_loanIndex].state == LoanState.Listed, "This ASSET is not in the pool");
 
         loans[_loanIndex].state = LoanState.Collected;
@@ -117,7 +117,7 @@ contract Pool is ERC1155TokenReceiver {
     /// @notice Returns the loans in range [_startIndex, _startIndex + 100)
     /// @dev Data is flattened to be read by Javascript
     function getLoans() public view returns (uint[100] memory costs, uint[100] memory deposits, uint[100] memory durations, uint[100] memory startTimes, uint[100] memory entrys, uint[100] memory ids, address[100] memory loaners, address[100] memory loanees, LoanState[100] memory states) {
-        uint _startIndex = 0; // TODO make me a parameter
+        uint _startIndex = 0; // TODO make me a parametery
         require(_startIndex < loans.length, "Index must be in array");
         
         for (uint i=_startIndex; i < loans.length && i < _startIndex + 100; i++){
