@@ -26,29 +26,40 @@ import React, { useEffect, useState } from "react";
 import Blockies from 'react-blockies';
 import { GLTFModel, AmbientLight } from 'react-3d-viewer'
 
-export interface PopupProps {
-  poolInst: any;
-  accounts: string[];
-  loans: Loan[];
-  assetBalances: number[];
-  tokenids: string[];
-  assets: Asset[];
-}
-
-interface AssetProps {
-  asset: Asset, balance: number, loans: Loan[]
-}
-
 interface ParamTypes {
   id: string
 }
 
+interface AssetPageProps {
+  poolInst: any;
+  accounts: string[];
+  loans: Loan[];
+  assetBalances: Record<string, number>;
+  assets: Asset[];
+}
+
+interface AssetCardProps {
+  asset: Asset, balance: number, loans: Loan[]
+}
+
 const buyAsset = (inst: any, from: string, index: string) => {
-  inst.methods.acceptLoan(index).send({ from: from }).then(console.log);
+  inst.methods.acceptLoan(index).send({ from: from });
 };
 
+export const formatSand = (amount: number) =>
+  <div>
+    <span>
+      <img
+        style={{ width: 20, paddingRight: 5 }}
+        src={sandIcon}
+        alt="SAND logo"
+      />
+    </span>
+    {amount}
+  </div>
+
 const position = { x: 0, y: 0, z: 0 };
-const AssetCard = (props: AssetProps) => {
+const AssetCard = (props: AssetCardProps) => {
   const [rotation, setRotation] = useState({ x: 0.3, y: 0, z: 0 });
   const [showModel, setShowModel] = useState(0);
 
@@ -61,7 +72,7 @@ const AssetCard = (props: AssetProps) => {
           width={300}
           height={250}
           enableZoom={false}
-          src={process.env.PUBLIC_URL + `/equipment${props.asset.animation_url}`}
+          src={process.env.PUBLIC_URL + `/ipfs/${props.asset.animation_url}`}
           position={position}
           rotation={obj} >
           <AmbientLight color='white' />
@@ -71,9 +82,7 @@ const AssetCard = (props: AssetProps) => {
     return () => clearInterval(interval);
   });
 
-  const [model, setModel] = useState(
-    <div></div>
-  );
+  const [model, setModel] = useState(<></>);
 
   const numberOfLoans = props.loans.filter(
     (l: Loan) =>
@@ -110,7 +119,7 @@ const AssetCard = (props: AssetProps) => {
             >
               <MenuItem value={0}>
                 Preview
-            </MenuItem>
+              </MenuItem>
               <MenuItem value={1}>
                 View 3D
             </MenuItem>
@@ -120,7 +129,7 @@ const AssetCard = (props: AssetProps) => {
             model :
             <img
               alt="missing metadata"
-              src={process.env.PUBLIC_URL + `/equipment${props.asset.image}`}
+              src={process.env.PUBLIC_URL + `/ipfs/${props.asset.image}`}
               style={{
                 objectFit: "contain",
                 width: 300,
@@ -153,7 +162,7 @@ const AssetCard = (props: AssetProps) => {
   );
 };
 
-const AssetPage = (props: PopupProps) => {
+const AssetPage = (props: AssetPageProps) => {
   let { id } = useParams<ParamTypes>();
 
   const [chosenAsset, setChosenAsset] = React.useState(props.assets[0]);
@@ -184,160 +193,149 @@ const AssetPage = (props: PopupProps) => {
     (l: Loan) => l.asset_id === chosenAsset.id && l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
   );
 
-  return (
-    <div style={{ padding: 10 }}>
-      <Dialog
-        open={showD}
-        onClose={() => setShowD(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            <div style={{
-              display: "flex",
-            }}>
-              <div style={{
-                border: '3px solid purple',
-                borderRadius: 25,
-                marginRight: 10,
-                padding: 20,
-              }}>
-                <img
-                  alt="missing metadata"
-                  src={process.env.PUBLIC_URL + `/equipment${chosenAsset.image}`}
-                  style={{
-                    objectFit: "contain",
-                    width: 200,
-                    height: 220,
-                  }}
-                />
-              </div>
-              <div>
-                <div style={{ borderStyle: 'solid', padding: 5 }}>
-                  <div style={{ display: 'flex' }}>
-                    Owner:
-                    <Tooltip title={chosenLoan.loaner}>
-                      <div>
-                        <Blockies
-                          seed={chosenLoan.loaner}
-                          size={10}
-                          scale={3}
-                          color={`#${chosenLoan.loaner.slice(2, 5)}`}
-                          bgColor={`#${chosenLoan.loaner.slice(2 + 3, 5 + 3)}`}
-                          spotColor={`#${chosenLoan.loaner.slice(2 + 6, 5 + 6)}`}
-                          className="identicon"
-                        />
-                      </div>
-                    </Tooltip>
+  const table =
+    <TableContainer>
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Loaner</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Cost per second</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Deposit</TableCell>
+            <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Available until</TableCell>
+            <TableCell></TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {loansToShow.map((l: Loan) => (
+            <TableRow key={l.cost}>
+              <TableCell style={{ color: "white" }}>
+                <Tooltip title={l.loaner}>
+                  <div>
+                    <Blockies
+                      seed={l.loaner}
+                      size={10}
+                      scale={5}
+                      color={`#${l.loaner.slice(2, 5)}`}
+                      bgColor={`#${l.loaner.slice(2 + 3, 5 + 3)}`}
+                      spotColor={`#${l.loaner.slice(2 + 6, 5 + 6)}`}
+                      className="identicon"
+                    />
                   </div>
-                    Available until: {new Date(chosenLoan.entry * 1000 + chosenLoan.duration * 1000).toLocaleString()}
+                </Tooltip>
+              </TableCell>
+              <TableCell style={{ color: "white", fontSize: '1rem' }}>
+                {formatSand(l.cost)}
+              </TableCell>
+              <TableCell style={{ color: "white", fontSize: '1rem' }}>
+                {formatSand(l.deposit)}
+              </TableCell>
+              <TableCell style={{ color: "white", fontSize: '1rem' }}>{new Date(l.entry * 1000 + l.duration * 1000).toLocaleDateString()}</TableCell>
+              <TableCell style={{ color: "white" }}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setChosenLoan(l);
+                    setShowD(true);
+                  }}
+                >
+                  Take out loan
+                <ArrowForwardIosIcon />
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>;
+
+  const dialog =
+    <Dialog
+      open={showD}
+      onClose={() => setShowD(false)}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+    >
+      <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          <div style={{
+            display: "flex",
+          }}>
+            <div style={{
+              border: '3px solid purple',
+              borderRadius: 25,
+              marginRight: 10,
+              padding: 20,
+            }}>
+              <img
+                alt="missing metadata"
+                src={process.env.PUBLIC_URL + `/ipfs/${chosenAsset.image}`}
+                style={{
+                  objectFit: "contain",
+                  width: 200,
+                  height: 220,
+                }}
+              />
+            </div>
+            <div>
+              <div style={{ borderStyle: 'solid', padding: 5 }}>
+                <div style={{ display: 'flex' }}>
+                  Owner:
+                  <Tooltip title={chosenLoan.loaner}>
+                    <div>
+                      <Blockies
+                        seed={chosenLoan.loaner}
+                        size={10}
+                        scale={3}
+                        color={`#${chosenLoan.loaner.slice(2, 5)}`}
+                        bgColor={`#${chosenLoan.loaner.slice(2 + 3, 5 + 3)}`}
+                        spotColor={`#${chosenLoan.loaner.slice(2 + 6, 5 + 6)}`}
+                        className="identicon"
+                      />
+                    </div>
+                  </Tooltip>
                 </div>
-                <div style={{ borderStyle: 'solid', padding: 5, borderTop: 0 }}>
-                  <h3>Terms:</h3>
-                  {chosenLoan.deposit} SAND deposit
-                  <br />
-                  {chosenLoan.cost} SAND per second
-                </div>
+                  Available until: {new Date(chosenLoan.entry * 1000 + chosenLoan.duration * 1000).toLocaleString()}
+              </div>
+              <div style={{ borderStyle: 'solid', padding: 5, borderTop: 0 }}>
+                <h3>Terms:</h3>
+                {formatSand(chosenLoan.deposit)}
+                <br />
+                {formatSand(chosenLoan.cost)}
               </div>
             </div>
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            variant="contained"
-            onClick={() => {
-              buyAsset(
-                props.poolInst,
-                props.accounts[0],
-                props.loans.indexOf(chosenLoan).toString()
-              );
-            }
-            }
-          >
-            Agree to terms and Deposit {chosenLoan.deposit} SAND
-            <ArrowForwardIosIcon />
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </div>
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          variant="contained"
+          onClick={() => {
+            buyAsset(
+              props.poolInst,
+              props.accounts[0],
+              props.loans.indexOf(chosenLoan).toString()
+            );
+          }
+          }
+        >
+          Agree to terms and Deposit {chosenLoan.deposit} SAND
+          <ArrowForwardIosIcon />
+        </Button>
+      </DialogActions>
+    </Dialog>;
+
+  return (
+    <div style={{ padding: 10 }}>
+      {dialog}
       <AssetCard
         asset={chosenAsset}
-        balance={props.assetBalances[props.tokenids.indexOf(chosenAsset.id)]}
+        balance={props.assetBalances[chosenAsset.id]}
         loans={props.loans}
       />
       <div style={{ backgroundColor: "#1b2030", paddingTop: 4 }}>
-        <h2 style={{
-          textAlign: 'center'
-        }}>Loans</h2>
-        <TableContainer>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Loaner</TableCell>
-                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Cost per second</TableCell>
-                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Deposit</TableCell>
-                <TableCell style={{ color: "white", fontSize: '1.3rem' }}>Available until</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loansToShow.map((l: Loan) => (
-                <TableRow key={l.cost}>
-                  <TableCell style={{ color: "white" }}>
-                    <Tooltip title={l.loaner}>
-                      <div>
-                        <Blockies
-                          seed={l.loaner}
-                          size={10}
-                          scale={5}
-                          color={`#${l.loaner.slice(2, 5)}`}
-                          bgColor={`#${l.loaner.slice(2 + 3, 5 + 3)}`}
-                          spotColor={`#${l.loaner.slice(2 + 6, 5 + 6)}`}
-                          className="identicon"
-                        />
-                      </div>
-                    </Tooltip>
-                  </TableCell>
-                  <TableCell style={{ color: "white", fontSize: '1rem' }}>
-                    <span>
-                      <img
-                        style={{ width: 20 }}
-                        src={sandIcon}
-                        alt="SAND logo"
-                      />
-                    </span>
-                    {l.cost}
-                  </TableCell>
-                  <TableCell style={{ color: "white", fontSize: '1rem' }}>
-                    <span>
-                      <img
-                        style={{ width: 20 }}
-                        src={sandIcon}
-                        alt="SAND logo"
-                      />
-                    </span>
-                    {l.deposit}
-                  </TableCell>
-                  <TableCell style={{ color: "white", fontSize: '1rem' }}>{new Date(l.entry * 1000 + l.duration * 1000).toLocaleDateString()}</TableCell>
-                  <TableCell style={{ color: "white" }}>
-                    <Button
-                      variant="contained"
-                      onClick={() => {
-                        setChosenLoan(l);
-                        setShowD(true);
-                      }
-                      }
-                    >
-                      Take out loan
-                      <ArrowForwardIosIcon />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <h2 style={{ textAlign: 'center' }}>Loans</h2>
+        {table}
       </div>
     </div >
   );

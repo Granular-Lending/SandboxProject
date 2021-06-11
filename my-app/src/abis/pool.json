@@ -88,39 +88,39 @@
     "outputs": [
       {
         "name": "costs",
-        "type": "uint[100]"
+        "type": "uint[]"
       },
       {
         "name": "deposits",
-        "type": "uint[100]"
+        "type": "uint[]"
       },
       {
         "name": "durations",
-        "type": "uint[100]"
+        "type": "uint[]"
       },
       {
         "name": "startTimes",
-        "type": "uint[100]"
+        "type": "uint[]"
       },
       {
         "name": "entrys",
-        "type": "uint[100]"
+        "type": "uint[]"
       },
       {
         "name": "ids",
-        "type": "uint[100]"
+        "type": "uint[]"
       },
       {
         "name": "loaners",
-        "type": "address[100]"
+        "type": "address[]"
       },
       {
         "name": "loanees",
-        "type": "address[100]"
+        "type": "address[]"
       },
       {
         "name": "states",
-        "type": "uint8[100]"
+        "type": "uint8[]"
       }
     ],
     "payable": false,

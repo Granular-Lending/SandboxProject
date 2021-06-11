@@ -132,7 +132,7 @@ const TEST_URIS = [
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/4.json",
 ];
 
-const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0x84D55A16bc51E557B4fd0F7D485C4C3372Bf30Ee']
+const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0xd9b047182124769c9d7fa129950038f0a2178890']
 const MAINNET_ADDRESSES = ['0x3845badAde8e6dFF049820680d1F14bD3903a5d0', '0xa342f5D851E866E18ff98F351f2c6637f4478dB5', '0x0000000000000000000000000000000000000000']
 
 declare global {
@@ -150,23 +150,23 @@ const CONNECTED_TEXT = "Connected";
 const theMap: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
 
 function App() {
-  const [useMain, setUseMain] = useState(false);
+  const [useRopsten, setUseRopsten] = useState(true);
 
   const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, ""));
   const [assetTokenInst, setAssetTokenInst] = useState(new web3.eth.Contract(erc1155abi, ""));
   const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, ""));
-
-  const [sym, setSym] = useState("XXXX");
 
   const [loginButtonText, setLoginButtonText] = useState(ONBOARD_TEXT);
   const [isDisabled, setDisabled] = useState(false);
   const [accounts, setAccounts] = useState([""]);
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
+  const [sym, setSym] = useState("XXXX");
   const [sandBalance, setSandBalance] = useState(-1);
-  const [assetBalances, setAssetBalances] = useState(Array(EQUIPMENT_TOKEN_IDS.length).fill(-1));
-
   const [sandApproved, setSandApproved] = useState(true);
+
+  const [assetBalances, setAssetBalances]: [Record<string, number>, any] = useState({});
+
   const [assetsApproved, setAssetsApproved] = useState(true);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
@@ -210,7 +210,7 @@ function App() {
     }
   }, [accounts]);
 
-  const addPendingLoans = (poolInstTemp: any, account: string) => {
+  const refreshLoans = (poolInstTemp: any, account: string) => {
     poolInstTemp.methods
       .getLoans()
       .call()
@@ -227,11 +227,6 @@ function App() {
       }) {
         const temp: Loan[] = [];
         for (let i = 0; i < loansInfo.costs.length; i++) {
-          if (
-            loansInfo.loaners[i] ===
-            "0x0000000000000000000000000000000000000000"
-          ) break;
-
           temp.push({
             cost: loansInfo.costs[i],
             deposit: loansInfo.deposits[i],
@@ -253,9 +248,9 @@ function App() {
             if (x.to === poolInstTemp.options.address && !temp.some(el => el.tx === x.hash)) {
               if (pendingFunction === 'create' && x.from.toLowerCase() === account.toLowerCase()) {
                 temp.push({
-                  deposit: parseInt(`0x${x.input.slice(-128, -64)}`),
-                  cost: parseInt(`0x${x.input.slice(-192, -128)}`),
-                  duration: parseInt(`0x${x.input.slice(-64)}`),
+                  deposit: parseInt(`0x${x.input.slice(-128, -64)}`, 16),
+                  cost: parseInt(`0x${x.input.slice(-192, -128)}`, 16),
+                  duration: parseInt(`0x${x.input.slice(-64)}`, 16),
                   entry: 0,
                   startTime: 0,
                   loaner: account,
@@ -265,7 +260,7 @@ function App() {
                   tx: x.hash,
                   pendingFunction: pendingFunction
                 });
-              } else if (['collect', 'timeout', 'accept', 'return'].includes(pendingFunction)) {
+              } else {
                 temp[parseInt(x.input.slice(-64), 16)].tx = x.hash;
                 temp[parseInt(x.input.slice(-64), 16)].pendingFunction = pendingFunction
               }
@@ -277,12 +272,42 @@ function App() {
   }
 
   React.useEffect(() => {
+    const loadFromIPFS = (index: number, ipfsAddress: string) => {
+      const tempy = assets;
+      let metadata = {
+        name: "missing metadata",
+        description: "missing metadata",
+        image: "missing metadata",
+        creator_profile_url: "missing metadata",
+        animation_url: "missing metadata",
+        sandbox: {
+          creator: "missing metadata",
+          classification: {
+            type: "missing metadata",
+            theme: "missing metadata",
+            categories: [""],
+          }
+        },
+      };
+      try {
+        metadata = require(`./ipfs/${ipfsAddress.slice(7)}`);
+      } catch { }
+
+      metadata.image = metadata.image.slice(6);
+      metadata.animation_url = metadata.animation_url.slice(6);
+      tempy[index] = {
+        id: EQUIPMENT_TOKEN_IDS[index],
+        ...metadata,
+      };
+      setAssets(tempy);
+    }
+
     function handleNewAccounts(newAccounts: string[]) {
       setAccounts(newAccounts);
 
       web3.eth.net.getNetworkType().then((networkType: string) => {
         const is_ropsten = networkType === 'ropsten';
-        setUseMain(!is_ropsten);
+        setUseRopsten(is_ropsten);
         let sandAddy = MAINNET_ADDRESSES[0];
         let assetAddy = MAINNET_ADDRESSES[1];
         let poolAddy = MAINNET_ADDRESSES[2];
@@ -299,6 +324,7 @@ function App() {
         setSandTokenInst(sandTokenInstTemp);
         setAssetTokenInst(assetTokenInstTemp);
         setPoolTokenInst(poolInstTemp);
+
         sandTokenInstTemp.methods
           .symbol()
           .call()
@@ -311,6 +337,11 @@ function App() {
           .then(function (bal: number) {
             setSandBalance(bal);
           });
+        sandTokenInstTemp.methods
+          .allowance(newAccounts[0], poolAddy)
+          .call()
+          .then((s: number) => setSandApproved(s > 0))
+
         assetTokenInstTemp.methods
           .balanceOfBatch(
             Array(EQUIPMENT_TOKEN_IDS.length).fill(newAccounts[0]),
@@ -318,68 +349,30 @@ function App() {
           )
           .call()
           .then(function (bals: number[]) {
-            setAssetBalances(bals);
+            const hello = assetBalances;
+            for (let i = 0; i < bals.length; i++) {
+              hello[EQUIPMENT_TOKEN_IDS[i]] = bals[i]
+            }
+            setAssetBalances(hello);
           });
-
-        sandTokenInstTemp.methods
-          .allowance(newAccounts[0], poolAddy)
-          .call()
-          .then((s: number) => setSandApproved(s > 0))
         assetTokenInstTemp.methods
           .isApprovedForAll(newAccounts[0], poolAddy)
           .call()
           .then((s: boolean) => setAssetsApproved(s))
 
         if (is_ropsten) {
-          addPendingLoans(poolInstTemp, newAccounts[0]);
-        }
-        for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-          let metadata = {
-            name: "missing metadata",
-            description: "missing metadata",
-            image: "missing metadata",
-            creator_profile_url: "missing metadata",
-            animation_url: "missing metadata",
-            sandbox: {
-              creator: "missing metadata",
-              classification: {
-                type: "missing metadata",
-                theme: "missing metadata",
-                categories: [""],
-              }
-            },
-          };
-          if (!is_ropsten) {
+          refreshLoans(poolInstTemp, newAccounts[0]);
+          for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
+            loadFromIPFS(i, TEST_URIS[i]);
+          }
+        } else {
+          for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
             assetTokenInstTemp.methods
               .uri(EQUIPMENT_TOKEN_IDS[i])
               .call()
               .then(function (uri: string) {
-                try {
-                  const tempy = assets;
-
-                  metadata = require(`./metadata/${uri.slice(7)}`);
-                  metadata.image = metadata.image.slice(6);
-                  metadata.animation_url = metadata.animation_url.slice(6);
-                  tempy[i] = {
-                    id: EQUIPMENT_TOKEN_IDS[i],
-                    ...metadata,
-                  };
-                  setAssets(tempy);
-                } catch { };
+                loadFromIPFS(i, uri);
               });
-          } else {
-            try {
-              const tempy = assets;
-
-              metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
-              metadata.image = metadata.image.slice(6);
-              metadata.animation_url = metadata.animation_url.slice(6);
-              tempy[i] = {
-                id: EQUIPMENT_TOKEN_IDS[i],
-                ...metadata,
-              };
-              setAssets(tempy);
-            } catch { }
           }
         }
       });
@@ -393,7 +386,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
-  }, [assets]);
+  }, [assets, assetBalances]);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
@@ -413,7 +406,7 @@ function App() {
   return (
     <Router>
       <Dialog
-        open={useMain}
+        open={!useRopsten}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -433,9 +426,9 @@ function App() {
         accounts={accounts}
       />
       <Marketplace
-        addPendingLoans={addPendingLoans}
+        addPendingLoans={refreshLoans}
         assetsApproved={assetsApproved}
-        sandAllowance={sandApproved}
+        sandApproved={sandApproved}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}
@@ -443,7 +436,6 @@ function App() {
         assetBalances={assetBalances}
         assetTokenInst={assetTokenInst}
         poolInst={poolInst}
-        tokenids={EQUIPMENT_TOKEN_IDS}
         sandTokenInst={sandTokenInst}
         loans={loans}
       />

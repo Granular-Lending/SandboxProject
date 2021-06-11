@@ -1,5 +1,4 @@
 import { Asset, Loan } from "../../App";
-import sandIcon from "./assets/sandIcon.png";
 import "./Marketplace.css";
 import {
   Button,
@@ -27,13 +26,12 @@ import Blockies from 'react-blockies';
 import React, { useState } from "react";
 import CachedIcon from '@material-ui/icons/Cached';
 import LaunchIcon from '@material-ui/icons/Launch';
+import { formatSand } from "./AssetPage";
 
-export interface PopupProps {
+interface PopupProps {
   poolInst: any;
   accounts: string[];
   loans: Loan[];
-  assetBalances: number[];
-  tokenids: string[];
   assets: Asset[];
   addPendingLoans: any;
 }
@@ -86,7 +84,7 @@ const YourLoansPage = (props: PopupProps) => {
                         style={{ objectFit: "contain", width: 35 }}
                         src={
                           process.env.PUBLIC_URL +
-                          `/equipment/${asset ? asset.image : ""}`
+                          `/ipfs/${asset ? asset.image : ""}`
                         }
                       />
                     </Tooltip>
@@ -108,25 +106,11 @@ const YourLoansPage = (props: PopupProps) => {
                       </Tooltip>
                       : "None"}
                   </TableCell>
-                  <TableCell style={{ color: "white", fontSize: "1rem" }}>
-                    <span>
-                      <img
-                        style={{ width: 15 }}
-                        src={sandIcon}
-                        alt="SAND logo"
-                      />
-                    </span>
-                    {l.cost}
+                  <TableCell style={{ color: "white", fontSize: '1rem' }}>
+                    {formatSand(l.cost)}
                   </TableCell>
-                  <TableCell style={{ color: "white", fontSize: "1rem" }}>
-                    <span>
-                      <img
-                        style={{ width: 15 }}
-                        src={sandIcon}
-                        alt="SAND logo"
-                      />
-                    </span>
-                    {l.deposit}
+                  <TableCell style={{ color: "white", fontSize: '1rem' }}>
+                    {formatSand(l.deposit)}
                   </TableCell>
                   <TableCell style={{ color: "white", fontSize: "1rem" }}>
                     {l.duration} seconds
