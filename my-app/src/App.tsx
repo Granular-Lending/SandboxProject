@@ -1,51 +1,17 @@
 import MetaMaskOnboarding from "@metamask/onboarding";
 import React, { useState } from "react";
 import Web3 from "web3";
+import { BlockTransactionObject } from "web3-eth"
 
 import Navbar from "./Components/Navbar/Navbar";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
 import Marketplace from "./Components/Marketplace/Marketplace";
 
-interface Transaction {
-  hash: string;
-  nonce: number;
-  blockHash: string | null;
-  blockNumber: number | null;
-  transactionIndex: number | null;
-  from: string;
-  to: string | null;
-  value: string;
-  gasPrice: string;
-  gas: number;
-  input: string;
-}
+const erc20abi = require("./abis/erc20.json");
+const erc1155abi = require("./abis/erc1155.json");
+const poolabi = require("./abis/pool.json");
 
-interface BlockHeader {
-  number: number;
-  hash: string;
-  parentHash: string;
-  nonce: string;
-  sha3Uncles: string;
-  logsBloom: string;
-  transactionRoot: string;
-  stateRoot: string;
-  receiptRoot: string;
-  miner: string;
-  extraData: string;
-  gasLimit: number;
-  gasUsed: number;
-  timestamp: number | string;
-}
-interface BlockTransactionBase extends BlockHeader {
-  size: number;
-  difficulty: number;
-  totalDifficulty: number;
-  uncles: string[];
-}
-interface BlockTransactionObject extends BlockTransactionBase {
-  transactions: Transaction[];
-}
 const hexToDec = (s: string) => {
   var i, j, digits = [0], carry;
   for (i = 0; i < s.length; i += 1) {
@@ -62,10 +28,6 @@ const hexToDec = (s: string) => {
   }
   return digits.reverse().join('');
 }
-
-const erc20abi = require("./abis/erc20.json");
-const erc1155abi = require("./abis/erc1155.json");
-const poolabi = require("./abis/pool.json");
 
 export interface Asset {
   id: string;
@@ -94,7 +56,7 @@ export interface Loan {
   pendingFunction: string;
 }
 
-export const EQUIPMENT_TOKEN_IDS = [
+const EQUIPMENT_TOKEN_IDS = [
   "26059276970032186212506257052788207833935590993847855924189730778752558827520",
   "40785833732304342849735419653626615027421227776496020677721887159020450484224",
   "40785833732304342849735419653626615027421227776496020677721887159020450484225",
@@ -147,7 +109,7 @@ const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
-const theMap: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
+const signatureToFunction: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
 
 function App() {
   const [useRopsten, setUseRopsten] = useState(true);
@@ -244,7 +206,7 @@ function App() {
         web3.eth.getBlock("pending", true).then((value: BlockTransactionObject) => {
           for (let i = 0; i < value.transactions.length; i++) {
             const x = value.transactions[i];
-            const pendingFunction = theMap[x.input.slice(0, 10)]
+            const pendingFunction = signatureToFunction[x.input.slice(0, 10)]
             if (x.to === poolInstTemp.options.address && !temp.some(el => el.tx === x.hash)) {
               if (pendingFunction === 'create' && x.from.toLowerCase() === account.toLowerCase()) {
                 temp.push({
@@ -272,7 +234,7 @@ function App() {
   }
 
   React.useEffect(() => {
-    const loadFromIPFS = (index: number, ipfsAddress: string) => {
+    const loadMetadataFromIPFS = (index: number, ipfsAddress: string) => {
       const tempy = assets;
       let metadata = {
         name: "missing metadata",
@@ -349,11 +311,11 @@ function App() {
           )
           .call()
           .then(function (bals: number[]) {
-            const hello = assetBalances;
+            const balancesCopy = assetBalances;
             for (let i = 0; i < bals.length; i++) {
-              hello[EQUIPMENT_TOKEN_IDS[i]] = bals[i]
+              balancesCopy[EQUIPMENT_TOKEN_IDS[i]] = bals[i]
             }
-            setAssetBalances(hello);
+            setAssetBalances(balancesCopy);
           });
         assetTokenInstTemp.methods
           .isApprovedForAll(newAccounts[0], poolAddy)
@@ -363,7 +325,7 @@ function App() {
         if (is_ropsten) {
           refreshLoans(poolInstTemp, newAccounts[0]);
           for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-            loadFromIPFS(i, TEST_URIS[i]);
+            loadMetadataFromIPFS(i, TEST_URIS[i]);
           }
         } else {
           for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
@@ -371,7 +333,7 @@ function App() {
               .uri(EQUIPMENT_TOKEN_IDS[i])
               .call()
               .then(function (uri: string) {
-                loadFromIPFS(i, uri);
+                loadMetadataFromIPFS(i, uri);
               });
           }
         }
