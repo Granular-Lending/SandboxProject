@@ -48,7 +48,7 @@ const CreateLoanChoice = (props: ChoiceProps) => {
               <img
                 alt="missing metadata"
                 style={{ objectFit: "contain", height: 25, paddingLeft: 10 }}
-                src={process.env.PUBLIC_URL + `/ipfs/${a.image}`}
+                src={`https://ipfs.io/ipfs/${a.image}`}
               />
             </MenuItem>)}
         </Select>

@@ -80,10 +80,7 @@ const YourBorrowsPage = (props: PopupProps) => {
                     <img
                       alt="missing metadata"
                       style={{ objectFit: "contain", width: 35 }}
-                      src={
-                        process.env.PUBLIC_URL +
-                        `/ipfs/${asset ? asset.image : ""}`
-                      }
+                      src={`https://ipfs.io/ipfs/${asset ? asset.image : ''}`}
                     />
                   </Tooltip>
                 </TableCell>

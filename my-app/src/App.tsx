@@ -249,7 +249,6 @@ function App() {
           };
           setAssets(tempy);
         })
-
     }
 
     function handleNewAccounts(newAccounts: string[]) {

@@ -42,7 +42,7 @@ const AssetCard = (a: Asset, loans: Loan[]) => {
           <img
             alt="missing metadata"
             style={{ objectFit: "contain" }}
-            src={process.env.PUBLIC_URL + `/ipfs/${a.image}`}
+            src={`https://ipfs.io/ipfs/${a.image}`}
           />
           <div className="cardData">
             <h3>{a.name.length > 22 ? `${a.name.slice(0, 22)}...` : a.name}</h3>

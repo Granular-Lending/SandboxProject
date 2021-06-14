@@ -72,7 +72,7 @@ const AssetCard = (props: AssetCardProps) => {
           width={300}
           height={250}
           enableZoom={false}
-          src={process.env.PUBLIC_URL + `/ipfs/${props.asset.animation_url}`}
+          src={`https://ipfs.io/ipfs/${props.asset.animation_url}`}
           position={position}
           rotation={obj} >
           <AmbientLight color='white' />
@@ -129,7 +129,7 @@ const AssetCard = (props: AssetCardProps) => {
             model :
             <img
               alt="missing metadata"
-              src={process.env.PUBLIC_URL + `/ipfs/${props.asset.image}`}
+              src={`https://ipfs.io/ipfs/${props.asset.image}`}
               style={{
                 objectFit: "contain",
                 width: 300,
@@ -269,7 +269,7 @@ const AssetPage = (props: AssetPageProps) => {
             }}>
               <img
                 alt="missing metadata"
-                src={process.env.PUBLIC_URL + `/ipfs/${chosenAsset.image}`}
+                src={`https://ipfs.io/ipfs/${chosenAsset.image}`}
                 style={{
                   objectFit: "contain",
                   width: 200,
