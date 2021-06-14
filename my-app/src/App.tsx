@@ -236,32 +236,20 @@ function App() {
   React.useEffect(() => {
     const loadMetadataFromIPFS = (index: number, ipfsAddress: string) => {
       const tempy = assets;
-      let metadata = {
-        name: "missing metadata",
-        description: "missing metadata",
-        image: "missing metadata",
-        creator_profile_url: "missing metadata",
-        animation_url: "missing metadata",
-        sandbox: {
-          creator: "missing metadata",
-          classification: {
-            type: "missing metadata",
-            theme: "missing metadata",
-            categories: [""],
-          }
-        },
-      };
-      try {
-        metadata = require(`./ipfs/${ipfsAddress.slice(7)}`);
-      } catch { }
+      let url = `https://ipfs.io/ipfs/${ipfsAddress.slice(7)}`;
 
-      metadata.image = metadata.image.slice(6);
-      metadata.animation_url = metadata.animation_url.slice(6);
-      tempy[index] = {
-        id: EQUIPMENT_TOKEN_IDS[index],
-        ...metadata,
-      };
-      setAssets(tempy);
+      fetch(url)
+        .then(res => res.json())
+        .then((metadata: any) => {
+          metadata.image = metadata.image.slice(6);
+          metadata.animation_url = metadata.animation_url.slice(6);
+          tempy[index] = {
+            id: EQUIPMENT_TOKEN_IDS[index],
+            ...metadata,
+          };
+          setAssets(tempy);
+        })
+
     }
 
     function handleNewAccounts(newAccounts: string[]) {
