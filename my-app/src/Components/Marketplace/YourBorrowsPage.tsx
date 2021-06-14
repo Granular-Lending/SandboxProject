@@ -1,5 +1,4 @@
 import { Asset, Loan } from "../../App";
-import sandIcon from "./assets/sandIcon.png";
 import "./Marketplace.css";
 import {
   Button,
@@ -24,13 +23,12 @@ import Blockies from 'react-blockies';
 import CachedIcon from '@material-ui/icons/Cached';
 import { anotherMap } from "./YourLoansPage";
 import LaunchIcon from '@material-ui/icons/Launch';
+import { formatSand } from "./AssetPage";
 
-export interface PopupProps {
+interface PopupProps {
   poolInst: any;
   accounts: string[];
   loans: Loan[];
-  assetBalances: number[];
-  tokenids: string[];
   assets: Asset[];
   addPendingLoans: any;
 }
@@ -82,10 +80,7 @@ const YourBorrowsPage = (props: PopupProps) => {
                     <img
                       alt="missing metadata"
                       style={{ objectFit: "contain", width: 35 }}
-                      src={
-                        process.env.PUBLIC_URL +
-                        `/equipment/${asset ? asset.image : ""}`
-                      }
+                      src={`https://ipfs.io/ipfs/${asset ? asset.image : ''}`}
                     />
                   </Tooltip>
                 </TableCell>
@@ -104,30 +99,16 @@ const YourBorrowsPage = (props: PopupProps) => {
                     </div>
                   </Tooltip></TableCell>
                 <TableCell style={{ color: "white", fontSize: '1rem' }}>
-                  <span>
-                    <img
-                      style={{ width: 15 }}
-                      src={sandIcon}
-                      alt="SAND logo"
-                    />
-                  </span>
-                  {l.cost}
+                  {formatSand(l.cost)}
                 </TableCell>
                 <TableCell style={{ color: "white", fontSize: '1rem' }}>
-                  <span>
-                    <img
-                      style={{ width: 15 }}
-                      src={sandIcon}
-                      alt="SAND logo"
-                    />
-                  </span>
-                  {l.deposit}
+                  {formatSand(l.deposit)}
                 </TableCell>
                 <TableCell style={{ color: "white", fontSize: '1rem' }}>
                   {new Date(l.startTime * 1000).toLocaleDateString()}
                 </TableCell>
                 <TableCell style={{ color: l.entry * 1000 + l.duration * 1000 < Date.now() && l.state === "1" ? "red" : "white", fontSize: '1rem' }}>
-                  {l.tx === '' ? new Date(+l.entry * 1000 + +l.duration * 1000).toLocaleString() : `PENDING ${anotherMap[l.pendingFunction]}`}
+                  {l.tx === '' ? new Date(l.entry * 1000 + l.duration * 1000).toLocaleString() : `PENDING ${anotherMap[l.pendingFunction]}`}
                 </TableCell>
                 <TableCell style={{ color: "white" }}>
                   {l.state === "1" && l.tx === '' ? (
@@ -137,10 +118,7 @@ const YourBorrowsPage = (props: PopupProps) => {
                       onClick={() => {
                         setChosenLoan(l);
                         setShowD(true);
-                        const assetWithID = props.assets.find(
-                          (a: Asset) => a.id === l.asset_id
-                        );
-                        if (assetWithID) { setChosenAsset(assetWithID); }
+                        if (asset) { setChosenAsset(asset); }
                       }
                       }
                     >
@@ -160,11 +138,7 @@ const YourBorrowsPage = (props: PopupProps) => {
     </TableContainer>
   }
 
-  const [loanTable, setLoanTable] = useState(generateTable(props.loans.filter(
-    (l: Loan) =>
-      l.state === "1" &&
-      l.borrower.toLowerCase() === props.accounts[0].toLowerCase()
-  )));
+  const [loanTable, setLoanTable] = useState(<div></div >);
 
   React.useEffect(() => {
     setLoanTable(generateTable(props.loans.filter(
@@ -174,6 +148,9 @@ const YourBorrowsPage = (props: PopupProps) => {
     )));
     // eslint-disable-next-line
   }, [props.loans]); // run this function when loans filled
+
+  const fee = chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000);
+  const secondsHeld = Math.floor((Date.now() / 1000 - chosenLoan.startTime));
 
   return (
     <div style={{ padding: 40 }}>
@@ -192,43 +169,32 @@ const YourBorrowsPage = (props: PopupProps) => {
               </div>
             </div> : null}
             <p>
-              You held this ASSET for {Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)} seconds at a cost of {chosenLoan.cost} SAND per second.
+              You held this ASSET for {secondsHeld} seconds at a cost of {chosenLoan.cost} SAND per second.
               </p>
             <Grid container >
               <Grid container spacing={2} >
                 <Grid item xs><i>Cost per second</i><p>{chosenLoan.cost}</p></Grid>
                 <Grid item ><b>*</b></Grid>
-                <Grid item xs><i>Seconds held</i><p>{Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)}</p></Grid>
+                <Grid item xs><i>Seconds held</i><p>{secondsHeld}</p></Grid>
                 <Grid item ><b>=</b></Grid>
                 <Grid item xs><i><b>Fee</b></i>
                   <p>
-                    <span>
-                      <img
-                        style={{ width: 18 }}
-                        src={sandIcon}
-                        alt="SAND logo"
-                      />
-                    </span>
-                    {chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)}</p></Grid>
+                    {formatSand(fee)}
+                  </p>
+                </Grid>
               </Grid>
               <Grid container spacing={2} style={{ borderStyle: 'solid' }} >
-                <Grid item xs><b>Deposit</b><p>{chosenLoan.deposit}</p></Grid>
+                <Grid item xs><b>Deposit</b>
+                  <p>{formatSand(chosenLoan.deposit)}</p>
+                </Grid>
                 <Grid item ><b>-</b></Grid>
-                <Grid item xs><b>Fee</b><p><span>
-                  <img
-                    style={{ width: 18 }}
-                    src={sandIcon}
-                    alt="SAND logo"
-                  />
-                </span>{chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)}</p></Grid>
+                <Grid item xs><b>Fee</b>
+                  <p>
+                    {formatSand(fee)}
+                  </p></Grid>
                 <Grid item ><b>=</b></Grid>
-                <Grid item xs ><b>Total</b><p><span>
-                  <img
-                    style={{ width: 18 }}
-                    src={sandIcon}
-                    alt="SAND logo"
-                  />
-                </span>{chosenLoan.deposit - chosenLoan.cost * Math.floor((Date.now() - chosenLoan.startTime * 1000) / 1000)}</p></Grid>
+                <Grid item xs ><b>Total</b>
+                  <p>{formatSand(chosenLoan.deposit - fee)}</p></Grid>
               </Grid>
             </Grid>
           </DialogContentText>
@@ -247,12 +213,14 @@ const YourBorrowsPage = (props: PopupProps) => {
         <ArrowForwardIosIcon />
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog >
       <h2>Your Borrows</h2>
       <Button variant='contained' onClick={() => {
         props.addPendingLoans(props.poolInst, props.accounts[0]);
-      }}><CachedIcon /></Button>
-      { loanTable}
+      }}>
+        <CachedIcon />
+      </Button>
+      {loanTable}
     </div >
   );
 };

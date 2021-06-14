@@ -1,51 +1,17 @@
 import MetaMaskOnboarding from "@metamask/onboarding";
 import React, { useState } from "react";
 import Web3 from "web3";
+import { BlockTransactionObject } from "web3-eth"
 
 import Navbar from "./Components/Navbar/Navbar";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
 import Marketplace from "./Components/Marketplace/Marketplace";
 
-interface Transaction {
-  hash: string;
-  nonce: number;
-  blockHash: string | null;
-  blockNumber: number | null;
-  transactionIndex: number | null;
-  from: string;
-  to: string | null;
-  value: string;
-  gasPrice: string;
-  gas: number;
-  input: string;
-}
+const erc20abi = require("./abis/erc20.json");
+const erc1155abi = require("./abis/erc1155.json");
+const poolabi = require("./abis/pool.json");
 
-interface BlockHeader {
-  number: number;
-  hash: string;
-  parentHash: string;
-  nonce: string;
-  sha3Uncles: string;
-  logsBloom: string;
-  transactionRoot: string;
-  stateRoot: string;
-  receiptRoot: string;
-  miner: string;
-  extraData: string;
-  gasLimit: number;
-  gasUsed: number;
-  timestamp: number | string;
-}
-interface BlockTransactionBase extends BlockHeader {
-  size: number;
-  difficulty: number;
-  totalDifficulty: number;
-  uncles: string[];
-}
-interface BlockTransactionObject extends BlockTransactionBase {
-  transactions: Transaction[];
-}
 const hexToDec = (s: string) => {
   var i, j, digits = [0], carry;
   for (i = 0; i < s.length; i += 1) {
@@ -62,10 +28,6 @@ const hexToDec = (s: string) => {
   }
   return digits.reverse().join('');
 }
-
-const erc20abi = require("./abis/erc20.json");
-const erc1155abi = require("./abis/erc1155.json");
-const poolabi = require("./abis/pool.json");
 
 export interface Asset {
   id: string;
@@ -94,7 +56,7 @@ export interface Loan {
   pendingFunction: string;
 }
 
-export const EQUIPMENT_TOKEN_IDS = [
+const EQUIPMENT_TOKEN_IDS = [
   "26059276970032186212506257052788207833935590993847855924189730778752558827520",
   "40785833732304342849735419653626615027421227776496020677721887159020450484224",
   "40785833732304342849735419653626615027421227776496020677721887159020450484225",
@@ -111,6 +73,7 @@ export const EQUIPMENT_TOKEN_IDS = [
   "55464657044963196816950587289035428064568320970692304673817341489687715414018",
   "55464657044963196816950587289035428064568320970692304673817341489687715414019",
   "55464657044963196816950587289035428064568320970692304673817341489687715414020",
+  "55464657044963196816950587289035428064568320970692304673817341489687715414021",
 ];
 
 const TEST_URIS = [
@@ -130,9 +93,10 @@ const TEST_URIS = [
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/2.json",
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/3.json",
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/4.json",
+  "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/5.json",
 ];
 
-const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0x84D55A16bc51E557B4fd0F7D485C4C3372Bf30Ee']
+const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0xd9b047182124769c9d7fa129950038f0a2178890']
 const MAINNET_ADDRESSES = ['0x3845badAde8e6dFF049820680d1F14bD3903a5d0', '0xa342f5D851E866E18ff98F351f2c6637f4478dB5', '0x0000000000000000000000000000000000000000']
 
 declare global {
@@ -147,26 +111,26 @@ const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
-const theMap: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
+const signatureToFunction: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
 
 function App() {
-  const [useMain, setUseMain] = useState(false);
+  const [useRopsten, setUseRopsten] = useState(true);
 
   const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, ""));
   const [assetTokenInst, setAssetTokenInst] = useState(new web3.eth.Contract(erc1155abi, ""));
   const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, ""));
-
-  const [sym, setSym] = useState("XXXX");
 
   const [loginButtonText, setLoginButtonText] = useState(ONBOARD_TEXT);
   const [isDisabled, setDisabled] = useState(false);
   const [accounts, setAccounts] = useState([""]);
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
+  const [sym, setSym] = useState("XXXX");
   const [sandBalance, setSandBalance] = useState(-1);
-  const [assetBalances, setAssetBalances] = useState(Array(EQUIPMENT_TOKEN_IDS.length).fill(-1));
-
   const [sandApproved, setSandApproved] = useState(true);
+
+  const [assetBalances, setAssetBalances]: [Record<string, number>, any] = useState({});
+
   const [assetsApproved, setAssetsApproved] = useState(true);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
@@ -210,7 +174,7 @@ function App() {
     }
   }, [accounts]);
 
-  const addPendingLoans = (poolInstTemp: any, account: string) => {
+  const refreshLoans = (poolInstTemp: any, account: string) => {
     poolInstTemp.methods
       .getLoans()
       .call()
@@ -227,11 +191,6 @@ function App() {
       }) {
         const temp: Loan[] = [];
         for (let i = 0; i < loansInfo.costs.length; i++) {
-          if (
-            loansInfo.loaners[i] ===
-            "0x0000000000000000000000000000000000000000"
-          ) break;
-
           temp.push({
             cost: loansInfo.costs[i],
             deposit: loansInfo.deposits[i],
@@ -249,13 +208,13 @@ function App() {
         web3.eth.getBlock("pending", true).then((value: BlockTransactionObject) => {
           for (let i = 0; i < value.transactions.length; i++) {
             const x = value.transactions[i];
-            const pendingFunction = theMap[x.input.slice(0, 10)]
+            const pendingFunction = signatureToFunction[x.input.slice(0, 10)]
             if (x.to === poolInstTemp.options.address && !temp.some(el => el.tx === x.hash)) {
               if (pendingFunction === 'create' && x.from.toLowerCase() === account.toLowerCase()) {
                 temp.push({
-                  deposit: parseInt(`0x${x.input.slice(-128, -64)}`),
-                  cost: parseInt(`0x${x.input.slice(-192, -128)}`),
-                  duration: parseInt(`0x${x.input.slice(-64)}`),
+                  deposit: parseInt(`0x${x.input.slice(-128, -64)}`, 16),
+                  cost: parseInt(`0x${x.input.slice(-192, -128)}`, 16),
+                  duration: parseInt(`0x${x.input.slice(-64)}`, 16),
                   entry: 0,
                   startTime: 0,
                   loaner: account,
@@ -265,7 +224,7 @@ function App() {
                   tx: x.hash,
                   pendingFunction: pendingFunction
                 });
-              } else if (['collect', 'timeout', 'accept', 'return'].includes(pendingFunction)) {
+              } else {
                 temp[parseInt(x.input.slice(-64), 16)].tx = x.hash;
                 temp[parseInt(x.input.slice(-64), 16)].pendingFunction = pendingFunction
               }
@@ -277,12 +236,29 @@ function App() {
   }
 
   React.useEffect(() => {
+    const loadMetadataFromIPFS = (index: number, ipfsAddress: string) => {
+      const tempy = assets;
+      let url = `https://ipfs.io/ipfs/${ipfsAddress.slice(7)}`;
+
+      fetch(url)
+        .then(res => res.json())
+        .then((metadata: any) => {
+          metadata.image = metadata.image.slice(6);
+          metadata.animation_url = metadata.animation_url.slice(6);
+          tempy[index] = {
+            id: EQUIPMENT_TOKEN_IDS[index],
+            ...metadata,
+          };
+          setAssets(tempy);
+        })
+    }
+
     function handleNewAccounts(newAccounts: string[]) {
       setAccounts(newAccounts);
 
       web3.eth.net.getNetworkType().then((networkType: string) => {
         const is_ropsten = networkType === 'ropsten';
-        setUseMain(!is_ropsten);
+        setUseRopsten(is_ropsten);
         let sandAddy = MAINNET_ADDRESSES[0];
         let assetAddy = MAINNET_ADDRESSES[1];
         let poolAddy = MAINNET_ADDRESSES[2];
@@ -299,6 +275,7 @@ function App() {
         setSandTokenInst(sandTokenInstTemp);
         setAssetTokenInst(assetTokenInstTemp);
         setPoolTokenInst(poolInstTemp);
+
         sandTokenInstTemp.methods
           .symbol()
           .call()
@@ -311,6 +288,11 @@ function App() {
           .then(function (bal: number) {
             setSandBalance(bal);
           });
+        sandTokenInstTemp.methods
+          .allowance(newAccounts[0], poolAddy)
+          .call()
+          .then((s: number) => setSandApproved(s > 0))
+
         assetTokenInstTemp.methods
           .balanceOfBatch(
             Array(EQUIPMENT_TOKEN_IDS.length).fill(newAccounts[0]),
@@ -318,68 +300,30 @@ function App() {
           )
           .call()
           .then(function (bals: number[]) {
-            setAssetBalances(bals);
+            const balancesCopy = assetBalances;
+            for (let i = 0; i < bals.length; i++) {
+              balancesCopy[EQUIPMENT_TOKEN_IDS[i]] = bals[i]
+            }
+            setAssetBalances(balancesCopy);
           });
-
-        sandTokenInstTemp.methods
-          .allowance(newAccounts[0], poolAddy)
-          .call()
-          .then((s: number) => setSandApproved(s > 0))
         assetTokenInstTemp.methods
           .isApprovedForAll(newAccounts[0], poolAddy)
           .call()
           .then((s: boolean) => setAssetsApproved(s))
 
         if (is_ropsten) {
-          addPendingLoans(poolInstTemp, newAccounts[0]);
-        }
-        for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-          let metadata = {
-            name: "missing metadata",
-            description: "missing metadata",
-            image: "missing metadata",
-            creator_profile_url: "missing metadata",
-            animation_url: "missing metadata",
-            sandbox: {
-              creator: "missing metadata",
-              classification: {
-                type: "missing metadata",
-                theme: "missing metadata",
-                categories: [""],
-              }
-            },
-          };
-          if (!is_ropsten) {
+          refreshLoans(poolInstTemp, newAccounts[0]);
+          for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
+            loadMetadataFromIPFS(i, TEST_URIS[i]);
+          }
+        } else {
+          for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
             assetTokenInstTemp.methods
               .uri(EQUIPMENT_TOKEN_IDS[i])
               .call()
               .then(function (uri: string) {
-                try {
-                  const tempy = assets;
-
-                  metadata = require(`./metadata/${uri.slice(7)}`);
-                  metadata.image = metadata.image.slice(6);
-                  metadata.animation_url = metadata.animation_url.slice(6);
-                  tempy[i] = {
-                    id: EQUIPMENT_TOKEN_IDS[i],
-                    ...metadata,
-                  };
-                  setAssets(tempy);
-                } catch { };
+                loadMetadataFromIPFS(i, uri);
               });
-          } else {
-            try {
-              const tempy = assets;
-
-              metadata = require(`./metadata/${TEST_URIS[i].slice(7)}`);
-              metadata.image = metadata.image.slice(6);
-              metadata.animation_url = metadata.animation_url.slice(6);
-              tempy[i] = {
-                id: EQUIPMENT_TOKEN_IDS[i],
-                ...metadata,
-              };
-              setAssets(tempy);
-            } catch { }
           }
         }
       });
@@ -393,7 +337,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
-  }, [assets]);
+  }, [assets, assetBalances]);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
@@ -413,7 +357,7 @@ function App() {
   return (
     <Router>
       <Dialog
-        open={useMain}
+        open={!useRopsten}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -433,9 +377,9 @@ function App() {
         accounts={accounts}
       />
       <Marketplace
-        addPendingLoans={addPendingLoans}
+        addPendingLoans={refreshLoans}
         assetsApproved={assetsApproved}
-        sandAllowance={sandApproved}
+        sandApproved={sandApproved}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}
@@ -443,7 +387,6 @@ function App() {
         assetBalances={assetBalances}
         assetTokenInst={assetTokenInst}
         poolInst={poolInst}
-        tokenids={EQUIPMENT_TOKEN_IDS}
         sandTokenInst={sandTokenInst}
         loans={loans}
       />

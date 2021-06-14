@@ -64,7 +64,6 @@ const Navbar = (props: any) => {
             src={sandIcon}
             alt="SAND logo"
             style={{
-              height: 30,
               width: 30,
             }}
           />

@@ -11,11 +11,9 @@ import { Asset } from "../../App";
 interface ChoiceProps {
   poolInst: any;
   accounts: string[];
-  assetBalances: number[];
-  tokenids: string[];
+  assetBalances: Record<string, number>;
   assets: Asset[];
 }
-
 
 const CreateLoanChoice = (props: ChoiceProps) => {
   const [cost, setCost] = React.useState(5);
@@ -44,13 +42,13 @@ const CreateLoanChoice = (props: ChoiceProps) => {
           value={assetID}
           onChange={handleChange}
           style={{ padding: 10, marginLeft: 20, marginRight: 20 }}>
-          {props.assets.filter((a: Asset) => props.assetBalances[props.tokenids.indexOf(a.id)] > 0).map((a: Asset) =>
+          {props.assets.filter((a: Asset) => props.assetBalances[a.id] > 0).map((a: Asset) =>
             <MenuItem value={a.id}>
               {a.name}
               <img
                 alt="missing metadata"
                 style={{ objectFit: "contain", height: 25, paddingLeft: 10 }}
-                src={process.env.PUBLIC_URL + `/equipment/${a.image}`}
+                src={`https://ipfs.io/ipfs/${a.image}`}
               />
             </MenuItem>)}
         </Select>
@@ -62,7 +60,6 @@ const CreateLoanChoice = (props: ChoiceProps) => {
 
         <img style={{ objectFit: "contain", width: 20 }} src={sandIcon} alt="SAND logo" />
         <TextField
-          autoFocus
           margin="dense"
           label="Cost per second"
           fullWidth
