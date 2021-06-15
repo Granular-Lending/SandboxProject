@@ -63,6 +63,9 @@ interface AssetsProps {
   assets: Asset[];
   loans: Loan[]
 }
+
+const OPTIONS = ["All", "Entity", "Equipment"]
+
 const Assets = (props: AssetsProps) => {
   const [assetType, setAssetType] = React.useState("All");
 
@@ -75,15 +78,11 @@ const Assets = (props: AssetsProps) => {
         onChange={(e: any) => setAssetType(e.target.value as string)}
         style={{ margin: 20, color: 'white' }}
       >
-        <MenuItem value={"All"}>
-          All
-        </MenuItem>
-        <MenuItem value={"Entity"}>
-          Entity
-        </MenuItem>
-        <MenuItem value={"Equipment"}>
-          Equipment
-        </MenuItem>
+        {OPTIONS.map((o: string) =>
+          <MenuItem value={o}>
+            {o}
+          </MenuItem>
+        )}
       </Select>
     </FormControl>
     <div className="card-container">
@@ -91,7 +90,7 @@ const Assets = (props: AssetsProps) => {
         AssetCard(a, props.loans)
       )}
     </div>
-  </div>
+  </div >
 };
 
 const Marketplace = (props: MarketplaceProps) => {
