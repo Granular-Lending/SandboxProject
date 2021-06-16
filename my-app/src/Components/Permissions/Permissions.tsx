@@ -2,6 +2,7 @@ import React from "react";
 
 import "./Permissions.css";
 import { Button, Grid } from "@material-ui/core";
+import { Verse } from "../../App";
 
 interface PermissionsProps {
   assetsApproved: boolean;
@@ -9,8 +10,7 @@ interface PermissionsProps {
   accounts: string[];
   sym: string;
   sandTokenInst: any;
-  sandboxNFTInst: any;
-  decentralandNFTInst: any;
+  verses: Verse[];
   poolInst: any;
 }
 
@@ -54,7 +54,7 @@ const Permissions = (props: PermissionsProps) => {
                     variant="contained"
                     style={{ marginLeft: 20 }}
                     onClick={() =>
-                      props.sandboxNFTInst.methods
+                      props.verses[1].contractInst.methods
                         .setApprovalForAll(props.poolInst.options.address, true)
                         .send({ from: props.accounts[0] })
                     }
@@ -73,7 +73,7 @@ const Permissions = (props: PermissionsProps) => {
                     variant="contained"
                     style={{ marginLeft: 20 }}
                     onClick={() =>
-                      props.decentralandNFTInst.methods
+                      props.verses[1].contractInst.methods
                         .setApprovalForAll(props.poolInst.options.address, true)
                         .send({ from: props.accounts[0] })
                     }

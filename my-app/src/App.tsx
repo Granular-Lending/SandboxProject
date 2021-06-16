@@ -63,31 +63,12 @@ export interface Verse {
   nftIds: string[];
   getMetadata: (id: string, url: string, tempy: Asset[]) => Asset[];
   ulysses: any;
+  contractInst: any;
 }
 
-// const SANDBOX_TEST_URIS = [
-//   "ipfs://bafybeib6jgupsp26uywcc4psuqie3w646za4dmpbzdxdi56enhlnztvcyu/0.json",
-//   "ipfs://bafybeicevfqqfobqdc3lr62xqyx5utvozyqsq5ok2bswy4tblzfeeerkle/0.json",
-//   "ipfs://bafybeicevfqqfobqdc3lr62xqyx5utvozyqsq5ok2bswy4tblzfeeerkle/1.json",
-//   "ipfs://bafybeihfloegzon52utqqqhvfedhmdqxjdy7bbpez5pk2nwbc4gomf2pge/0.json",
-//   "ipfs://bafybeifyldllf63l7ppdppmchgnnj7umh6nx6smhnzhmiiskyckc5zetre/0.json",
-//   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/0.json",
-//   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/1.json",
-//   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/2.json",
-//   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/3.json",
-//   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/4.json",
-//   "ipfs://bafybeif4yerch2yxjtpff5isiq2dkto2t62a535ppbmqsrzbtjrq7i35eu/5.json",
-//   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/0.json",
-//   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/1.json",
-//   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/2.json",
-//   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/3.json",
-//   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/4.json",
-//   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/5.json",
-// ];
-
 const ERC20_MAINNET = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
+
 const ERC20_ROPSTEN = '0xFab46E002BbF0b4509813474841E0716E6730136';
-const SANDBOX_ASSET_ROPSTEN = '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8';
 const POOL_ROPSTEN = '0xd9b047182124769c9d7fa129950038f0a2178890';
 
 declare global {
@@ -142,7 +123,8 @@ const verses: Verse[] = [{
       })
     return tempy;
   },
-  ulysses: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri
+  ulysses: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri,
+  contractInst: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5')
 },
 {
   name: 'Decentraland',
@@ -163,13 +145,12 @@ const verses: Verse[] = [{
       });
     return tempy;
   },
-  ulysses: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI
+  ulysses: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI,
+  contractInst: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818')
 }]
 
 function App() {
   const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, ""));
-  const [sandboxNFTInst, setSandboxNFTInst] = useState(new web3.eth.Contract(erc1155abi, ""));
-  const [decentralandNFTInst, setDecentralandNFTInst] = useState(new web3.eth.Contract(erc1155abi, ""));
   const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, ""));
 
   const [loginButtonText, setLoginButtonText] = useState(ONBOARD_TEXT);
@@ -183,7 +164,8 @@ function App() {
 
   const [assetBalances, setAssetBalances]: [Record<string, number>, any] = useState({});
 
-  const [assetsApproved, setAssetsApproved] = useState(true);
+  const [sandboxAssetsApproved, setAssetsApproved] = useState(true);
+  const [dclAssetsApproved, setDclAssetsApproved] = useState(true);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
   const [assets, setAssets]: [Asset[], any] = useState([]);
@@ -276,29 +258,21 @@ function App() {
         const is_ropsten = networkType === 'ropsten';
 
         let sandAddy;
-        let assetAddy;
-        let poolAddy;
+        let poolAddy: string;
         if (is_ropsten) {
           sandAddy = ERC20_ROPSTEN;
-          assetAddy = SANDBOX_ASSET_ROPSTEN;
           poolAddy = POOL_ROPSTEN;
         } else {
           sandAddy = ERC20_MAINNET;
-          assetAddy = verses[0].address;
           poolAddy = POOL_ROPSTEN;
 
         }
 
         const sandTokenInstTemp = new web3.eth.Contract(erc20abi, sandAddy);
-        const sandboxNFTInstTemp = new web3.eth.Contract(erc1155abi, assetAddy);
         const poolInstTemp = new web3.eth.Contract(poolabi, poolAddy);
 
-        const decAssetTokenInstTemp = new web3.eth.Contract(erc1155abi, verses[1].address);
-
         setSandTokenInst(sandTokenInstTemp);
-        setSandboxNFTInst(sandboxNFTInstTemp);
         setPoolTokenInst(poolInstTemp);
-        setDecentralandNFTInst(decAssetTokenInstTemp);
 
         sandTokenInstTemp.methods
           .symbol()
@@ -317,27 +291,37 @@ function App() {
           .call()
           .then((s: number) => setSandApproved(s > 0))
 
-        sandboxNFTInstTemp.methods
-          .balanceOfBatch(
-            Array(verses[0].nftIds.length).fill(newAccounts[0]),
-            verses[0].nftIds
-          )
-          .call()
-          .then(function (bals: number[]) {
-            const balancesCopy = assetBalances;
-            for (let i = 0; i < bals.length; i++) {
-              balancesCopy[verses[0].nftIds[i]] = bals[i]
-            }
-            setAssetBalances(balancesCopy);
-          });
-        sandboxNFTInstTemp.methods
-          .isApprovedForAll(newAccounts[0], poolAddy)
-          .call()
-          .then((s: boolean) => setAssetsApproved(s))
 
         refreshLoans(poolInstTemp, newAccounts[0]);
 
         verses.map((v: Verse) => {
+          if (v.name === "Sandbox") {
+            v.contractInst.methods
+              .balanceOfBatch(
+                Array(verses[0].nftIds.length).fill(newAccounts[0]),
+                verses[0].nftIds
+              )
+              .call()
+              .then(function (bals: number[]) {
+                const balancesCopy = assetBalances;
+                for (let i = 0; i < bals.length; i++) {
+                  balancesCopy[verses[0].nftIds[i]] = bals[i]
+                }
+                setAssetBalances(balancesCopy);
+              });
+          }
+          if (v.name === "Sandbox") {
+            v.contractInst.methods
+              .isApprovedForAll(newAccounts[0], poolAddy)
+              .call()
+              .then((s: boolean) => setAssetsApproved(s))
+          } else {
+            v.contractInst.methods
+              .isApprovedForAll(newAccounts[0], poolAddy)
+              .call()
+              .then((s: boolean) => setDclAssetsApproved(s))
+          }
+
           for (let i = 0; i < v.nftIds.length; i++) {
             const id = v.nftIds[i];
             v.ulysses(id)
@@ -346,6 +330,7 @@ function App() {
                 setAssets(v.getMetadata(id, uri, assets))
               );
           }
+          return null;
         }
         )
       });
@@ -379,7 +364,7 @@ function App() {
   return (
     <Router>
       <Dialog
-        open={false}
+        open={dclAssetsApproved} //fixme
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -400,15 +385,14 @@ function App() {
       />
       <Marketplace
         addPendingLoans={refreshLoans}
-        assetsApproved={assetsApproved}
+        assetsApproved={sandboxAssetsApproved}
         sandApproved={sandApproved}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}
         assets={assets}
         assetBalances={assetBalances}
-        sandboxNFTInst={sandboxNFTInst}
-        decentralandNFTInst={decentralandNFTInst}
+        verses={verses}
         poolInst={poolInst}
         sandTokenInst={sandTokenInst}
         loans={loans}

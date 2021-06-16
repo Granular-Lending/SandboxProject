@@ -1,5 +1,5 @@
 import React from "react";
-import { Asset, Loan } from "../../App";
+import { Asset, Loan, Verse } from "../../App";
 import "./Marketplace.css";
 import { Switch, Route, Link } from "react-router-dom";
 import AssetPage from "./AssetPage";
@@ -21,9 +21,8 @@ interface MarketplaceProps {
   sym: string;
   sandApproved: boolean;
   assetsApproved: boolean;
+  verses: Verse[];
   sandTokenInst: any;
-  sandboxNFTInst: any;
-  decentralandNFTInst: any;
   poolInst: any;
 }
 
@@ -202,8 +201,7 @@ const Marketplace = (props: MarketplaceProps) => {
               accounts={props.accounts}
               sym={props.sym}
               sandTokenInst={props.sandTokenInst}
-              sandboxNFTInst={props.sandboxNFTInst}
-              decentralandNFTInst={props.decentralandNFTInst}
+              verses={props.verses}
               poolInst={props.poolInst}
             />
           </Route>
