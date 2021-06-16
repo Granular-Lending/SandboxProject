@@ -21,6 +21,7 @@ interface MarketplaceProps {
   sym: string;
   sandApproved: boolean;
   assetsApproved: boolean;
+  dclAssetsApproved: boolean;
   verses: Verse[];
   sandTokenInst: any;
   poolInst: any;

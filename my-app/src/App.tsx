@@ -61,8 +61,8 @@ export interface Verse {
   name: string;
   address: string;
   nftIds: string[];
-  getMetadata: (id: string, url: string, tempy: Asset[]) => Asset[];
-  ulysses: any;
+  getMetadata: (id: string, uri: string) => Promise<Asset>;
+  uriFunction: any;
   contractInst: any;
 }
 
@@ -107,23 +107,22 @@ const verses: Verse[] = [{
     "55464657044963196816950587289035428064568320970692304673817341489687715414020",
     "55464657044963196816950587289035428064568320970692304673817341489687715414021",
   ],
-  getMetadata: (id: string, uri: string, tempy: Asset[]) => {
+  getMetadata: async (id: string, uri: string): Promise<Asset> => {
     let url = `https://ipfs.io/ipfs/${uri.slice(7)}`;
 
-    fetch(url)
+    return await fetch(url)
       .then(res => res.json())
       .then((metadata: any) => {
         metadata.image = `https://ipfs.io/ipfs/${metadata.image.slice(6)}`;
         metadata.animation_url = `https://ipfs.io/ipfs/${metadata.animation_url.slice(6)}`;
-        tempy.push({
+        return {
           id: id,
           verse: 'Sandbox',
           ...metadata,
-        });
-      })
-    return tempy;
+        };
+      });
   },
-  ulysses: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri,
+  uriFunction: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri,
   contractInst: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5')
 },
 {
@@ -133,19 +132,19 @@ const verses: Verse[] = [{
     "599",
     "28757",
   ],
-  getMetadata: (id: string, uri: string, tempy: Asset[]) => {
-    fetch(uri)
+  getMetadata: async (id: string, uri: string): Promise<Asset> => {
+    return await fetch(uri)
       .then(res => res.json())
       .then((metadata: any) => {
-        tempy.push({
+        delete metadata.id;
+        return {
           id: id,
           verse: 'Decentraland',
           ...metadata,
-        });
+        };
       });
-    return tempy;
   },
-  ulysses: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI,
+  uriFunction: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI,
   contractInst: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818')
 }]
 
@@ -168,7 +167,45 @@ function App() {
   const [dclAssetsApproved, setDclAssetsApproved] = useState(true);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
-  const [assets, setAssets]: [Asset[], any] = useState([]);
+  const [assets, setAssets]: [Asset[], any] = useState(
+    verses[0].nftIds.map((id: string) => {
+      return {
+        id: id,
+        verse: verses[0].name,
+        name: "missing metadata",
+        description: "missing metadata",
+        image: "missing metadata",
+        animation_url: "missing metadata",
+        creator_profile_url: "missing metadata",
+        sandbox: {
+          creator: "missing metadata",
+          classification: {
+            type: "missing metadata",
+            theme: "missing metadata",
+            categories: [""],
+          }
+        },
+      };
+    }).concat(verses[1].nftIds.map((id: string) => {
+      return {
+        id: id,
+        verse: verses[1].name,
+        name: "missing metadata",
+        description: "missing metadata",
+        image: "missing metadata",
+        animation_url: "missing metadata",
+        creator_profile_url: "missing metadata",
+        sandbox: {
+          creator: "missing metadata",
+          classification: {
+            type: "missing metadata",
+            theme: "missing metadata",
+            categories: [""],
+          }
+        },
+      };
+    }))
+  );
 
   React.useEffect(() => {
     if (!onboarding.current) {
@@ -295,6 +332,18 @@ function App() {
         refreshLoans(poolInstTemp, newAccounts[0]);
 
         verses.map((v: Verse) => {
+          for (let i = 0; i < v.nftIds.length; i++) {
+            v.uriFunction(v.nftIds[i])
+              .call()
+              .then((uri: string) =>
+                v.getMetadata(v.nftIds[i], uri).then((a: Asset) => {
+                  const tempy = assets;
+                  tempy[assets.findIndex((x: Asset) => x.id === a.id)] = a;
+                  setAssets(tempy);
+                })
+              );
+          }
+
           if (v.name === "Sandbox") {
             v.contractInst.methods
               .balanceOfBatch(
@@ -322,15 +371,6 @@ function App() {
               .then((s: boolean) => setDclAssetsApproved(s))
           }
 
-          for (let i = 0; i < v.nftIds.length; i++) {
-            const id = v.nftIds[i];
-            v.ulysses(id)
-              .call()
-              .then((uri: string) =>
-                setAssets(v.getMetadata(id, uri, assets))
-              );
-          }
-          return null;
         }
         )
       });
@@ -364,7 +404,7 @@ function App() {
   return (
     <Router>
       <Dialog
-        open={dclAssetsApproved} //fixme
+        open={false}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -386,6 +426,7 @@ function App() {
       <Marketplace
         addPendingLoans={refreshLoans}
         assetsApproved={sandboxAssetsApproved}
+        dclAssetsApproved={dclAssetsApproved}
         sandApproved={sandApproved}
         accounts={accounts}
         sym={sym}
