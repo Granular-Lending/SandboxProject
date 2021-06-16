@@ -31,6 +31,7 @@ const hexToDec = (s: string) => {
 
 export interface Asset {
   id: string;
+  verse: string;
   name: string;
   description: string;
   image: string;
@@ -56,7 +57,7 @@ export interface Loan {
   pendingFunction: string;
 }
 
-const EQUIPMENT_TOKEN_IDS = [
+const SANDBOX_NFT_IDS = [
   "26059276970032186212506257052788207833935590993847855924189730778752558827520",
   "40785833732304342849735419653626615027421227776496020677721887159020450484224",
   "40785833732304342849735419653626615027421227776496020677721887159020450484225",
@@ -76,7 +77,11 @@ const EQUIPMENT_TOKEN_IDS = [
   "55464657044963196816950587289035428064568320970692304673817341489687715414021",
 ];
 
-const TEST_URIS = [
+const DECENTRALAND_NFT_IDS = [
+  "28757",
+];
+
+const SANDBOX_TEST_URIS = [
   "ipfs://bafybeib6jgupsp26uywcc4psuqie3w646za4dmpbzdxdi56enhlnztvcyu/0.json",
   "ipfs://bafybeicevfqqfobqdc3lr62xqyx5utvozyqsq5ok2bswy4tblzfeeerkle/0.json",
   "ipfs://bafybeicevfqqfobqdc3lr62xqyx5utvozyqsq5ok2bswy4tblzfeeerkle/1.json",
@@ -96,8 +101,13 @@ const TEST_URIS = [
   "ipfs://bafybeigara7fm7m2spckk4kvtd3ru7g645gjlbn6pbe3lej3fhipngm5ou/5.json",
 ];
 
-const ROPSTEN_ADDRESSES = ['0xFab46E002BbF0b4509813474841E0716E6730136', '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8', '0xd9b047182124769c9d7fa129950038f0a2178890']
-const MAINNET_ADDRESSES = ['0x3845badAde8e6dFF049820680d1F14bD3903a5d0', '0xa342f5D851E866E18ff98F351f2c6637f4478dB5', '0x0000000000000000000000000000000000000000']
+const ERC20_MAINNET = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
+const ERC20_ROPSTEN = '0xFab46E002BbF0b4509813474841E0716E6730136';
+
+const SANDBOX_ASSET_ROPSTEN = '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8';
+const POOL_ROPSTEN = '0xd9b047182124769c9d7fa129950038f0a2178890';
+
+const SANDBOX_ASSET_MAINNET = "0xa342f5d851e866e18ff98f351f2c6637f4478db5";
 
 declare global {
   interface Window {
@@ -112,6 +122,37 @@ const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
 const signatureToFunction: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
+
+const getMetadataSandbox = (id: string, index: number, ipfsAddress: string, tempy: Asset[]) => {
+  let url = `https://ipfs.io/ipfs/${ipfsAddress.slice(7)}`;
+
+  fetch(url)
+    .then(res => res.json())
+    .then((metadata: any) => {
+      metadata.image = `https://ipfs.io/ipfs/${metadata.image.slice(6)}`;
+      metadata.animation_url = `https://ipfs.io/ipfs/${metadata.animation_url.slice(6)}`;
+      tempy[index] = {
+        id: id,
+        verse: 'Sandbox',
+        ...metadata,
+      };
+    })
+  return tempy;
+}
+
+
+const getMetadataDecentraland = (id: string, index: number, ipfsAddress: string, tempy: Asset[]) => {
+  fetch(ipfsAddress)
+    .then(res => res.json())
+    .then((metadata: any) => {
+      tempy[index] = {
+        id: id,
+        verse: 'Decentraland',
+        ...metadata,
+      };
+    });
+  return tempy;
+}
 
 function App() {
   const [useRopsten, setUseRopsten] = useState(true);
@@ -135,9 +176,10 @@ function App() {
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
   const [assets, setAssets]: [Asset[], any] = useState(
-    EQUIPMENT_TOKEN_IDS.map((id: string) => {
+    SANDBOX_NFT_IDS.map((id: string) => {
       return {
         id: id,
+        verse: 'nada',
         name: "missing metadata",
         description: "missing metadata",
         image: "missing metadata",
@@ -212,9 +254,9 @@ function App() {
             if (x.to === poolInstTemp.options.address && !temp.some(el => el.tx === x.hash)) {
               if (pendingFunction === 'create' && x.from.toLowerCase() === account.toLowerCase()) {
                 temp.push({
-                  deposit: parseInt(`0x${x.input.slice(-128, -64)}`, 16),
-                  cost: parseInt(`0x${x.input.slice(-192, -128)}`, 16),
-                  duration: parseInt(`0x${x.input.slice(-64)}`, 16),
+                  deposit: parseInt(`0x${x.input.slice(-128, -64)} `, 16),
+                  cost: parseInt(`0x${x.input.slice(-192, -128)} `, 16),
+                  duration: parseInt(`0x${x.input.slice(-64)} `, 16),
                   entry: 0,
                   startTime: 0,
                   loaner: account,
@@ -236,41 +278,33 @@ function App() {
   }
 
   React.useEffect(() => {
-    const loadMetadataFromIPFS = (index: number, ipfsAddress: string) => {
-      const tempy = assets;
-      let url = `https://ipfs.io/ipfs/${ipfsAddress.slice(7)}`;
-
-      fetch(url)
-        .then(res => res.json())
-        .then((metadata: any) => {
-          metadata.image = metadata.image.slice(6);
-          metadata.animation_url = metadata.animation_url.slice(6);
-          tempy[index] = {
-            id: EQUIPMENT_TOKEN_IDS[index],
-            ...metadata,
-          };
-          setAssets(tempy);
-        })
-    }
-
     function handleNewAccounts(newAccounts: string[]) {
       setAccounts(newAccounts);
 
       web3.eth.net.getNetworkType().then((networkType: string) => {
         const is_ropsten = networkType === 'ropsten';
+
         setUseRopsten(is_ropsten);
-        let sandAddy = MAINNET_ADDRESSES[0];
-        let assetAddy = MAINNET_ADDRESSES[1];
-        let poolAddy = MAINNET_ADDRESSES[2];
+
+        let sandAddy;
+        let assetAddy;
+        let poolAddy;
         if (is_ropsten) {
-          sandAddy = ROPSTEN_ADDRESSES[0];
-          assetAddy = ROPSTEN_ADDRESSES[1];
-          poolAddy = ROPSTEN_ADDRESSES[2];
+          sandAddy = ERC20_ROPSTEN;
+          assetAddy = SANDBOX_ASSET_ROPSTEN;
+          poolAddy = POOL_ROPSTEN;
+        } else {
+          sandAddy = ERC20_MAINNET;
+          assetAddy = SANDBOX_ASSET_MAINNET;
+          poolAddy = POOL_ROPSTEN;
+
         }
 
         const sandTokenInstTemp = new web3.eth.Contract(erc20abi, sandAddy);
         const assetTokenInstTemp = new web3.eth.Contract(erc1155abi, assetAddy);
         const poolInstTemp = new web3.eth.Contract(poolabi, poolAddy);
+
+        const decAssetTokenInstTemp = new web3.eth.Contract(erc1155abi, "0xD35147BE6401dcb20811f2104c33dE8E97ED6818");
 
         setSandTokenInst(sandTokenInstTemp);
         setAssetTokenInst(assetTokenInstTemp);
@@ -295,14 +329,14 @@ function App() {
 
         assetTokenInstTemp.methods
           .balanceOfBatch(
-            Array(EQUIPMENT_TOKEN_IDS.length).fill(newAccounts[0]),
-            EQUIPMENT_TOKEN_IDS
+            Array(SANDBOX_NFT_IDS.length).fill(newAccounts[0]),
+            SANDBOX_NFT_IDS
           )
           .call()
           .then(function (bals: number[]) {
             const balancesCopy = assetBalances;
             for (let i = 0; i < bals.length; i++) {
-              balancesCopy[EQUIPMENT_TOKEN_IDS[i]] = bals[i]
+              balancesCopy[SANDBOX_NFT_IDS[i]] = bals[i]
             }
             setAssetBalances(balancesCopy);
           });
@@ -311,20 +345,26 @@ function App() {
           .call()
           .then((s: boolean) => setAssetsApproved(s))
 
-        if (is_ropsten) {
-          refreshLoans(poolInstTemp, newAccounts[0]);
-          for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-            loadMetadataFromIPFS(i, TEST_URIS[i]);
-          }
-        } else {
-          for (let i = 0; i < EQUIPMENT_TOKEN_IDS.length; i++) {
-            assetTokenInstTemp.methods
-              .uri(EQUIPMENT_TOKEN_IDS[i])
-              .call()
-              .then(function (uri: string) {
-                loadMetadataFromIPFS(i, uri);
-              });
-          }
+        refreshLoans(poolInstTemp, newAccounts[0]);
+
+        for (let i = 0; i < SANDBOX_NFT_IDS.length; i++) {
+          assetTokenInstTemp.methods.
+            uri(SANDBOX_NFT_IDS[i])
+            .call()
+            .then((uri: string) =>
+              setAssets(getMetadataSandbox(SANDBOX_NFT_IDS[i], i, uri, assets))
+            );
+        }
+
+        for (let i = 0; i < DECENTRALAND_NFT_IDS.length; i++) {
+          decAssetTokenInstTemp.methods.
+            tokenURI(DECENTRALAND_NFT_IDS[i])
+            .call()
+            .then((uri: string) => {
+              setAssets(getMetadataDecentraland(DECENTRALAND_NFT_IDS[i], i, uri, assets))
+
+            }
+            );
         }
       });
     }
@@ -357,7 +397,7 @@ function App() {
   return (
     <Router>
       <Dialog
-        open={!useRopsten}
+        open={false}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >

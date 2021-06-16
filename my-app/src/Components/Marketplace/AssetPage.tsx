@@ -72,11 +72,11 @@ const AssetCard = (props: AssetCardProps) => {
           width={300}
           height={250}
           enableZoom={false}
-          src={`https://ipfs.io/ipfs/${props.asset.animation_url}`}
+          src={props.asset.animation_url}
           position={position}
           rotation={obj} >
           <AmbientLight color='white' />
-        </GLTFModel>)
+        </GLTFModel >)
     }, 10);
 
     return () => clearInterval(interval);
@@ -129,7 +129,7 @@ const AssetCard = (props: AssetCardProps) => {
             model :
             <img
               alt="missing metadata"
-              src={`https://ipfs.io/ipfs/${props.asset.image}`}
+              src={props.asset.image}
               style={{
                 objectFit: "contain",
                 width: 300,
@@ -150,11 +150,12 @@ const AssetCard = (props: AssetCardProps) => {
             }}
           >
             {props.asset.description}
-            <Grid container spacing={10}>
-              <Grid item><h4>Type</h4> {props.asset.sandbox.classification.type}</Grid>
-              <Grid item><h4>Biome</h4>{props.asset.sandbox.classification.theme}</Grid>
-              <Grid item><h4>Tags</h4>{props.asset.sandbox.classification.categories.join(", ")}</Grid>
-            </Grid>
+            {props.asset.verse === "Sandbox" ?
+              <Grid container spacing={10}>
+                <Grid item><h4>Type</h4> {props.asset.sandbox.classification.type}</Grid>
+                <Grid item><h4>Biome</h4>{props.asset.sandbox.classification.theme}</Grid>
+                <Grid item><h4>Tags</h4>{props.asset.sandbox.classification.categories.join(", ")}</Grid>
+              </Grid> : ''}
           </div>
         </div>
       </div >
@@ -269,7 +270,7 @@ const AssetPage = (props: AssetPageProps) => {
             }}>
               <img
                 alt="missing metadata"
-                src={`https://ipfs.io/ipfs/${chosenAsset.image}`}
+                src={chosenAsset.image}
                 style={{
                   objectFit: "contain",
                   width: 200,

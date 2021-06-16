@@ -58,24 +58,6 @@ const Navbar = (props: any) => {
             />
           </Tooltip>
         </div>
-        <span>
-          <img
-            className="sandIcon"
-            src={sandIcon}
-            alt="SAND logo"
-            style={{
-              width: 30,
-            }}
-          />
-          <b
-            style={{
-              color: "white",
-              fontSize: "1.3em",
-            }}
-          >
-            {props.sandBalance}
-          </b>
-        </span>
       </div>
     </div >
   );

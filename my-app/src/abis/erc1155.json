@@ -55,6 +55,25 @@
     "constant": true,
     "inputs": [
       {
+        "name": "_id",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokenURI",
+    "outputs": [
+      {
+        "name": "_uri",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
         "name": "_tokenId",
         "type": "uint256"
       }

@@ -82,7 +82,7 @@ const YourLoansPage = (props: PopupProps) => {
                       <img
                         alt="missing metadata"
                         style={{ objectFit: "contain", width: 35 }}
-                        src={`https://ipfs.io/ipfs/${asset ? asset.image : ''}`}
+                        src={asset ? asset.image : ''}
                       />
                     </Tooltip>
                   </TableCell>

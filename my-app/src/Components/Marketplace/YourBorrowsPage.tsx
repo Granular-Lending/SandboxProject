@@ -80,7 +80,7 @@ const YourBorrowsPage = (props: PopupProps) => {
                     <img
                       alt="missing metadata"
                       style={{ objectFit: "contain", width: 35 }}
-                      src={`https://ipfs.io/ipfs/${asset ? asset.image : ''}`}
+                      src={asset ? asset.image : ''}
                     />
                   </Tooltip>
                 </TableCell>
@@ -135,7 +135,7 @@ const YourBorrowsPage = (props: PopupProps) => {
           })}
         </TableBody>
       </Table>
-    </TableContainer>
+    </TableContainer >
   }
 
   const [loanTable, setLoanTable] = useState(<div></div >);
