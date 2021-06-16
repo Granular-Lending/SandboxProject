@@ -22,7 +22,8 @@ interface MarketplaceProps {
   sandApproved: boolean;
   assetsApproved: boolean;
   sandTokenInst: any;
-  assetTokenInst: any;
+  sandboxNFTInst: any;
+  decentralandNFTInst: any;
   poolInst: any;
 }
 
@@ -139,7 +140,7 @@ const Assets = (props: AssetsProps) => {
       </Select>
     </FormControl>
     <div className="card-container">
-      {props.assets.filter((a: Asset) => (verseType === "Any" || verseType === a.verse)).map((a: Asset) => a.verse === "Sandbox" ? SandboxAssetCard(a, props.loans) : DecentralandAssetCard(a, props.loans)
+      {/* TODO make this rebuild when metadata loads */ props.assets.filter((a: Asset) => (verseType === "Any" || verseType === a.verse)).map((a: Asset) => a.verse === "Sandbox" ? SandboxAssetCard(a, props.loans) : DecentralandAssetCard(a, props.loans)
       )}
     </div>
   </div >
@@ -201,7 +202,8 @@ const Marketplace = (props: MarketplaceProps) => {
               accounts={props.accounts}
               sym={props.sym}
               sandTokenInst={props.sandTokenInst}
-              assetTokenInst={props.assetTokenInst}
+              sandboxNFTInst={props.sandboxNFTInst}
+              decentralandNFTInst={props.decentralandNFTInst}
               poolInst={props.poolInst}
             />
           </Route>

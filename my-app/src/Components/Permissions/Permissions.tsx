@@ -9,7 +9,8 @@ interface PermissionsProps {
   accounts: string[];
   sym: string;
   sandTokenInst: any;
-  assetTokenInst: any;
+  sandboxNFTInst: any;
+  decentralandNFTInst: any;
   poolInst: any;
 }
 
@@ -45,7 +46,7 @@ const Permissions = (props: PermissionsProps) => {
               </Grid>
               <Grid container style={{ padding: 10, paddingLeft: 0 }}>
                 <Grid item xs>
-                  Authorize the pool contract to operate <b>ASSETS</b> on your behalf
+                  Authorize the pool contract to operate <b>SANDBOX ASSETS</b> on your behalf
                 </Grid>
                 <Grid item xs>
                   <Button
@@ -53,7 +54,26 @@ const Permissions = (props: PermissionsProps) => {
                     variant="contained"
                     style={{ marginLeft: 20 }}
                     onClick={() =>
-                      props.assetTokenInst.methods
+                      props.sandboxNFTInst.methods
+                        .setApprovalForAll(props.poolInst.options.address, true)
+                        .send({ from: props.accounts[0] })
+                    }
+                  >
+                    {props.assetsApproved ? "already approved" : "approve"}
+                  </Button>
+                </Grid>
+              </Grid>
+              <Grid container style={{ padding: 10, paddingLeft: 0 }}>
+                <Grid item xs>
+                  Authorize the pool contract to operate <b>DECENTRALAND ASSETS</b> on your behalf
+                </Grid>
+                <Grid item xs>
+                  <Button
+                    disabled={props.assetsApproved}
+                    variant="contained"
+                    style={{ marginLeft: 20 }}
+                    onClick={() =>
+                      props.decentralandNFTInst.methods
                         .setApprovalForAll(props.poolInst.options.address, true)
                         .send({ from: props.accounts[0] })
                     }
