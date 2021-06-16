@@ -81,7 +81,7 @@ const DecentralandAssetCard = (a: Asset, loans: Loan[]) => {
             src={a.image}
           />
           <div className="cardData">
-            <h3>{a.name.length > 22 ? `${a.name.slice(0, 22)}...` : a.name}</h3>
+            <h3>{a.name}</h3>
             <p>
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
             </p>

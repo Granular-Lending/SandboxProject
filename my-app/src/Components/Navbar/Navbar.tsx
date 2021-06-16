@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import "./Navbar.css";
 import logo from "./assets/LogoTrans.png";
-import sandIcon from "./assets/sandIcon.png";
 import Blockies from 'react-blockies';
 
 import {

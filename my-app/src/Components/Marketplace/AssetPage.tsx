@@ -139,7 +139,7 @@ const AssetCard = (props: AssetCardProps) => {
         </div>
         <div style={{ width: "100%" }}>
           <h1>{props.asset.name}</h1>
-          <h4 style={{ color: 'lightgrey' }}>Token ID: {props.asset.id.slice(0, 4)}...{props.asset.id.slice(-4)}</h4>
+          <h4 style={{ color: 'lightgrey' }}>Token ID: {props.asset.verse === "Sandbox" ? `${props.asset.id.slice(0, 4)}...${props.asset.id.slice(-4)}` : props.asset.id}</h4>
           <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available</h4>
           <h2>About</h2>
           <div
