@@ -139,6 +139,7 @@ const verses: Verse[] = [
   ),
   new Verse('Decentraland',
     [
+      "0",
       "599",
       "28757",
     ],
@@ -169,6 +170,25 @@ const verses: Verse[] = [
     },
     new web3.eth.Contract(erc1155abi, '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED').methods.uri,
     '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED',
+    DeNationsAssetCard,
+    DeNationsMarketplace
+  ),
+  new Verse('Alpaca',
+    [
+      "8204",
+    ],
+    async (uri: string): Promise<any> => {
+      //fixme
+      const url = uri.slice(0, -4).concat("8204");
+
+      return await fetch(url)
+        .then(res => res.json())
+        .then((metadata: any) => {
+          return metadata;
+        });
+    },
+    new web3.eth.Contract(erc1155abi, '0xC7e5e9434f4a71e6dB978bD65B4D61D3593e5f27').methods.uri,
+    '0xC7e5e9434f4a71e6dB978bD65B4D61D3593e5f27',
     DeNationsAssetCard,
     DeNationsMarketplace
   ),
@@ -339,6 +359,10 @@ function App() {
 
         refreshLoans(poolInstTemp, newAccounts[0]);
 
+        //fixme get all verses
+        setAssetsApproved(false);
+        setDclAssetsApproved(false);
+
         // todo this should really loop through assets?
         verses.map((v: Verse) => {
           v.nftIds.map((id: string) => {
@@ -367,12 +391,6 @@ function App() {
               }
               setAssets(tempy)
             });
-
-          const hello: Record<string, any> = { "Sandbox": setAssetsApproved, "Decentraland": setDclAssetsApproved, "DeNations": (x: string) => null }
-          v.contractInst.methods
-            .isApprovedForAll(newAccounts[0], poolAddy)
-            .call()
-            .then((s: boolean) => hello[v.name](s))
           return null;
         }
         )

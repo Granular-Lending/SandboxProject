@@ -11,6 +11,7 @@ import Permissions from "../Permissions/Permissions";
 import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
 import Home from "./Home";
 import DecentralandAssetCard from "./DecentralandAssetCard";
+import sandIcon from "./assets/sandIcon.png";
 
 interface MarketplaceProps {
   addPendingLoans: (temp: Loan[], poolInstTemp: any, account: string) => void;
@@ -36,6 +37,19 @@ interface AssetsProps {
 interface DeProps {
   verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
 }
+
+export const formatSand = (amount: number) =>
+  <div>
+    <span>
+      <img
+        style={{ width: 20, paddingRight: 5 }}
+        src={sandIcon}
+        alt="SAND logo"
+      />
+    </span>
+    {amount}
+  </div>
+
 
 export const SandboxMarketplace = (props: DeProps) => {
   const SANDBOX_OPTIONS = ["All", "Equipment", "Entity"];

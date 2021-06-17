@@ -23,7 +23,7 @@ import Blockies from 'react-blockies';
 import CachedIcon from '@material-ui/icons/Cached';
 import { anotherMap } from "./YourLoansPage";
 import LaunchIcon from '@material-ui/icons/Launch';
-import { formatSand } from "./AssetPage";
+import { formatSand } from "./Marketplace";
 
 interface PopupProps {
   poolInst: any;
