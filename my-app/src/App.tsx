@@ -32,6 +32,7 @@ const hexToDec = (s: string) => {
 export interface NFT {
   id: string;
   verse: string;
+  balance: number;
   metadata: any;
 }
 
@@ -177,9 +178,6 @@ function App() {
   const [sandBalance, setSandBalance] = useState(-1);
   const [sandApproved, setSandApproved] = useState(true);
 
-  const [assetBalances, setSandboxAssetBalances]: [Record<string, number>, any] = useState({});
-  const [dclBalances, setDclBalances]: [Record<string, number>, any] = useState({});
-
   const [sandboxAssetsApproved, setAssetsApproved] = useState(true);
   const [dclAssetsApproved, setDclAssetsApproved] = useState(true);
 
@@ -189,6 +187,7 @@ function App() {
       return {
         id: id,
         verse: v.name,
+        balance: 0,
         metadata: {
           name: "missing metadata",
           description: "missing metadata",
@@ -339,18 +338,12 @@ function App() {
               .then((uri: string) =>
                 v.getMetadata(uri).then((metadata: any) => {
                   const tempy = nfts;
-                  tempy[nfts.findIndex((x: NFT) => x.id === id)] = {
-                    id: id,
-                    verse: v.name,
-                    metadata: metadata,
-                  };
+                  tempy[nfts.findIndex((x: NFT) => x.id === id)].metadata = metadata;
                   setAssets(tempy);
                 })
               );
+            return null;
           })
-
-          const hi: Record<string, any> = { "Sandbox": setSandboxAssetBalances, "Decentraland": setDclBalances, "DeNations": (x: string) => null }
-          const hello: Record<string, any> = { "Sandbox": setAssetsApproved, "Decentraland": setDclAssetsApproved, "DeNations": (x: string) => null }
 
           v.contractInst.methods
             .balanceOfBatch(
@@ -359,13 +352,14 @@ function App() {
             )
             .call()
             .then(function (bals: number[]) {
-              const balancesCopy = assetBalances;
+              const tempy = nfts;
               for (let i = 0; i < bals.length; i++) {
-                balancesCopy[v.nftIds[i]] = bals[i]
+                tempy[nfts.findIndex((x: NFT) => x.id === v.nftIds[i])].balance = bals[i];
               }
-              hi[v.name](balancesCopy);
+              setAssets(tempy)
             });
 
+          const hello: Record<string, any> = { "Sandbox": setAssetsApproved, "Decentraland": setDclAssetsApproved, "DeNations": (x: string) => null }
           v.contractInst.methods
             .isApprovedForAll(newAccounts[0], poolAddy)
             .call()
@@ -385,7 +379,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
-  }, [nfts, assetBalances]);
+  }, [nfts]);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
@@ -427,15 +421,13 @@ function App() {
       <Marketplace
         assetsApproved={sandboxAssetsApproved}
         dclAssetsApproved={dclAssetsApproved}
-        assetBalances={assetBalances}
-        dclBalances={dclBalances}
 
         addPendingLoans={refreshLoans}
         sandApproved={sandApproved}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}
-        assets={nfts}
+        nfts={nfts}
         verses={verses}
         poolInst={poolInst}
         sandTokenInst={sandTokenInst}

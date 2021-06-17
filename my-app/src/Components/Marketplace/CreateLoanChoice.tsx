@@ -11,7 +11,6 @@ import { NFT } from "../../App";
 interface ChoiceProps {
   poolInst: any;
   accounts: string[];
-  assetBalances: Record<string, number>;
   assets: NFT[];
 }
 
@@ -42,7 +41,7 @@ const CreateLoanChoice = (props: ChoiceProps) => {
           value={assetID}
           onChange={handleChange}
           style={{ padding: 10, marginLeft: 20, marginRight: 20 }}>
-          {props.assets.filter((a: NFT) => props.assetBalances[a.id] > 0).map((a: NFT) =>
+          {props.assets.filter((a: NFT) => a.balance > 0).map((a: NFT) =>
             <MenuItem value={a.id}>
               {a.metadata.name}
               <img

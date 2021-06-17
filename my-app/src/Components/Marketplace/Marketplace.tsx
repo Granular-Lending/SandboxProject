@@ -13,9 +13,7 @@ import Home from "./Home";
 
 interface MarketplaceProps {
   addPendingLoans: (temp: Loan[], poolInstTemp: any, account: string) => void;
-  assets: NFT[];
-  assetBalances: Record<string, number>;
-  dclBalances: Record<string, number>;
+  nfts: NFT[];
   accounts: string[];
   loans: Loan[];
   sandBalance: number;
@@ -177,17 +175,16 @@ const Marketplace = (props: MarketplaceProps) => {
           <Route path="/assets">
             <Assets
               loans={props.loans}
-              assets={props.assets}
+              assets={props.nfts}
               verses={props.verses}
             />
           </Route>
           <Route path="/asset/:id">
             <AssetPage
-              assetBalances={props.assetBalances}
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              assets={props.assets}
+              assets={props.nfts}
             />
           </Route>
           <Route path="/whitepaper">
@@ -195,8 +192,7 @@ const Marketplace = (props: MarketplaceProps) => {
           </Route>
           <Route path="/createLoan">
             <CreateLoanChoice
-              assets={props.assets}
-              assetBalances={props.assetBalances}
+              assets={props.nfts}
               poolInst={props.poolInst}
               accounts={props.accounts}
             />
@@ -204,7 +200,7 @@ const Marketplace = (props: MarketplaceProps) => {
           <Route path="/yourLoans">
             <YourLoansPage
               addPendingLoans={props.addPendingLoans}
-              assets={props.assets}
+              assets={props.nfts}
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
@@ -213,7 +209,7 @@ const Marketplace = (props: MarketplaceProps) => {
           <Route path="/yourBorrows">
             <YourBorrowsPage
               addPendingLoans={props.addPendingLoans}
-              assets={props.assets}
+              assets={props.nfts}
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}

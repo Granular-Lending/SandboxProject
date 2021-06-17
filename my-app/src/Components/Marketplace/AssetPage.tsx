@@ -34,7 +34,6 @@ interface AssetPageProps {
   poolInst: any;
   accounts: string[];
   loans: Loan[];
-  assetBalances: Record<string, number>;
   assets: NFT[];
 }
 
@@ -331,7 +330,7 @@ const AssetPage = (props: AssetPageProps) => {
       {dialog}
       <AssetCard
         asset={chosenAsset}
-        balance={props.assetBalances[chosenAsset.id]}
+        balance={chosenAsset.balance}
         loans={props.loans}
       />
       <div style={{ backgroundColor: "#1b2030", paddingTop: 4 }}>
