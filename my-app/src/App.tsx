@@ -147,22 +147,21 @@ const verses: Verse[] = [
     '0xD35147BE6401dcb20811f2104c33dE8E97ED6818',
     DecentralandAssetCard,
   ),
-  {
-    name: 'DeNations',
-    nftIds: [
+  new Verse('DeNations',
+    [
       "22",
     ],
-    getMetadata: async (uri: string): Promise<any> => {
+    async (uri: string): Promise<any> => {
       return await fetch(uri)
         .then(res => res.json())
         .then((metadata: any) => {
           return metadata;
         });
     },
-    uriFunction: new web3.eth.Contract(erc1155abi, '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED').methods.uri,
-    contractInst: new web3.eth.Contract(erc1155abi, '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED'),
-    card: DeNationsAssetCard
-  }
+    new web3.eth.Contract(erc1155abi, '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED').methods.uri,
+    '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED',
+    DeNationsAssetCard,
+  ),
 ]
 
 function App() {
