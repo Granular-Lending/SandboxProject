@@ -38,7 +38,7 @@ const returnAsset = (inst: any, from: string, index: string) => {
 };
 
 const YourBorrowsPage = (props: PopupProps) => {
-  const [chosenAsset, setChosenAsset] = useState(props.assets[0]);
+  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verse: '', balance: -1, metadata: { name: '', image: '' } });
   const [chosenLoan, setChosenLoan] = useState({
     cost: 0,
     deposit: 0,

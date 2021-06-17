@@ -21,8 +21,6 @@ interface MarketplaceProps {
   sandBalance: number;
   sym: string;
   sandApproved: boolean;
-  assetsApproved: boolean;
-  dclAssetsApproved: boolean;
   verses: Verse[];
   sandTokenInst: any;
   poolInst: any;
@@ -253,7 +251,6 @@ const Marketplace = (props: MarketplaceProps) => {
           </Route>
           <Route path="/permissions">
             <Permissions
-              assetsApproved={props.assetsApproved}
               sandApproved={props.sandApproved}
               accounts={props.accounts}
               sym={props.sym}

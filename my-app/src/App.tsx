@@ -61,6 +61,7 @@ export class Verse {
   contractInst: any;
   card: (a: NFT, loans: Loan[]) => JSX.Element;
   marketplace: any;
+  approved: boolean;
 
   constructor(
     name: string,
@@ -78,6 +79,7 @@ export class Verse {
     this.contractInst = new web3.eth.Contract(erc1155abi, address);
     this.card = card;
     this.marketplace = marketplaceColor;
+    this.approved = false;
   }
 }
 
@@ -228,36 +230,10 @@ function App() {
   const [sandBalance, setSandBalance] = useState(-1);
   const [sandApproved, setSandApproved] = useState(true);
 
-  const [sandboxAssetsApproved, setAssetsApproved] = useState(true);
-  const [dclAssetsApproved, setDclAssetsApproved] = useState(true);
-
-  const [verses2, setVerses2] = useState(MAINNET_VERSES);
+  const [verses, setVerses] = useState(MAINNET_VERSES);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
-  const [nfts, setAssets]: [NFT[], any] = useState(
-    MAINNET_VERSES.map((v: Verse) => v.nftIds.map((id: string) => {
-      return {
-        id: id,
-        verse: v.name,
-        balance: 0,
-        metadata: {
-          name: "missing metadata",
-          description: "missing metadata",
-          image: "missing metadata",
-          animation_url: "missing metadata",
-          creator_profile_url: "missing metadata",
-          sandbox: {
-            creator: "missing metadata",
-            classification: {
-              type: "missing metadata",
-              theme: "missing metadata",
-              categories: [""],
-            }
-          },
-        }
-      };
-    })).flat()
-  );
+  const [nfts, setAssets]: [NFT[], any] = useState([]);
 
   React.useEffect(() => {
     if (!onboarding.current) {
@@ -353,8 +329,7 @@ function App() {
           sandAddy = ERC20_ROPSTEN;
           veg = ROPSTEN_VERSES;
         }
-        setVerses2(veg);
-
+        setVerses(veg);
 
         const sandTokenInstTemp = new web3.eth.Contract(erc20abi, sandAddy);
         const poolInstTemp = new web3.eth.Contract(poolabi, poolAddy);
@@ -381,19 +356,32 @@ function App() {
 
         refreshLoans(poolInstTemp, newAccounts[0]);
 
-        //fixme get all verses
-        setAssetsApproved(false);
-        setDclAssetsApproved(false);
-
         // todo this should really loop through assets?
         veg.map((v: Verse) => {
+          v.contractInst.methods
+            .isApprovedForAll(newAccounts[0], poolAddy)
+            .call()
+            .then((s: boolean) => {
+              const tempy = veg;
+              const y = tempy.findIndex((f: Verse) => f.name === v.name);
+              if (y !== -1) {
+                tempy[y].approved = s;
+              }
+              setVerses(tempy);
+            })
+
           v.nftIds.map((id: string) => {
             v.uriFunction(id)
               .call()
               .then((uri: string) =>
                 v.getMetadata(uri).then((metadata: any) => {
                   const tempy = nfts;
-                  tempy[nfts.findIndex((x: NFT) => x.id === id)].metadata = metadata;
+                  const y = nfts.findIndex((n: NFT) => n.id === id);
+                  if (y !== -1) {
+                    tempy[y].metadata = metadata;
+                  } else {
+                    tempy.push({ id: id, balance: 0, metadata: metadata, verse: v.name })
+                  }
                   setAssets(tempy);
                 })
               );
@@ -409,9 +397,14 @@ function App() {
             .then(function (bals: number[]) {
               const tempy = nfts;
               for (let i = 0; i < bals.length; i++) {
-                tempy[nfts.findIndex((x: NFT) => x.id === v.nftIds[i])].balance = bals[i];
+                const y = nfts.findIndex((n: NFT) => n.id === v.nftIds[i]);
+                if (y !== -1) {
+                  tempy[y].balance = bals[i];
+                } else {
+                  tempy.push({ id: v.nftIds[i], balance: bals[i], metadata: {}, verse: v.name })
+                }
               }
-              setAssets(tempy)
+              setAssets(tempy);
             });
           return null;
         }
@@ -468,16 +461,13 @@ function App() {
         accounts={accounts}
       />
       <Marketplace
-        assetsApproved={sandboxAssetsApproved}
-        dclAssetsApproved={dclAssetsApproved}
-
         addPendingLoans={refreshLoans}
         sandApproved={sandApproved}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}
         nfts={nfts}
-        verses={verses2}
+        verses={verses}
         poolInst={poolInst}
         sandTokenInst={sandTokenInst}
         loans={loans}
