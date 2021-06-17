@@ -100,7 +100,28 @@ const CONNECTED_TEXT = "Connected";
 
 const signatureToFunction: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
 
-const verses: Verse[] = [
+const ROPSTEN_VERSES: Verse[] = [
+  new Verse('Rarible',
+    [
+      "2",
+    ],
+    async (uri: string): Promise<any> => {
+      let url = `https://ipfs.io/ipfs/${uri.slice(12)}`;
+
+      return await fetch(url)
+        .then(res => res.json())
+        .then((metadata: any) => {
+          return metadata;
+        });
+    },
+    new web3.eth.Contract(erc1155abi, '0x25ec3bbc85af8b7498c8f5b1cd1c39675431a13c').methods.tokenURI,
+    '0x25ec3bbc85af8b7498c8f5b1cd1c39675431a13c',
+    DecentralandAssetCard,
+    DecentralandMarketplace,
+  ),
+]
+
+const MAINNET_VERSES: Verse[] = [
   new Verse('Sandbox',
     [
       "26059276970032186212506257052788207833935590993847855924189730778752558827520",
@@ -210,9 +231,11 @@ function App() {
   const [sandboxAssetsApproved, setAssetsApproved] = useState(true);
   const [dclAssetsApproved, setDclAssetsApproved] = useState(true);
 
+  const [verses2, setVerses2] = useState(MAINNET_VERSES);
+
   const [loans, setLoans]: [Loan[], any] = useState([]);
   const [nfts, setAssets]: [NFT[], any] = useState(
-    verses.map((v: Verse) => v.nftIds.map((id: string) => {
+    MAINNET_VERSES.map((v: Verse) => v.nftIds.map((id: string) => {
       return {
         id: id,
         verse: v.name,
@@ -323,16 +346,15 @@ function App() {
       web3.eth.net.getNetworkType().then((networkType: string) => {
         const is_ropsten = networkType === 'ropsten';
 
-        let sandAddy;
-        let poolAddy: string;
+        let sandAddy = ERC20_MAINNET;
+        let poolAddy = POOL_ROPSTEN;
+        let veg = MAINNET_VERSES;
         if (is_ropsten) {
           sandAddy = ERC20_ROPSTEN;
-          poolAddy = POOL_ROPSTEN;
-        } else {
-          sandAddy = ERC20_MAINNET;
-          poolAddy = POOL_ROPSTEN;
-
+          veg = ROPSTEN_VERSES;
         }
+        setVerses2(veg);
+
 
         const sandTokenInstTemp = new web3.eth.Contract(erc20abi, sandAddy);
         const poolInstTemp = new web3.eth.Contract(poolabi, poolAddy);
@@ -364,7 +386,7 @@ function App() {
         setDclAssetsApproved(false);
 
         // todo this should really loop through assets?
-        verses.map((v: Verse) => {
+        veg.map((v: Verse) => {
           v.nftIds.map((id: string) => {
             v.uriFunction(id)
               .call()
@@ -455,7 +477,7 @@ function App() {
         sym={sym}
         sandBalance={sandBalance}
         nfts={nfts}
-        verses={verses}
+        verses={verses2}
         poolInst={poolInst}
         sandTokenInst={sandTokenInst}
         loans={loans}
