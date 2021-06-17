@@ -24,7 +24,7 @@ const Navbar = (props: any) => {
           }}
         >
           <Link style={{ textDecoration: "none" }} to="/assets">
-            <div style={{ margin: 8, color: "white" }}>Assets</div>
+            <div style={{ margin: 8, color: "white" }}>NFT's</div>
           </Link>
           <Link style={{ textDecoration: "none" }} to="/yourLoans">
             <div style={{ margin: 8, color: "white" }}>Your Loans</div>

@@ -6,7 +6,7 @@ import { BlockTransactionObject } from "web3-eth"
 import Navbar from "./Components/Navbar/Navbar";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
-import Marketplace, { DeNationsAssetCard, SandboxAssetCard, DecentralandAssetCard } from "./Components/Marketplace/Marketplace";
+import Marketplace, { DeNationsAssetCard, SandboxAssetCard, DecentralandAssetCard, SandboxMarketplace, DecentralandMarketplace, DeNationsMarketplace } from "./Components/Marketplace/Marketplace";
 
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");
@@ -57,6 +57,7 @@ export class Verse {
   uriFunction: (id: string) => any;
   contractInst: any;
   card: (a: NFT, loans: Loan[]) => JSX.Element;
+  marketplace: any;
 
   constructor(
     name: string,
@@ -65,6 +66,7 @@ export class Verse {
     uriFunction: (id: string) => any,
     address: string,
     card: (a: NFT, loans: Loan[]) => JSX.Element,
+    marketplaceColor: any,
   ) {
     this.name = name;
     this.nftIds = nftIds;
@@ -72,6 +74,7 @@ export class Verse {
     this.uriFunction = uriFunction;
     this.contractInst = new web3.eth.Contract(erc1155abi, address);
     this.card = card;
+    this.marketplace = marketplaceColor;
   }
 }
 
@@ -129,6 +132,7 @@ const verses: Verse[] = [
     new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri,
     '0xa342f5d851e866e18ff98f351f2c6637f4478db5',
     SandboxAssetCard,
+    SandboxMarketplace,
   ),
   new Verse('Decentraland',
     [
@@ -146,10 +150,12 @@ const verses: Verse[] = [
     new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI,
     '0xD35147BE6401dcb20811f2104c33dE8E97ED6818',
     DecentralandAssetCard,
+    DecentralandMarketplace
   ),
   new Verse('DeNations',
     [
       "22",
+      "15"
     ],
     async (uri: string): Promise<any> => {
       return await fetch(uri)
@@ -161,6 +167,7 @@ const verses: Verse[] = [
     new web3.eth.Contract(erc1155abi, '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED').methods.uri,
     '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED',
     DeNationsAssetCard,
+    DeNationsMarketplace
   ),
 ]
 

@@ -8,7 +8,7 @@ import YourLoansPage from "./YourLoansPage";
 import YourBorrowsPage from "./YourBorrowsPage";
 import Sample from "./Whitepaper";
 import Permissions from "../Permissions/Permissions";
-import { FormControl, MenuItem, Select } from "@material-ui/core";
+import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
 import Home from "./Home";
 
 interface MarketplaceProps {
@@ -135,35 +135,159 @@ interface AssetsProps {
   verses: Verse[]
 }
 
+interface DeProps {
+  verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
+}
+
+export const SandboxMarketplace = (props: DeProps) => {
+  const SANDBOX_OPTIONS = ["All", "Equipment", "Entity"];
+  const THEME_OPTIONS = ["All", "Sci-Fi", "Retro", "Nature"];
+  const [sandboxType, setSandboxType] = React.useState(SANDBOX_OPTIONS[0]);
+  const [theme, setTheme] = React.useState(THEME_OPTIONS[0]);
+
+  return <div>
+    <div style={{ backgroundColor: 'cyan' }}>
+      <FormControl >
+        <InputLabel id="demo-simple-select-label">Type</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={sandboxType}
+          onChange={(e: any) => setSandboxType(e.target.value as string)}
+          style={{ margin: 20, color: 'white' }}
+        >
+          {SANDBOX_OPTIONS.map((o: string) =>
+            <MenuItem value={o}>
+              {o}
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl >
+      <FormControl >
+        <InputLabel id="demo-simple-select-label">Theme</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={theme}
+          onChange={(e: any) => setTheme(e.target.value as string)}
+          style={{ margin: 20, color: 'white' }}
+        >
+          {THEME_OPTIONS.map((o: string) =>
+            <MenuItem value={o}>
+              {o}
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl >
+    </div>
+    <div className="card-container" style={{ backgroundColor: "Blue" }}>
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === a.verse && (sandboxType === "All" || sandboxType === a.metadata.sandbox.classification.type) && (theme === "All" || theme === a.metadata.sandbox.classification.theme))).map((a: NFT) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
+    </div>
+  </div>;
+}
+
+export const AllMarketplace = (props: DeProps) => {
+  return <div>
+    <div className="card-container" >
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verse)).map((a: NFT) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
+    </div>
+  </div>;
+}
+
+export const DecentralandMarketplace = (props: DeProps) => {
+  return <div>
+    <div style={{ backgroundColor: 'lightred' }}>
+
+    </div>
+    <div className="card-container" style={{ backgroundColor: "Red" }}>
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verse)).map((a: NFT) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
+    </div>
+  </div>;
+}
+
+export const DeNationsMarketplace = (props: DeProps) => {
+  const COUNTRIES = ["All", "EU", "G20"];
+  const [sandboxType, setSandboxType] = React.useState(COUNTRIES[0]);
+
+  return <div>
+    <div style={{ backgroundColor: 'lightgreen' }}>
+      <FormControl >
+        <InputLabel id="demo-simple-select-label">Country</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={sandboxType}
+          onChange={(e: any) => setSandboxType(e.target.value as string)}
+          style={{ margin: 20, color: 'white' }}
+        >
+          {COUNTRIES.map((o: string) =>
+            <MenuItem value={o}>
+              {o}
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl >
+    </div>
+    <div className="card-container" style={{ backgroundColor: "green" }}>
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verse) && (sandboxType === "All" || sandboxType === a.metadata.attributes[0].value)).map((a: NFT) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
+    </div>
+  </div>;
+}
+
 const Assets = (props: AssetsProps) => {
   const VERSE_OPTIONS = ["Any"].concat(props.verses.map((v: Verse) => v.name));
 
   const [verseType, setVerseType] = React.useState(VERSE_OPTIONS[0]);
 
   return <div data-label="Assets">
-    <FormControl>
-      <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={verseType}
-        onChange={(e: any) => setVerseType(e.target.value as string)}
-        style={{ margin: 20, color: 'white' }}
-      >
-        {VERSE_OPTIONS.map((o: string) =>
-          <MenuItem value={o}>
-            {o}
-          </MenuItem>
-        )}
-      </Select>
-    </FormControl>
-    <div className="card-container">
-      {/* TODO make this rebuild when metadata loads */
-        props.assets.filter((a: NFT) => (verseType === "Any" || verseType === a.verse)).map((a: NFT) => {
-          const x = props.verses.find((v: Verse) => v.name === a.verse);
-          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
-        }
-        )}
+    <div style={{ backgroundColor: "grey" }}>
+      <FormControl>
+        <InputLabel id="demo-simple-select-label">Verse</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={verseType}
+          onChange={(e: any) => {
+            setVerseType(e.target.value as string);
+          }}
+          style={{ margin: 20, color: 'white' }}
+        >
+          {VERSE_OPTIONS.map((o: string) =>
+            <MenuItem value={o}>
+              {o}
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl>
     </div>
+    {verseType === "DeNations" ?
+      <DeNationsMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} /> :
+      verseType === "Sandbox" ?
+        <SandboxMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} /> :
+        verseType === "Decentraland" ?
+          <DecentralandMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} /> :
+          <AllMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} />
+    }
   </div >
 };
 
