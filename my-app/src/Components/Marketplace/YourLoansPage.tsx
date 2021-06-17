@@ -1,4 +1,4 @@
-import { Asset, Loan } from "../../App";
+import { NFT, Loan } from "../../App";
 import "./Marketplace.css";
 import {
   Button,
@@ -32,7 +32,7 @@ interface PopupProps {
   poolInst: any;
   accounts: string[];
   loans: Loan[];
-  assets: Asset[];
+  assets: NFT[];
   addPendingLoans: any;
 }
 
@@ -73,16 +73,16 @@ const YourLoansPage = (props: PopupProps) => {
           {loans
             .map((l: Loan) => {
               const asset = props.assets.find(
-                (a: Asset) => a.id === l.asset_id
+                (a: NFT) => a.id === l.asset_id
               );
               return (
                 <TableRow key={loans.indexOf(l)}>
                   <TableCell style={{ color: "white", fontSize: "1rem" }}>
-                    <Tooltip title={asset ? asset.name : ""}>
+                    <Tooltip title={asset ? asset.metadata.name : ""}>
                       <img
                         alt="missing metadata"
                         style={{ objectFit: "contain", width: 35 }}
-                        src={asset ? asset.image : ''}
+                        src={asset ? asset.metadata.image : ''}
                       />
                     </Tooltip>
                   </TableCell>
@@ -125,7 +125,7 @@ const YourLoansPage = (props: PopupProps) => {
                           setShowCollect(true);
                           setChosenLoan(l);
                           const assetWithID = props.assets.find(
-                            (a: Asset) => a.id === l.asset_id
+                            (a: NFT) => a.id === l.asset_id
                           );
                           if (assetWithID) { setChosenAsset(assetWithID); }
                         }
@@ -148,7 +148,7 @@ const YourLoansPage = (props: PopupProps) => {
                           setShowTimeout(true);
                           setChosenLoan(l);
                           const assetWithID = props.assets.find(
-                            (a: Asset) => a.id === l.asset_id
+                            (a: NFT) => a.id === l.asset_id
                           );
                           if (assetWithID) { setChosenAsset(assetWithID); }
                         }
@@ -208,7 +208,7 @@ const YourLoansPage = (props: PopupProps) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{chosenAsset.metadata.name}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             As the borrower has failed to return this ASSET, this action will give you their <b>{chosenLoan.deposit} SAND</b> deposit.
@@ -235,7 +235,7 @@ const YourLoansPage = (props: PopupProps) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{chosenAsset.metadata.name}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             You are about to collect this asset and take it out of the pool.

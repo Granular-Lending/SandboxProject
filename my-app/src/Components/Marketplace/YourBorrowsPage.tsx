@@ -1,4 +1,4 @@
-import { Asset, Loan } from "../../App";
+import { NFT, Loan } from "../../App";
 import "./Marketplace.css";
 import {
   Button,
@@ -29,7 +29,7 @@ interface PopupProps {
   poolInst: any;
   accounts: string[];
   loans: Loan[];
-  assets: Asset[];
+  assets: NFT[];
   addPendingLoans: any;
 }
 
@@ -71,16 +71,16 @@ const YourBorrowsPage = (props: PopupProps) => {
         <TableBody>
           {loans.map((l: Loan) => {
             const asset = props.assets.find(
-              (a: Asset) => a.id === l.asset_id
+              (a: NFT) => a.id === l.asset_id
             );
             return (
               <TableRow key={loans.indexOf(l)}>
                 <TableCell style={{ color: "white", fontSize: '1rem' }}>
-                  <Tooltip title={asset ? asset.name : 'nada'}>
+                  <Tooltip title={asset ? asset.metadata.name : 'nada'}>
                     <img
                       alt="missing metadata"
                       style={{ objectFit: "contain", width: 35 }}
-                      src={asset ? asset.image : ''}
+                      src={asset ? asset.metadata.image : ''}
                     />
                   </Tooltip>
                 </TableCell>
@@ -160,7 +160,7 @@ const YourBorrowsPage = (props: PopupProps) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{chosenAsset.metadata.name}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {+chosenLoan.entry * 1000 + +chosenLoan.duration * 1000 < Date.now() ? <div style={{ border: 'solid', padding: 5, marginBottom: 10, color: 'red' }}>

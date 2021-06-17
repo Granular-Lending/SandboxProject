@@ -29,18 +29,10 @@ const hexToDec = (s: string) => {
   return digits.reverse().join('');
 }
 
-export interface Asset {
+export interface NFT {
   id: string;
   verse: string;
-  name: string;
-  description: string;
-  image: string;
-  animation_url: string;
-  creator_profile_url: string;
-  sandbox: {
-    creator: string;
-    classification: { type: string; theme: string; categories: string[] }
-  };
+  metadata: any;
 }
 
 export interface Loan {
@@ -57,13 +49,29 @@ export interface Loan {
   pendingFunction: string;
 }
 
-export interface Verse {
+export class Verse {
   name: string;
   nftIds: string[];
-  getMetadata: (id: string, uri: string) => Promise<Asset>;
-  uriFunction: any;
+  getMetadata: (uri: string) => Promise<any>;
+  uriFunction: (id: string) => any;
   contractInst: any;
-  card: any;
+  card: (a: NFT, loans: Loan[]) => JSX.Element;
+
+  constructor(
+    name: string,
+    nftIds: string[],
+    getMetadata: (uri: string) => Promise<any>,
+    uriFunction: (id: string) => any,
+    address: string,
+    card: (a: NFT, loans: Loan[]) => JSX.Element,
+  ) {
+    this.name = name;
+    this.nftIds = nftIds;
+    this.getMetadata = getMetadata;
+    this.uriFunction = uriFunction;
+    this.contractInst = new web3.eth.Contract(erc1155abi, address);
+    this.card = card;
+  }
 }
 
 const ERC20_MAINNET = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
@@ -86,9 +94,8 @@ const CONNECTED_TEXT = "Connected";
 const signatureToFunction: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
 
 const verses: Verse[] = [
-  {
-    name: 'Sandbox',
-    nftIds: [
+  new Verse('Sandbox',
+    [
       "26059276970032186212506257052788207833935590993847855924189730778752558827520",
       "40785833732304342849735419653626615027421227776496020677721887159020450484224",
       "40785833732304342849735419653626615027421227776496020677721887159020450484225",
@@ -107,7 +114,7 @@ const verses: Verse[] = [
       "55464657044963196816950587289035428064568320970692304673817341489687715414020",
       "55464657044963196816950587289035428064568320970692304673817341489687715414021",
     ],
-    getMetadata: async (id: string, uri: string): Promise<Asset> => {
+    async (uri: string): Promise<any> => {
       let url = `https://ipfs.io/ipfs/${uri.slice(7)}`;
 
       return await fetch(url)
@@ -115,54 +122,40 @@ const verses: Verse[] = [
         .then((metadata: any) => {
           metadata.image = `https://ipfs.io/ipfs/${metadata.image.slice(6)}`;
           metadata.animation_url = `https://ipfs.io/ipfs/${metadata.animation_url.slice(6)}`;
-          return {
-            id: id,
-            verse: 'Sandbox',
-            ...metadata,
-          };
+          return metadata;
         });
     },
-    uriFunction: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri,
-    contractInst: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5'),
-    card: SandboxAssetCard,
-  },
-  {
-    name: 'Decentraland',
-    nftIds: [
+    new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri,
+    '0xa342f5d851e866e18ff98f351f2c6637f4478db5',
+    SandboxAssetCard,
+  ),
+  new Verse('Decentraland',
+    [
       "599",
       "28757",
     ],
-    getMetadata: async (id: string, uri: string): Promise<Asset> => {
+    async (uri: string): Promise<any> => {
       return await fetch(uri)
         .then(res => res.json())
         .then((metadata: any) => {
           delete metadata.id;
-          return {
-            id: id,
-            verse: 'Decentraland',
-            ...metadata,
-          };
+          return metadata;
         });
     },
-    uriFunction: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI,
-    contractInst: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818'),
-    card: DecentralandAssetCard,
-  },
+    new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI,
+    '0xD35147BE6401dcb20811f2104c33dE8E97ED6818',
+    DecentralandAssetCard,
+  ),
   {
     name: 'DeNations',
     nftIds: [
       "22",
     ],
-    getMetadata: async (id: string, uri: string): Promise<Asset> => {
+    getMetadata: async (uri: string): Promise<any> => {
       return await fetch(uri)
         .then(res => res.json())
         .then((metadata: any) => {
-          delete metadata.id;
-          return {
-            id: id,
-            verse: 'DeNations',
-            ...metadata,
-          };
+          return metadata;
         });
     },
     uriFunction: new web3.eth.Contract(erc1155abi, '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED').methods.uri,
@@ -191,24 +184,26 @@ function App() {
   const [dclAssetsApproved, setDclAssetsApproved] = useState(true);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
-  const [nfts, setAssets]: [Asset[], any] = useState(
+  const [nfts, setAssets]: [NFT[], any] = useState(
     verses.map((v: Verse) => v.nftIds.map((id: string) => {
       return {
         id: id,
         verse: v.name,
-        name: "missing metadata",
-        description: "missing metadata",
-        image: "missing metadata",
-        animation_url: "missing metadata",
-        creator_profile_url: "missing metadata",
-        sandbox: {
-          creator: "missing metadata",
-          classification: {
-            type: "missing metadata",
-            theme: "missing metadata",
-            categories: [""],
-          }
-        },
+        metadata: {
+          name: "missing metadata",
+          description: "missing metadata",
+          image: "missing metadata",
+          animation_url: "missing metadata",
+          creator_profile_url: "missing metadata",
+          sandbox: {
+            creator: "missing metadata",
+            classification: {
+              type: "missing metadata",
+              theme: "missing metadata",
+              categories: [""],
+            }
+          },
+        }
       };
     })).flat()
   );
@@ -336,18 +331,23 @@ function App() {
 
         refreshLoans(poolInstTemp, newAccounts[0]);
 
+        // todo this should really loop through assets?
         verses.map((v: Verse) => {
-          for (let i = 0; i < v.nftIds.length; i++) {
-            v.uriFunction(v.nftIds[i])
+          v.nftIds.map((id: string) => {
+            v.uriFunction(id)
               .call()
               .then((uri: string) =>
-                v.getMetadata(v.nftIds[i], uri).then((a: Asset) => {
+                v.getMetadata(uri).then((metadata: any) => {
                   const tempy = nfts;
-                  tempy[nfts.findIndex((x: Asset) => x.id === a.id)] = a;
+                  tempy[nfts.findIndex((x: NFT) => x.id === id)] = {
+                    id: id,
+                    verse: v.name,
+                    metadata: metadata,
+                  };
                   setAssets(tempy);
                 })
               );
-          }
+          })
 
           const hi: Record<string, any> = { "Sandbox": setSandboxAssetBalances, "Decentraland": setDclBalances, "DeNations": (x: string) => null }
           const hello: Record<string, any> = { "Sandbox": setAssetsApproved, "Decentraland": setDclAssetsApproved, "DeNations": (x: string) => null }

@@ -1,4 +1,4 @@
-import { Asset, Loan } from "../../App";
+import { NFT, Loan } from "../../App";
 import sandIcon from "./assets/sandIcon.png";
 import "./Marketplace.css";
 import {
@@ -35,11 +35,11 @@ interface AssetPageProps {
   accounts: string[];
   loans: Loan[];
   assetBalances: Record<string, number>;
-  assets: Asset[];
+  assets: NFT[];
 }
 
 interface AssetCardProps {
-  asset: Asset, balance: number, loans: Loan[]
+  asset: NFT, balance: number, loans: Loan[]
 }
 
 const buyAsset = (inst: any, from: string, index: string) => {
@@ -72,7 +72,7 @@ const AssetCard = (props: AssetCardProps) => {
           width={300}
           height={250}
           enableZoom={false}
-          src={props.asset.animation_url}
+          src={props.asset.metadata.animation_url}
           position={position}
           rotation={obj} >
           <AmbientLight color='white' />
@@ -129,7 +129,7 @@ const AssetCard = (props: AssetCardProps) => {
             model :
             <img
               alt="missing metadata"
-              src={props.asset.image}
+              src={props.asset.metadata.image}
               style={{
                 objectFit: "contain",
                 width: 300,
@@ -138,7 +138,7 @@ const AssetCard = (props: AssetCardProps) => {
             />}
         </div>
         <div style={{ width: "100%" }}>
-          <h1>{props.asset.name}</h1>
+          <h1>{props.asset.metadata.name}</h1>
           <h4 style={{ color: 'lightgrey' }}>Token ID: {props.asset.verse === "Sandbox" ? `${props.asset.id.slice(0, 4)}...${props.asset.id.slice(-4)}` : props.asset.id}</h4>
           <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available</h4>
           <h2>About</h2>
@@ -149,12 +149,12 @@ const AssetCard = (props: AssetCardProps) => {
               backgroundColor: "#1b2040",
             }}
           >
-            {props.asset.description}
+            {props.asset.metadata.description}
             {props.asset.verse === "Sandbox" ?
               <Grid container spacing={10}>
-                <Grid item><h4>Type</h4> {props.asset.sandbox.classification.type}</Grid>
-                <Grid item><h4>Biome</h4>{props.asset.sandbox.classification.theme}</Grid>
-                <Grid item><h4>Tags</h4>{props.asset.sandbox.classification.categories.join(", ")}</Grid>
+                <Grid item><h4>Type</h4> {props.asset.metadata.sandbox.classification.type}</Grid>
+                <Grid item><h4>Biome</h4>{props.asset.metadata.sandbox.classification.theme}</Grid>
+                <Grid item><h4>Tags</h4>{props.asset.metadata.sandbox.classification.categories.join(", ")}</Grid>
               </Grid> : ''}
           </div>
         </div>
@@ -184,7 +184,7 @@ const AssetPage = (props: AssetPageProps) => {
 
   React.useEffect(() => {
     const assetWithID = props.assets.find(
-      (a: Asset) => a.id === id
+      (a: NFT) => a.id === id
     );
     if (assetWithID) { setChosenAsset(assetWithID); }
     // eslint-disable-next-line
@@ -256,7 +256,7 @@ const AssetPage = (props: AssetPageProps) => {
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">{chosenAsset.metadata.name}</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
           <div style={{
@@ -270,7 +270,7 @@ const AssetPage = (props: AssetPageProps) => {
             }}>
               <img
                 alt="missing metadata"
-                src={chosenAsset.image}
+                src={chosenAsset.metadata.image}
                 style={{
                   objectFit: "contain",
                   width: 200,

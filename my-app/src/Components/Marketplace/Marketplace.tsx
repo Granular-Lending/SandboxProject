@@ -1,5 +1,5 @@
 import React from "react";
-import { Asset, Loan, Verse } from "../../App";
+import { NFT, Loan, Verse } from "../../App";
 import "./Marketplace.css";
 import { Switch, Route, Link } from "react-router-dom";
 import AssetPage from "./AssetPage";
@@ -13,7 +13,7 @@ import Home from "./Home";
 
 interface MarketplaceProps {
   addPendingLoans: (temp: Loan[], poolInstTemp: any, account: string) => void;
-  assets: Asset[];
+  assets: NFT[];
   assetBalances: Record<string, number>;
   dclBalances: Record<string, number>;
   accounts: string[];
@@ -28,7 +28,7 @@ interface MarketplaceProps {
   poolInst: any;
 }
 
-export const SandboxAssetCard = (a: Asset, loans: Loan[]) => {
+export const SandboxAssetCard = (a: NFT, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
     (l: Loan) =>
       l.asset_id === a.id &&
@@ -44,12 +44,12 @@ export const SandboxAssetCard = (a: Asset, loans: Loan[]) => {
           <img
             alt="missing metadata"
             style={{ objectFit: "contain" }}
-            src={a.image}
+            src={a.metadata.image}
           />
           <div className="cardData">
-            <h3>{a.name.length > 22 ? `${a.name.slice(0, 22)}...` : a.name}</h3>
+            <h3>{a.metadata.name.length > 22 ? `${a.metadata.name.slice(0, 22)}...` : a.metadata.name}</h3>
             <h4 style={{ color: 'lightgrey' }}>
-              {`${a.sandbox.classification.type} | ${a.sandbox.classification.theme}`}
+              {`${a.metadata.sandbox.classification.type} | ${a.metadata.sandbox.classification.theme}`}
             </h4>
             <p>
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
@@ -64,7 +64,7 @@ export const SandboxAssetCard = (a: Asset, loans: Loan[]) => {
   );
 };
 
-export const DecentralandAssetCard = (a: Asset, loans: Loan[]) => {
+export const DecentralandAssetCard = (a: NFT, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
     (l: Loan) =>
       l.asset_id === a.id &&
@@ -80,10 +80,10 @@ export const DecentralandAssetCard = (a: Asset, loans: Loan[]) => {
           <img
             alt="missing metadata"
             style={{ objectFit: "contain" }}
-            src={a.image}
+            src={a.metadata.image}
           />
           <div className="cardData">
-            <h3>{a.name}</h3>
+            <h3>{a.metadata.name}</h3>
             <p>
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
             </p>
@@ -98,7 +98,7 @@ export const DecentralandAssetCard = (a: Asset, loans: Loan[]) => {
 };
 
 
-export const DeNationsAssetCard = (a: Asset, loans: Loan[]) => {
+export const DeNationsAssetCard = (a: NFT, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
     (l: Loan) =>
       l.asset_id === a.id &&
@@ -114,10 +114,10 @@ export const DeNationsAssetCard = (a: Asset, loans: Loan[]) => {
           <img
             alt="missing metadata"
             style={{ objectFit: "contain" }}
-            src={a.image}
+            src={a.metadata.image}
           />
           <div className="cardData">
-            <h3>{a.name}</h3>
+            <h3>{a.metadata.name}</h3>
             <p>
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
             </p>
@@ -132,7 +132,7 @@ export const DeNationsAssetCard = (a: Asset, loans: Loan[]) => {
 };
 
 interface AssetsProps {
-  assets: Asset[];
+  assets: NFT[];
   loans: Loan[]
   verses: Verse[]
 }
@@ -160,7 +160,7 @@ const Assets = (props: AssetsProps) => {
     </FormControl>
     <div className="card-container">
       {/* TODO make this rebuild when metadata loads */
-        props.assets.filter((a: Asset) => (verseType === "Any" || verseType === a.verse)).map((a: Asset) => {
+        props.assets.filter((a: NFT) => (verseType === "Any" || verseType === a.verse)).map((a: NFT) => {
           const x = props.verses.find((v: Verse) => v.name === a.verse);
           return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
         }
