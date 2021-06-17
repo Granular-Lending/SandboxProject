@@ -6,7 +6,10 @@ import { BlockTransactionObject } from "web3-eth"
 import Navbar from "./Components/Navbar/Navbar";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
-import Marketplace, { DeNationsAssetCard, SandboxAssetCard, DecentralandAssetCard, SandboxMarketplace, DecentralandMarketplace, DeNationsMarketplace } from "./Components/Marketplace/Marketplace";
+import Marketplace, { SandboxMarketplace, DecentralandMarketplace, DeNationsMarketplace } from "./Components/Marketplace/Marketplace";
+import SandboxAssetCard from "./Components/Marketplace/SandboxAssetCard";
+import DecentralandAssetCard from "./Components/Marketplace/DecentralandAssetCard";
+import DeNationsAssetCard from "./Components/Marketplace/DeNationsAssetCard";
 
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");

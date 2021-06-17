@@ -1,7 +1,7 @@
 import React from "react";
 import { NFT, Loan, Verse } from "../../App";
 import "./Marketplace.css";
-import { Switch, Route, Link } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import AssetPage from "./AssetPage";
 import CreateLoanChoice from "./CreateLoanChoice";
 import YourLoansPage from "./YourLoansPage";
@@ -10,6 +10,7 @@ import Sample from "./Whitepaper";
 import Permissions from "../Permissions/Permissions";
 import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
 import Home from "./Home";
+import DecentralandAssetCard from "./DecentralandAssetCard";
 
 interface MarketplaceProps {
   addPendingLoans: (temp: Loan[], poolInstTemp: any, account: string) => void;
@@ -25,109 +26,6 @@ interface MarketplaceProps {
   sandTokenInst: any;
   poolInst: any;
 }
-
-export const SandboxAssetCard = (a: NFT, loans: Loan[]) => {
-  const numberOfLoans = loans.filter(
-    (l: Loan) =>
-      l.asset_id === a.id &&
-      l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
-  ).length;
-  return (
-    <Link
-      style={{ textDecoration: "none" }}
-      to={`/asset/${a.id}`}
-    >
-      <div className="productCard">
-        <div className="card-container-data">
-          <img
-            alt="missing metadata"
-            style={{ objectFit: "contain" }}
-            src={a.metadata.image}
-          />
-          <div className="cardData">
-            <h3>{a.metadata.name.length > 22 ? `${a.metadata.name.slice(0, 22)}...` : a.metadata.name}</h3>
-            <h4 style={{ color: 'lightgrey' }}>
-              {`${a.metadata.sandbox.classification.type} | ${a.metadata.sandbox.classification.theme}`}
-            </h4>
-            <p>
-              {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
-            </p>
-            <p>
-              {a.verse}
-            </p>
-          </div>
-        </div>
-      </div>
-    </Link >
-  );
-};
-
-export const DecentralandAssetCard = (a: NFT, loans: Loan[]) => {
-  const numberOfLoans = loans.filter(
-    (l: Loan) =>
-      l.asset_id === a.id &&
-      l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
-  ).length;
-  return (
-    <Link
-      style={{ textDecoration: "none" }}
-      to={`/asset/${a.id}`}
-    >
-      <div className="productCardDec">
-        <div className="card-container-data">
-          <img
-            alt="missing metadata"
-            style={{ objectFit: "contain" }}
-            src={a.metadata.image}
-          />
-          <div className="cardData">
-            <h3>{a.metadata.name}</h3>
-            <p>
-              {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
-            </p>
-            <p>
-              {a.verse}
-            </p>
-          </div>
-        </div>
-      </div>
-    </Link >
-  );
-};
-
-
-export const DeNationsAssetCard = (a: NFT, loans: Loan[]) => {
-  const numberOfLoans = loans.filter(
-    (l: Loan) =>
-      l.asset_id === a.id &&
-      l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
-  ).length;
-  return (
-    <Link
-      style={{ textDecoration: "none" }}
-      to={`/asset/${a.id}`}
-    >
-      <div className="productCardDeNations">
-        <div className="card-container-data">
-          <img
-            alt="missing metadata"
-            style={{ objectFit: "contain" }}
-            src={a.metadata.image}
-          />
-          <div className="cardData">
-            <h3>{a.metadata.name}</h3>
-            <p>
-              {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
-            </p>
-            <p>
-              {a.verse}
-            </p>
-          </div>
-        </div>
-      </div>
-    </Link >
-  );
-};
 
 interface AssetsProps {
   assets: NFT[];
