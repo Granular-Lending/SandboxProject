@@ -2,14 +2,14 @@ import React from "react";
 
 import "./Permissions.css";
 import { Button, Grid } from "@material-ui/core";
+import { Verse } from "../../App";
 
 interface PermissionsProps {
-  assetsApproved: boolean;
   sandApproved: boolean;
   accounts: string[];
   sym: string;
   sandTokenInst: any;
-  assetTokenInst: any;
+  verses: Verse[];
   poolInst: any;
 }
 
@@ -43,25 +43,26 @@ const Permissions = (props: PermissionsProps) => {
                   </Button>
                 </Grid>
               </Grid>
-              <Grid container style={{ padding: 10, paddingLeft: 0 }}>
+              {props.verses.map((v: Verse) => <Grid container style={{ padding: 10, paddingLeft: 0 }}>
                 <Grid item xs>
-                  Authorize the pool contract to operate <b>ASSETS</b> on your behalf
+                  Authorize the pool contract to operate <b>{v.name}</b> on your behalf
                 </Grid>
                 <Grid item xs>
                   <Button
-                    disabled={props.assetsApproved}
+                    disabled={props.verses[0].approved}
                     variant="contained"
                     style={{ marginLeft: 20 }}
                     onClick={() =>
-                      props.assetTokenInst.methods
+                      props.verses[0].contractInst.methods
                         .setApprovalForAll(props.poolInst.options.address, true)
                         .send({ from: props.accounts[0] })
                     }
                   >
-                    {props.assetsApproved ? "already approved" : "approve"}
+                    {props.verses[0].approved ? "already approved" : "approve"}
                   </Button>
                 </Grid>
               </Grid>
+              )}
             </Grid>
           </div>
         </div>

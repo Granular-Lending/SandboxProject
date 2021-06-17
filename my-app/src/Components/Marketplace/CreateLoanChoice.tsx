@@ -6,13 +6,12 @@ import {
   Link
 } from "react-router-dom";
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
-import { Asset } from "../../App";
+import { NFT } from "../../App";
 
 interface ChoiceProps {
   poolInst: any;
   accounts: string[];
-  assetBalances: Record<string, number>;
-  assets: Asset[];
+  assets: NFT[];
 }
 
 const CreateLoanChoice = (props: ChoiceProps) => {
@@ -42,13 +41,13 @@ const CreateLoanChoice = (props: ChoiceProps) => {
           value={assetID}
           onChange={handleChange}
           style={{ padding: 10, marginLeft: 20, marginRight: 20 }}>
-          {props.assets.filter((a: Asset) => props.assetBalances[a.id] > 0).map((a: Asset) =>
+          {props.assets.filter((a: NFT) => a.balance > 0).map((a: NFT) =>
             <MenuItem value={a.id}>
-              {a.name}
+              {a.metadata.name}
               <img
                 alt="missing metadata"
                 style={{ objectFit: "contain", height: 25, paddingLeft: 10 }}
-                src={`https://ipfs.io/ipfs/${a.image}`}
+                src={a.metadata.image}
               />
             </MenuItem>)}
         </Select>

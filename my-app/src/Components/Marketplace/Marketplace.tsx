@@ -1,97 +1,204 @@
 import React from "react";
-import { Asset, Loan } from "../../App";
+import { NFT, Loan, Verse } from "../../App";
 import "./Marketplace.css";
-import { Switch, Route, Link } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import AssetPage from "./AssetPage";
 import CreateLoanChoice from "./CreateLoanChoice";
 import YourLoansPage from "./YourLoansPage";
 import YourBorrowsPage from "./YourBorrowsPage";
 import Sample from "./Whitepaper";
 import Permissions from "../Permissions/Permissions";
-import { FormControl, MenuItem, Select } from "@material-ui/core";
+import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
 import Home from "./Home";
+import DecentralandAssetCard from "./DecentralandAssetCard";
+import sandIcon from "./assets/sandIcon.png";
 
 interface MarketplaceProps {
   addPendingLoans: (temp: Loan[], poolInstTemp: any, account: string) => void;
-  assets: Asset[];
-  assetBalances: Record<string, number>;
+  nfts: NFT[];
   accounts: string[];
   loans: Loan[];
   sandBalance: number;
   sym: string;
   sandApproved: boolean;
-  assetsApproved: boolean;
+  verses: Verse[];
   sandTokenInst: any;
-  assetTokenInst: any;
   poolInst: any;
 }
 
-const AssetCard = (a: Asset, loans: Loan[]) => {
-  const numberOfLoans = loans.filter(
-    (l: Loan) =>
-      l.asset_id === a.id &&
-      l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
-  ).length;
-  return (
-    <Link
-      style={{ textDecoration: "none" }}
-      to={`/asset/${a.id}`}
-    >
-      <div className="productCard">
-        <div className="card-container-data">
-          <img
-            alt="missing metadata"
-            style={{ objectFit: "contain" }}
-            src={`https://ipfs.io/ipfs/${a.image}`}
-          />
-          <div className="cardData">
-            <h3>{a.name.length > 22 ? `${a.name.slice(0, 22)}...` : a.name}</h3>
-            <h4 style={{ color: 'lightgrey' }}>
-              {a.sandbox.classification.type} | {a.sandbox.classification.theme}
-            </h4>
-            <p>
-              {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
-            </p>
-          </div>
-        </div>
-      </div>
-    </Link >
-  );
-};
-
 interface AssetsProps {
-  assets: Asset[];
+  assets: NFT[];
   loans: Loan[]
+  verses: Verse[]
 }
+
+interface DeProps {
+  verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
+}
+
+export const formatSand = (amount: number) =>
+  <div>
+    <span>
+      <img
+        style={{ width: 20, paddingRight: 5 }}
+        src={sandIcon}
+        alt="SAND logo"
+      />
+    </span>
+    {amount}
+  </div>
+
+
+export const SandboxMarketplace = (props: DeProps) => {
+  const SANDBOX_OPTIONS = ["All", "Equipment", "Entity"];
+  const THEME_OPTIONS = ["All", "Sci-Fi", "Retro", "Nature"];
+  const [sandboxType, setSandboxType] = React.useState(SANDBOX_OPTIONS[0]);
+  const [theme, setTheme] = React.useState(THEME_OPTIONS[0]);
+
+  return <div>
+    <div style={{ backgroundColor: 'cyan' }}>
+      <FormControl >
+        <InputLabel id="demo-simple-select-label">Type</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={sandboxType}
+          onChange={(e: any) => setSandboxType(e.target.value as string)}
+          style={{ margin: 20, color: 'white' }}
+        >
+          {SANDBOX_OPTIONS.map((o: string) =>
+            <MenuItem value={o}>
+              {o}
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl >
+      <FormControl >
+        <InputLabel id="demo-simple-select-label">Theme</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={theme}
+          onChange={(e: any) => setTheme(e.target.value as string)}
+          style={{ margin: 20, color: 'white' }}
+        >
+          {THEME_OPTIONS.map((o: string) =>
+            <MenuItem value={o}>
+              {o}
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl >
+    </div>
+    <div className="card-container" style={{ backgroundColor: "Blue" }}>
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === a.verse && (sandboxType === "All" || sandboxType === a.metadata.sandbox.classification.type) && (theme === "All" || theme === a.metadata.sandbox.classification.theme))).map((a: NFT) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
+    </div>
+  </div>;
+}
+
+export const AllMarketplace = (props: DeProps) => {
+  return <div>
+    <div className="card-container" >
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verse)).map((a: NFT) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
+    </div>
+  </div>;
+}
+
+export const DecentralandMarketplace = (props: DeProps) => {
+  return <div>
+    <div style={{ backgroundColor: 'lightred' }}>
+
+    </div>
+    <div className="card-container" style={{ backgroundColor: "Red" }}>
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verse)).map((a: NFT) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
+    </div>
+  </div>;
+}
+
+export const DeNationsMarketplace = (props: DeProps) => {
+  const COUNTRIES = ["All", "EU", "G20"];
+  const [sandboxType, setSandboxType] = React.useState(COUNTRIES[0]);
+
+  return <div>
+    <div style={{ backgroundColor: 'lightgreen' }}>
+      <FormControl >
+        <InputLabel id="demo-simple-select-label">Country</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={sandboxType}
+          onChange={(e: any) => setSandboxType(e.target.value as string)}
+          style={{ margin: 20, color: 'white' }}
+        >
+          {COUNTRIES.map((o: string) =>
+            <MenuItem value={o}>
+              {o}
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl >
+    </div>
+    <div className="card-container" style={{ backgroundColor: "green" }}>
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verse) && (sandboxType === "All" || sandboxType === a.metadata.attributes[0].value)).map((a: NFT) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
+    </div>
+  </div>;
+}
+
 const Assets = (props: AssetsProps) => {
-  const [assetType, setAssetType] = React.useState("All");
+  const VERSE_OPTIONS = ["Any"].concat(props.verses.map((v: Verse) => v.name));
+
+  const [verseType, setVerseType] = React.useState(VERSE_OPTIONS[0]);
 
   return <div data-label="Assets">
-    <FormControl>
-      <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={assetType}
-        onChange={(e: any) => setAssetType(e.target.value as string)}
-        style={{ margin: 20, color: 'white' }}
-      >
-        <MenuItem value={"All"}>
-          All
-        </MenuItem>
-        <MenuItem value={"Entity"}>
-          Entity
-        </MenuItem>
-        <MenuItem value={"Equipment"}>
-          Equipment
-        </MenuItem>
-      </Select>
-    </FormControl>
-    <div className="card-container">
-      {props.assets.filter((a: Asset) => assetType === 'All' || a.sandbox.classification.type === assetType).map((a: Asset) =>
-        AssetCard(a, props.loans)
-      )}
+    <div style={{ backgroundColor: "grey" }}>
+      <FormControl>
+        <InputLabel id="demo-simple-select-label">Verse</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={verseType}
+          onChange={(e: any) => {
+            setVerseType(e.target.value as string);
+          }}
+          style={{ margin: 20, color: 'white' }}
+        >
+          {VERSE_OPTIONS.map((o: string) =>
+            <MenuItem value={o}>
+              {o}
+            </MenuItem>
+          )}
+        </Select>
+      </FormControl>
     </div>
-  </div>
+    {verseType === "DeNations" ?
+      <DeNationsMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} /> :
+      verseType === "Sandbox" ?
+        <SandboxMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} /> :
+        verseType === "Decentraland" ?
+          <DecentralandMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} /> :
+          <AllMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} />
+    }
+  </div >
 };
 
 const Marketplace = (props: MarketplaceProps) => {
@@ -102,16 +209,16 @@ const Marketplace = (props: MarketplaceProps) => {
           <Route path="/assets">
             <Assets
               loans={props.loans}
-              assets={props.assets}
+              assets={props.nfts}
+              verses={props.verses}
             />
           </Route>
           <Route path="/asset/:id">
             <AssetPage
-              assetBalances={props.assetBalances}
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
-              assets={props.assets}
+              assets={props.nfts}
             />
           </Route>
           <Route path="/whitepaper">
@@ -119,8 +226,7 @@ const Marketplace = (props: MarketplaceProps) => {
           </Route>
           <Route path="/createLoan">
             <CreateLoanChoice
-              assets={props.assets}
-              assetBalances={props.assetBalances}
+              assets={props.nfts}
               poolInst={props.poolInst}
               accounts={props.accounts}
             />
@@ -128,7 +234,7 @@ const Marketplace = (props: MarketplaceProps) => {
           <Route path="/yourLoans">
             <YourLoansPage
               addPendingLoans={props.addPendingLoans}
-              assets={props.assets}
+              assets={props.nfts}
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
@@ -137,7 +243,7 @@ const Marketplace = (props: MarketplaceProps) => {
           <Route path="/yourBorrows">
             <YourBorrowsPage
               addPendingLoans={props.addPendingLoans}
-              assets={props.assets}
+              assets={props.nfts}
               loans={props.loans}
               poolInst={props.poolInst}
               accounts={props.accounts}
@@ -145,12 +251,11 @@ const Marketplace = (props: MarketplaceProps) => {
           </Route>
           <Route path="/permissions">
             <Permissions
-              assetsApproved={props.assetsApproved}
               sandApproved={props.sandApproved}
               accounts={props.accounts}
               sym={props.sym}
               sandTokenInst={props.sandTokenInst}
-              assetTokenInst={props.assetTokenInst}
+              verses={props.verses}
               poolInst={props.poolInst}
             />
           </Route>

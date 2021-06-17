@@ -1,4 +1,4 @@
-import { Asset, Loan } from "../../App";
+import { NFT, Loan } from "../../App";
 import "./Marketplace.css";
 import {
   Button,
@@ -23,13 +23,13 @@ import Blockies from 'react-blockies';
 import CachedIcon from '@material-ui/icons/Cached';
 import { anotherMap } from "./YourLoansPage";
 import LaunchIcon from '@material-ui/icons/Launch';
-import { formatSand } from "./AssetPage";
+import { formatSand } from "./Marketplace";
 
 interface PopupProps {
   poolInst: any;
   accounts: string[];
   loans: Loan[];
-  assets: Asset[];
+  assets: NFT[];
   addPendingLoans: any;
 }
 
@@ -38,7 +38,7 @@ const returnAsset = (inst: any, from: string, index: string) => {
 };
 
 const YourBorrowsPage = (props: PopupProps) => {
-  const [chosenAsset, setChosenAsset] = useState(props.assets[0]);
+  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verse: '', balance: -1, metadata: { name: '', image: '' } });
   const [chosenLoan, setChosenLoan] = useState({
     cost: 0,
     deposit: 0,
@@ -71,16 +71,16 @@ const YourBorrowsPage = (props: PopupProps) => {
         <TableBody>
           {loans.map((l: Loan) => {
             const asset = props.assets.find(
-              (a: Asset) => a.id === l.asset_id
+              (a: NFT) => a.id === l.asset_id
             );
             return (
               <TableRow key={loans.indexOf(l)}>
                 <TableCell style={{ color: "white", fontSize: '1rem' }}>
-                  <Tooltip title={asset ? asset.name : 'nada'}>
+                  <Tooltip title={asset ? asset.metadata.name : 'nada'}>
                     <img
                       alt="missing metadata"
                       style={{ objectFit: "contain", width: 35 }}
-                      src={`https://ipfs.io/ipfs/${asset ? asset.image : ''}`}
+                      src={asset ? asset.metadata.image : ''}
                     />
                   </Tooltip>
                 </TableCell>
@@ -135,7 +135,7 @@ const YourBorrowsPage = (props: PopupProps) => {
           })}
         </TableBody>
       </Table>
-    </TableContainer>
+    </TableContainer >
   }
 
   const [loanTable, setLoanTable] = useState(<div></div >);
@@ -160,7 +160,7 @@ const YourBorrowsPage = (props: PopupProps) => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{chosenAsset.name}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{chosenAsset.metadata.name}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {+chosenLoan.entry * 1000 + +chosenLoan.duration * 1000 < Date.now() ? <div style={{ border: 'solid', padding: 5, marginBottom: 10, color: 'red' }}>
