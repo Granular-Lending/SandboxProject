@@ -15,6 +15,7 @@ interface MarketplaceProps {
   addPendingLoans: (temp: Loan[], poolInstTemp: any, account: string) => void;
   assets: Asset[];
   assetBalances: Record<string, number>;
+  dclBalances: Record<string, number>;
   accounts: string[];
   loans: Loan[];
   sandBalance: number;
@@ -27,7 +28,7 @@ interface MarketplaceProps {
   poolInst: any;
 }
 
-const SandboxAssetCard = (a: Asset, loans: Loan[]) => {
+export const SandboxAssetCard = (a: Asset, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
     (l: Loan) =>
       l.asset_id === a.id &&
@@ -63,7 +64,7 @@ const SandboxAssetCard = (a: Asset, loans: Loan[]) => {
   );
 };
 
-const DecentralandAssetCard = (a: Asset, loans: Loan[]) => {
+export const DecentralandAssetCard = (a: Asset, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
     (l: Loan) =>
       l.asset_id === a.id &&
@@ -96,17 +97,50 @@ const DecentralandAssetCard = (a: Asset, loans: Loan[]) => {
   );
 };
 
+
+export const DeNationsAssetCard = (a: Asset, loans: Loan[]) => {
+  const numberOfLoans = loans.filter(
+    (l: Loan) =>
+      l.asset_id === a.id &&
+      l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
+  ).length;
+  return (
+    <Link
+      style={{ textDecoration: "none" }}
+      to={`/asset/${a.id}`}
+    >
+      <div className="productCardDeNations">
+        <div className="card-container-data">
+          <img
+            alt="missing metadata"
+            style={{ objectFit: "contain" }}
+            src={a.image}
+          />
+          <div className="cardData">
+            <h3>{a.name}</h3>
+            <p>
+              {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
+            </p>
+            <p>
+              {a.verse}
+            </p>
+          </div>
+        </div>
+      </div>
+    </Link >
+  );
+};
+
 interface AssetsProps {
   assets: Asset[];
   loans: Loan[]
+  verses: Verse[]
 }
 
-const VERSE_OPTIONS = ["Any", "Sandbox", "Decentraland"]
-const SANDBOX_OPTIONS = ["All", "Entity", "Equipment"]
-
 const Assets = (props: AssetsProps) => {
+  const VERSE_OPTIONS = ["Any"].concat(props.verses.map((v: Verse) => v.name));
+
   const [verseType, setVerseType] = React.useState(VERSE_OPTIONS[0]);
-  const [assetType, setAssetType] = React.useState(SANDBOX_OPTIONS[0]);
 
   return <div data-label="Assets">
     <FormControl>
@@ -124,24 +158,13 @@ const Assets = (props: AssetsProps) => {
         )}
       </Select>
     </FormControl>
-    <FormControl>
-      <Select
-        labelId="demo-simple-select-label"
-        id="demo-simple-select"
-        value={assetType}
-        onChange={(e: any) => setAssetType(e.target.value as string)}
-        style={{ margin: 20, color: 'white' }}
-      >
-        {SANDBOX_OPTIONS.map((o: string) =>
-          <MenuItem value={o}>
-            {o}
-          </MenuItem>
-        )}
-      </Select>
-    </FormControl>
     <div className="card-container">
-      {/* TODO make this rebuild when metadata loads */ props.assets.filter((a: Asset) => (verseType === "Any" || verseType === a.verse)).map((a: Asset) => a.verse === "Sandbox" ? SandboxAssetCard(a, props.loans) : DecentralandAssetCard(a, props.loans)
-      )}
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: Asset) => (verseType === "Any" || verseType === a.verse)).map((a: Asset) => {
+          const x = props.verses.find((v: Verse) => v.name === a.verse);
+          return x ? x.card(a, props.loans) : DecentralandAssetCard(a, props.loans)
+        }
+        )}
     </div>
   </div >
 };
@@ -155,6 +178,7 @@ const Marketplace = (props: MarketplaceProps) => {
             <Assets
               loans={props.loans}
               assets={props.assets}
+              verses={props.verses}
             />
           </Route>
           <Route path="/asset/:id">

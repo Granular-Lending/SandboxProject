@@ -6,7 +6,7 @@ import { BlockTransactionObject } from "web3-eth"
 import Navbar from "./Components/Navbar/Navbar";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
-import Marketplace from "./Components/Marketplace/Marketplace";
+import Marketplace, { DeNationsAssetCard, SandboxAssetCard, DecentralandAssetCard } from "./Components/Marketplace/Marketplace";
 
 const erc20abi = require("./abis/erc20.json");
 const erc1155abi = require("./abis/erc1155.json");
@@ -59,11 +59,11 @@ export interface Loan {
 
 export interface Verse {
   name: string;
-  address: string;
   nftIds: string[];
   getMetadata: (id: string, uri: string) => Promise<Asset>;
   uriFunction: any;
   contractInst: any;
+  card: any;
 }
 
 const ERC20_MAINNET = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
@@ -85,68 +85,91 @@ const CONNECTED_TEXT = "Connected";
 
 const signatureToFunction: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
 
-const verses: Verse[] = [{
-  name: 'Sandbox',
-  address: '0xa342f5d851e866e18ff98f351f2c6637f4478db5',
-  nftIds: [
-    "26059276970032186212506257052788207833935590993847855924189730778752558827520",
-    "40785833732304342849735419653626615027421227776496020677721887159020450484224",
-    "40785833732304342849735419653626615027421227776496020677721887159020450484225",
-    "55464657044963196816950587289035428064568320970692304673817341489687673452544",
-    "59877022449356993441109123519648614159160891474231538650442489089192695443456",
-    "64946128963576652222538036970165700352413276268630562676894999040163055677440",
-    "64946128963576652222538036970165700352413276268630562676894999040163055677441",
-    "64946128963576652222538036970165700352413276268630562676894999040163055677442",
-    "64946128963576652222538036970165700352413276268630562676894999040163055677443",
-    "64946128963576652222538036970165700352413276268630562676894999040163055677444",
-    "64946128963576652222538036970165700352413276268630562676894999040163055677445",
-    "55464657044963196816950587289035428064568320970692304673817341489687715414016",
-    "55464657044963196816950587289035428064568320970692304673817341489687715414017",
-    "55464657044963196816950587289035428064568320970692304673817341489687715414018",
-    "55464657044963196816950587289035428064568320970692304673817341489687715414019",
-    "55464657044963196816950587289035428064568320970692304673817341489687715414020",
-    "55464657044963196816950587289035428064568320970692304673817341489687715414021",
-  ],
-  getMetadata: async (id: string, uri: string): Promise<Asset> => {
-    let url = `https://ipfs.io/ipfs/${uri.slice(7)}`;
+const verses: Verse[] = [
+  {
+    name: 'Sandbox',
+    nftIds: [
+      "26059276970032186212506257052788207833935590993847855924189730778752558827520",
+      "40785833732304342849735419653626615027421227776496020677721887159020450484224",
+      "40785833732304342849735419653626615027421227776496020677721887159020450484225",
+      "55464657044963196816950587289035428064568320970692304673817341489687673452544",
+      "59877022449356993441109123519648614159160891474231538650442489089192695443456",
+      "64946128963576652222538036970165700352413276268630562676894999040163055677440",
+      "64946128963576652222538036970165700352413276268630562676894999040163055677441",
+      "64946128963576652222538036970165700352413276268630562676894999040163055677442",
+      "64946128963576652222538036970165700352413276268630562676894999040163055677443",
+      "64946128963576652222538036970165700352413276268630562676894999040163055677444",
+      "64946128963576652222538036970165700352413276268630562676894999040163055677445",
+      "55464657044963196816950587289035428064568320970692304673817341489687715414016",
+      "55464657044963196816950587289035428064568320970692304673817341489687715414017",
+      "55464657044963196816950587289035428064568320970692304673817341489687715414018",
+      "55464657044963196816950587289035428064568320970692304673817341489687715414019",
+      "55464657044963196816950587289035428064568320970692304673817341489687715414020",
+      "55464657044963196816950587289035428064568320970692304673817341489687715414021",
+    ],
+    getMetadata: async (id: string, uri: string): Promise<Asset> => {
+      let url = `https://ipfs.io/ipfs/${uri.slice(7)}`;
 
-    return await fetch(url)
-      .then(res => res.json())
-      .then((metadata: any) => {
-        metadata.image = `https://ipfs.io/ipfs/${metadata.image.slice(6)}`;
-        metadata.animation_url = `https://ipfs.io/ipfs/${metadata.animation_url.slice(6)}`;
-        return {
-          id: id,
-          verse: 'Sandbox',
-          ...metadata,
-        };
-      });
+      return await fetch(url)
+        .then(res => res.json())
+        .then((metadata: any) => {
+          metadata.image = `https://ipfs.io/ipfs/${metadata.image.slice(6)}`;
+          metadata.animation_url = `https://ipfs.io/ipfs/${metadata.animation_url.slice(6)}`;
+          return {
+            id: id,
+            verse: 'Sandbox',
+            ...metadata,
+          };
+        });
+    },
+    uriFunction: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri,
+    contractInst: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5'),
+    card: SandboxAssetCard,
   },
-  uriFunction: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5').methods.uri,
-  contractInst: new web3.eth.Contract(erc1155abi, '0xa342f5d851e866e18ff98f351f2c6637f4478db5')
-},
-{
-  name: 'Decentraland',
-  address: '0xD35147BE6401dcb20811f2104c33dE8E97ED6818',
-  nftIds: [
-    "599",
-    "28757",
-  ],
-  getMetadata: async (id: string, uri: string): Promise<Asset> => {
-    return await fetch(uri)
-      .then(res => res.json())
-      .then((metadata: any) => {
-        delete metadata.id;
-        return {
-          id: id,
-          verse: 'Decentraland',
-          ...metadata,
-        };
-      });
+  {
+    name: 'Decentraland',
+    nftIds: [
+      "599",
+      "28757",
+    ],
+    getMetadata: async (id: string, uri: string): Promise<Asset> => {
+      return await fetch(uri)
+        .then(res => res.json())
+        .then((metadata: any) => {
+          delete metadata.id;
+          return {
+            id: id,
+            verse: 'Decentraland',
+            ...metadata,
+          };
+        });
+    },
+    uriFunction: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI,
+    contractInst: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818'),
+    card: DecentralandAssetCard,
   },
-  uriFunction: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818').methods.tokenURI,
-  contractInst: new web3.eth.Contract(erc1155abi, '0xD35147BE6401dcb20811f2104c33dE8E97ED6818')
-}]
+  {
+    name: 'DeNations',
+    nftIds: [
+      "22",
+    ],
+    getMetadata: async (id: string, uri: string): Promise<Asset> => {
+      return await fetch(uri)
+        .then(res => res.json())
+        .then((metadata: any) => {
+          delete metadata.id;
+          return {
+            id: id,
+            verse: 'DeNations',
+            ...metadata,
+          };
+        });
+    },
+    uriFunction: new web3.eth.Contract(erc1155abi, '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED').methods.uri,
+    contractInst: new web3.eth.Contract(erc1155abi, '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED'),
+    card: DeNationsAssetCard
+  }
+]
 
 function App() {
   const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, ""));
@@ -161,17 +184,18 @@ function App() {
   const [sandBalance, setSandBalance] = useState(-1);
   const [sandApproved, setSandApproved] = useState(true);
 
-  const [assetBalances, setAssetBalances]: [Record<string, number>, any] = useState({});
+  const [assetBalances, setSandboxAssetBalances]: [Record<string, number>, any] = useState({});
+  const [dclBalances, setDclBalances]: [Record<string, number>, any] = useState({});
 
   const [sandboxAssetsApproved, setAssetsApproved] = useState(true);
   const [dclAssetsApproved, setDclAssetsApproved] = useState(true);
 
   const [loans, setLoans]: [Loan[], any] = useState([]);
-  const [assets, setAssets]: [Asset[], any] = useState(
-    verses[0].nftIds.map((id: string) => {
+  const [nfts, setAssets]: [Asset[], any] = useState(
+    verses.map((v: Verse) => v.nftIds.map((id: string) => {
       return {
         id: id,
-        verse: verses[0].name,
+        verse: v.name,
         name: "missing metadata",
         description: "missing metadata",
         image: "missing metadata",
@@ -186,25 +210,7 @@ function App() {
           }
         },
       };
-    }).concat(verses[1].nftIds.map((id: string) => {
-      return {
-        id: id,
-        verse: verses[1].name,
-        name: "missing metadata",
-        description: "missing metadata",
-        image: "missing metadata",
-        animation_url: "missing metadata",
-        creator_profile_url: "missing metadata",
-        sandbox: {
-          creator: "missing metadata",
-          classification: {
-            type: "missing metadata",
-            theme: "missing metadata",
-            categories: [""],
-          }
-        },
-      };
-    }))
+    })).flat()
   );
 
   React.useEffect(() => {
@@ -328,7 +334,6 @@ function App() {
           .call()
           .then((s: number) => setSandApproved(s > 0))
 
-
         refreshLoans(poolInstTemp, newAccounts[0]);
 
         verses.map((v: Verse) => {
@@ -337,44 +342,40 @@ function App() {
               .call()
               .then((uri: string) =>
                 v.getMetadata(v.nftIds[i], uri).then((a: Asset) => {
-                  const tempy = assets;
-                  tempy[assets.findIndex((x: Asset) => x.id === a.id)] = a;
+                  const tempy = nfts;
+                  tempy[nfts.findIndex((x: Asset) => x.id === a.id)] = a;
                   setAssets(tempy);
                 })
               );
           }
 
-          if (v.name === "Sandbox") {
-            v.contractInst.methods
-              .balanceOfBatch(
-                Array(verses[0].nftIds.length).fill(newAccounts[0]),
-                verses[0].nftIds
-              )
-              .call()
-              .then(function (bals: number[]) {
-                const balancesCopy = assetBalances;
-                for (let i = 0; i < bals.length; i++) {
-                  balancesCopy[verses[0].nftIds[i]] = bals[i]
-                }
-                setAssetBalances(balancesCopy);
-              });
-          }
-          if (v.name === "Sandbox") {
-            v.contractInst.methods
-              .isApprovedForAll(newAccounts[0], poolAddy)
-              .call()
-              .then((s: boolean) => setAssetsApproved(s))
-          } else {
-            v.contractInst.methods
-              .isApprovedForAll(newAccounts[0], poolAddy)
-              .call()
-              .then((s: boolean) => setDclAssetsApproved(s))
-          }
+          const hi: Record<string, any> = { "Sandbox": setSandboxAssetBalances, "Decentraland": setDclBalances, "DeNations": (x: string) => null }
+          const hello: Record<string, any> = { "Sandbox": setAssetsApproved, "Decentraland": setDclAssetsApproved, "DeNations": (x: string) => null }
 
+          v.contractInst.methods
+            .balanceOfBatch(
+              Array(v.nftIds.length).fill(newAccounts[0]),
+              v.nftIds
+            )
+            .call()
+            .then(function (bals: number[]) {
+              const balancesCopy = assetBalances;
+              for (let i = 0; i < bals.length; i++) {
+                balancesCopy[v.nftIds[i]] = bals[i]
+              }
+              hi[v.name](balancesCopy);
+            });
+
+          v.contractInst.methods
+            .isApprovedForAll(newAccounts[0], poolAddy)
+            .call()
+            .then((s: boolean) => hello[v.name](s))
+          return null;
         }
         )
       });
     }
+
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
         .request({ method: "eth_requestAccounts" })
@@ -384,7 +385,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
-  }, [assets, assetBalances]);
+  }, [nfts, assetBalances]);
 
   const metaMaskLogin = () => {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
@@ -424,15 +425,17 @@ function App() {
         accounts={accounts}
       />
       <Marketplace
-        addPendingLoans={refreshLoans}
         assetsApproved={sandboxAssetsApproved}
         dclAssetsApproved={dclAssetsApproved}
+        assetBalances={assetBalances}
+        dclBalances={dclBalances}
+
+        addPendingLoans={refreshLoans}
         sandApproved={sandApproved}
         accounts={accounts}
         sym={sym}
         sandBalance={sandBalance}
-        assets={assets}
-        assetBalances={assetBalances}
+        assets={nfts}
         verses={verses}
         poolInst={poolInst}
         sandTokenInst={sandTokenInst}
