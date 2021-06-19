@@ -85,7 +85,8 @@ const CreateLoanChoice = (props: ChoiceProps) => {
       </div>
     </div >
     <Button style={{ margin: 10 }} variant='contained' onClick={() => {
-      props.poolInst.methods.createLoan(assetID, cost, deposit, duration).send({ from: props.accounts[0] }).then();
+      // hardcode to sandboxClone for now
+      props.poolInst.methods.createLoan("0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8", assetID, cost, deposit, duration).send({ from: props.accounts[0] }).then();
     }}>Submit</Button>
   </div >
 }

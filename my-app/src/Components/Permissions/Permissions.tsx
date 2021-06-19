@@ -43,22 +43,23 @@ const Permissions = (props: PermissionsProps) => {
                   </Button>
                 </Grid>
               </Grid>
+              <h4>NFT's</h4>
               {props.verses.map((v: Verse) => <Grid container style={{ padding: 10, paddingLeft: 0 }}>
                 <Grid item xs>
                   Authorize the pool contract to operate <b>{v.name}</b> on your behalf
                 </Grid>
                 <Grid item xs>
                   <Button
-                    disabled={props.verses[0].approved}
+                    disabled={v.approved}
                     variant="contained"
                     style={{ marginLeft: 20 }}
                     onClick={() =>
-                      props.verses[0].contractInst.methods
+                      v.contractInst.methods
                         .setApprovalForAll(props.poolInst.options.address, true)
                         .send({ from: props.accounts[0] })
                     }
                   >
-                    {props.verses[0].approved ? "already approved" : "approve"}
+                    {v.approved ? "already approved" : "approve"}
                   </Button>
                 </Grid>
               </Grid>

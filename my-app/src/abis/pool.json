@@ -3,6 +3,10 @@
     "constant": false,
     "inputs": [
       {
+        "name": "_verse",
+        "type": "address"
+      },
+      {
         "name": "_asset_id",
         "type": "uint256"
       },
