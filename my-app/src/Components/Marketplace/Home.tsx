@@ -16,7 +16,7 @@ const Home = (props: HomeProps) => {
     <h3>Permissions</h3>
     <p style={{ color: "white" }}>
       To create or take out a loan, we need approval to transfer
-      both {props.sym} tokens and ASSETS on your behalf. Head to the Permissions page
+      both {props.sym} tokens and NFT's on your behalf. Head to the Permissions page
       and click 'approve' on both buttons.
     </p>
     <h3>Taking out a loan</h3>

@@ -1,4 +1,4 @@
-import { NFT, Loan } from "../../App";
+import { NFT, Loan, Verse } from "../../App";
 import "./Marketplace.css";
 import {
   Button,
@@ -22,9 +22,9 @@ import { Link, useParams } from "react-router-dom";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import React, { useEffect, useState } from "react";
-import Blockies from 'react-blockies';
 import { GLTFModel, AmbientLight } from 'react-3d-viewer'
 import { formatSand } from "./Marketplace";
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
 interface ParamTypes {
   id: string
@@ -37,7 +37,7 @@ interface AssetPageProps {
   assets: NFT[];
 }
 
-interface AssetCardProps {
+export interface AssetCardProps {
   asset: NFT, balance: number, loans: Loan[]
 }
 
@@ -45,7 +45,7 @@ const buyAsset = (inst: any, from: string, index: string) => {
   inst.methods.acceptLoan(index).send({ from: from });
 };
 
-const DeNationsAssetCard = (props: AssetCardProps) => {
+export const DeNationsCard = (props: AssetCardProps) => {
   const numberOfLoans = props.loans.filter(
     (l: Loan) =>
       l.asset_id === props.asset.id &&
@@ -94,10 +94,10 @@ const DeNationsAssetCard = (props: AssetCardProps) => {
             }}
           >
             {props.asset.metadata.description}
-            {
-              <Grid container spacing={10}>
-                <Grid item><h4>Set</h4> {props.asset.metadata.attributes ? props.asset.metadata.attributes[0].value : null}</Grid>
-              </Grid>}
+            <Grid container spacing={10}>
+              <Grid item><h4>Rarity</h4> {props.asset.metadata.attributes ? props.asset.metadata.attributes["rarity"] : null}</Grid>
+              <Grid item><h4>Author</h4> {props.asset.metadata.attributes ? props.asset.metadata.attributes["author"] : null}</Grid>
+            </Grid>
           </div>
         </div>
       </div >
@@ -105,7 +105,7 @@ const DeNationsAssetCard = (props: AssetCardProps) => {
   );
 };
 
-const AlpacaAssetCard = (props: AssetCardProps) => {
+export const AlpacaCard = (props: AssetCardProps) => {
   const numberOfLoans = props.loans.filter(
     (l: Loan) =>
       l.asset_id === props.asset.id &&
@@ -148,7 +148,7 @@ const AlpacaAssetCard = (props: AssetCardProps) => {
   );
 }
 
-const DecentralandAssetCard = (props: AssetCardProps) => {
+export const DecentralandCard = (props: AssetCardProps) => {
   const numberOfLoans = props.loans.filter(
     (l: Loan) =>
       l.asset_id === props.asset.id &&
@@ -193,7 +193,7 @@ const DecentralandAssetCard = (props: AssetCardProps) => {
 }
 
 const position = { x: 0, y: 0, z: 0 };
-const SandboxAssetCard = (props: AssetCardProps) => {
+export const SandboxCard = (props: AssetCardProps) => {
   const [rotation, setRotation] = useState({ x: 0.3, y: 0, z: 0 });
   const [showModel, setShowModel] = useState(0);
 
@@ -273,8 +273,8 @@ const SandboxAssetCard = (props: AssetCardProps) => {
         </div>
         <div style={{ width: "100%" }}>
           <h1>{props.asset.metadata.name}</h1>
-          <h4 style={{ color: 'lightgrey' }}>Token ID: {props.asset.verse === "Sandbox" ? `${props.asset.id.slice(0, 4)}...${props.asset.id.slice(-4)}` : props.asset.id}</h4>
-          <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available</h4>
+          <h4 style={{ color: 'lightgrey' }}>Token ID: {`${props.asset.id.slice(0, 4)}...${props.asset.id.slice(-4)}`}</h4>
+          <h4 style={{ color: 'lightgrey' }}>{props.asset.balance} owned by you | {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available</h4>
           <h2>About</h2>
           <div
             style={{
@@ -299,7 +299,9 @@ const SandboxAssetCard = (props: AssetCardProps) => {
 const AssetPage = (props: AssetPageProps) => {
   let { id } = useParams<ParamTypes>();
 
-  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verse: '', balance: -1, metadata: { name: '', image: '' } });
+  const [chosenAsset, setChosenAsset]: [NFT, any] = React.useState({
+    id: '-1', verse: '', verseObj: new Verse("", [], async (s: string) => 2, "", DeNationsCard, null, false), balance: -1, metadata: { name: '', image: '' }
+  });
   const [chosenLoan, setChosenLoan] = React.useState({
     cost: 0,
     deposit: 0,
@@ -345,15 +347,7 @@ const AssetPage = (props: AssetPageProps) => {
               <TableCell style={{ color: "white" }}>
                 <Tooltip title={l.loaner}>
                   <div>
-                    <Blockies
-                      seed={l.loaner}
-                      size={10}
-                      scale={5}
-                      color={`#${l.loaner.slice(2, 5)}`}
-                      bgColor={`#${l.loaner.slice(2 + 3, 5 + 3)}`}
-                      spotColor={`#${l.loaner.slice(2 + 6, 5 + 6)}`}
-                      className="identicon"
-                    />
+                    <Jazzicon diameter={30} seed={jsNumberForAddress(l.loaner)} />
                   </div>
                 </Tooltip>
               </TableCell>
@@ -417,15 +411,7 @@ const AssetPage = (props: AssetPageProps) => {
                   Owner:
                   <Tooltip title={chosenLoan.loaner}>
                     <div>
-                      <Blockies
-                        seed={chosenLoan.loaner}
-                        size={10}
-                        scale={3}
-                        color={`#${chosenLoan.loaner.slice(2, 5)}`}
-                        bgColor={`#${chosenLoan.loaner.slice(2 + 3, 5 + 3)}`}
-                        spotColor={`#${chosenLoan.loaner.slice(2 + 6, 5 + 6)}`}
-                        className="identicon"
-                      />
+                      <Jazzicon diameter={30} seed={jsNumberForAddress(chosenLoan.loaner)} />
                     </div>
                   </Tooltip>
                 </div>
@@ -462,28 +448,9 @@ const AssetPage = (props: AssetPageProps) => {
   return (
     <div style={{ padding: 10 }}>
       {dialog}
-      {
-        chosenAsset.verse === "Sandbox" ?
-          <SandboxAssetCard
-            asset={chosenAsset}
-            balance={chosenAsset.balance}
-            loans={props.loans}
-          /> : chosenAsset.verse === "Decentraland" ?
-            <DecentralandAssetCard
-              asset={chosenAsset}
-              balance={chosenAsset.balance}
-              loans={props.loans}
-            /> : chosenAsset.verse === "DeNations" ?
-              <DeNationsAssetCard
-                asset={chosenAsset}
-                balance={chosenAsset.balance}
-                loans={props.loans}
-              /> : <AlpacaAssetCard
-                asset={chosenAsset}
-                balance={chosenAsset.balance}
-                loans={props.loans}
-              />
-      }
+
+      <chosenAsset.verseObj.accougy asset={chosenAsset} balance={0} loans={props.loans} />
+
       <div style={{ backgroundColor: "#1b2030", paddingTop: 4 }}>
         <h2 style={{ textAlign: 'center' }}>Loans</h2>
         {table}

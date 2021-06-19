@@ -19,7 +19,7 @@ const Permissions = (props: PermissionsProps) => {
     <div style={{ padding: 10 }} >
       <div className="sidebar-container">
         <h2>Permissions</h2>
-        <p>To create or take out a loan, we need approval to transfer both FAU tokens and ASSETS on your behalf.</p>
+        <p>To create or take out a loan, we need approval to transfer both FAU tokens and NFT'S on your behalf.</p>
         <p>The pool contract can be found at <a href={`https://ropsten.etherscan.io/address/${props.poolInst.options.address}`} target="_blank" rel="noreferrer">{props.poolInst.options.address}</a></p>
         <div>
           <div>

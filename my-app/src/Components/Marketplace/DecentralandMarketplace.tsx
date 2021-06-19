@@ -1,8 +1,12 @@
-import { NFT, Loan } from "../../App";
+import { NFT, Loan, Verse } from "../../App";
 import "./Marketplace.css";
 import { Link } from "react-router-dom";
 
-const DeNationsAssetCard = (a: NFT, loans: Loan[]) => {
+interface DeProps {
+  verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
+}
+
+const DecentralandAssetCard = (a: NFT, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
     (l: Loan) =>
       l.asset_id === a.id &&
@@ -13,7 +17,7 @@ const DeNationsAssetCard = (a: NFT, loans: Loan[]) => {
       style={{ textDecoration: "none" }}
       to={`/asset/${a.id}`}
     >
-      <div className="productCardDeNations">
+      <div className="productCardDec">
         <div className="card-container-data">
           <img
             alt="missing metadata"
@@ -26,7 +30,7 @@ const DeNationsAssetCard = (a: NFT, loans: Loan[]) => {
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
             </p>
             <p>
-              {a.verse}
+              {a.verseObj.name}
             </p>
           </div>
         </div>
@@ -35,4 +39,18 @@ const DeNationsAssetCard = (a: NFT, loans: Loan[]) => {
   );
 };
 
-export default DeNationsAssetCard;
+const DecentralandMarketplace = (props: DeProps) => {
+  return <div>
+    <div style={{ backgroundColor: 'lightred' }}>
+
+    </div>
+    <div className="card-container" style={{ backgroundColor: "Red" }}>
+      {/* TODO make this rebuild when metadata loads */
+        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verseObj.name)).map((a: NFT) =>
+          DecentralandAssetCard(a, props.loans)
+        )}
+    </div>
+  </div>;
+}
+
+export default DecentralandMarketplace;

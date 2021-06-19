@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./Navbar.css";
 import logo from "./assets/LogoTrans.png";
-import Blockies from 'react-blockies';
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
 import {
   Tooltip,
@@ -46,15 +46,7 @@ const Navbar = (props: any) => {
             {props.loginButtonText}
           </button>
           <Tooltip title={props.accounts[0]}>
-            <Blockies
-              seed={props.accounts[0]}
-              size={10}
-              scale={4}
-              color={`#${props.accounts[0].slice(2, 5)}`}
-              bgColor={`#${props.accounts[0].slice(2 + 3, 5 + 3)}`}
-              spotColor={`#${props.accounts[0].slice(2 + 6, 5 + 6)}`}
-              className="identicon"
-            />
+            <Jazzicon diameter={30} seed={jsNumberForAddress(props.accounts[0])} />
           </Tooltip>
         </div>
       </div>

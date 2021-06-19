@@ -1,4 +1,4 @@
-import { NFT, Loan } from "../../App";
+import { NFT, Loan, Verse } from "../../App";
 import "./Marketplace.css";
 import {
   Button,
@@ -22,11 +22,12 @@ import {
 } from "@material-ui/core";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import { NavLink } from "react-router-dom";
-import Blockies from 'react-blockies';
 import React, { useState } from "react";
 import CachedIcon from '@material-ui/icons/Cached';
 import LaunchIcon from '@material-ui/icons/Launch';
 import { formatSand } from "./Marketplace";
+import { DeNationsCard } from "./AssetPage";
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
 interface PopupProps {
   poolInst: any;
@@ -90,15 +91,7 @@ const YourLoansPage = (props: PopupProps) => {
                     {l.state === "1"
                       ? <Tooltip title={l.borrower}>
                         <div>
-                          <Blockies
-                            seed={l.borrower}
-                            size={10}
-                            scale={5}
-                            color={`#${l.borrower.slice(2, 5)}`}
-                            bgColor={`#${l.borrower.slice(2 + 3, 5 + 3)}`}
-                            spotColor={`#${l.borrower.slice(2 + 6, 5 + 6)}`}
-                            className="identicon"
-                          />
+                          <Jazzicon diameter={30} seed={jsNumberForAddress(props.accounts[0])} />
                         </div>
                       </Tooltip>
                       : "None"}
@@ -167,7 +160,7 @@ const YourLoansPage = (props: PopupProps) => {
     </TableContainer >
   }
 
-  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verse: '', balance: -1, metadata: { name: '', image: '' } });
+  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verseObj: new Verse("", [], async (s: string) => 2, "", DeNationsCard, null, false), balance: -1, metadata: { name: '', image: '' } });
   const [chosenLoan, setChosenLoan] = useState({
     cost: 0,
     deposit: 0,

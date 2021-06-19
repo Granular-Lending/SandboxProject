@@ -23,6 +23,18 @@
     padding:1.75px;
 }
 
+.productCardGeneric {
+    width: 250px;
+    border-style:solid;
+    border-color: grey;
+    color:black;
+    margin:20px;
+}
+
+.productCardGeneric img {
+    height: 100px;
+}
+
 .productCardDec {
     width: 250px;
     border:5px;
@@ -37,25 +49,15 @@
 
 .productCardDeNations {
     width: 250px;
-    border:5px;
-    background: #1b2026; 
-    background: -webkit-linear-gradient(to right, green, green);
-    background: linear-gradient(to right, green, green);
     margin:  15px 15px;
-    color:red;
-    border-radius: 25px;
     padding:1.75px;
 }
 
 .productCardDeNations img {
-    height: 75px;
-    margin: 45px 0px 15px 45px;
-    width: 140px;
+    height: 150px;
 }
 
 .productCardDeNations .card-container-data {
-    background: #1b2026; 
-    border-radius:25px;
     padding:10px;
 }
 

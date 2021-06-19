@@ -1,4 +1,4 @@
-import { NFT, Loan } from "../../App";
+import { NFT, Loan, Verse } from "../../App";
 import "./Marketplace.css";
 import {
   Button,
@@ -19,11 +19,12 @@ import {
 } from "@material-ui/core";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
 import React, { useState } from "react";
-import Blockies from 'react-blockies';
 import CachedIcon from '@material-ui/icons/Cached';
 import { anotherMap } from "./YourLoansPage";
 import LaunchIcon from '@material-ui/icons/Launch';
 import { formatSand } from "./Marketplace";
+import { DeNationsCard } from "./AssetPage";
+import Jazzicon, { jsNumberForAddress } from 'react-jazzicon'
 
 interface PopupProps {
   poolInst: any;
@@ -38,7 +39,7 @@ const returnAsset = (inst: any, from: string, index: string) => {
 };
 
 const YourBorrowsPage = (props: PopupProps) => {
-  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verse: '', balance: -1, metadata: { name: '', image: '' } });
+  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verseObj: new Verse("", [], async (s: string) => 2, "", DeNationsCard, null, false), balance: -1, metadata: { name: '', image: '' } });
   const [chosenLoan, setChosenLoan] = useState({
     cost: 0,
     deposit: 0,
@@ -87,15 +88,7 @@ const YourBorrowsPage = (props: PopupProps) => {
                 <TableCell style={{ color: "white" }}>
                   <Tooltip title={l.loaner}>
                     <div>
-                      <Blockies
-                        seed={l.loaner}
-                        size={10}
-                        scale={5}
-                        color={`#${l.loaner.slice(2, 5)}`}
-                        bgColor={`#${l.loaner.slice(2 + 3, 5 + 3)}`}
-                        spotColor={`#${l.loaner.slice(2 + 6, 5 + 6)}`}
-                        className="identicon"
-                      />
+                      <Jazzicon diameter={30} seed={jsNumberForAddress(l.loaner)} />
                     </div>
                   </Tooltip></TableCell>
                 <TableCell style={{ color: "white", fontSize: '1rem' }}>

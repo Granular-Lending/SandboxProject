@@ -6,10 +6,11 @@ import { BlockTransactionObject } from "web3-eth"
 import Navbar from "./Components/Navbar/Navbar";
 import { BrowserRouter as Router } from "react-router-dom";
 import { Dialog, DialogTitle, DialogContent, DialogContentText } from "@material-ui/core";
-import Marketplace, { SandboxMarketplace, DecentralandMarketplace, DeNationsMarketplace } from "./Components/Marketplace/Marketplace";
-import SandboxAssetCard from "./Components/Marketplace/SandboxAssetCard";
-import DecentralandAssetCard from "./Components/Marketplace/DecentralandAssetCard";
-import DeNationsAssetCard from "./Components/Marketplace/DeNationsAssetCard";
+import Marketplace from "./Components/Marketplace/Marketplace";
+import { AssetCardProps, DecentralandCard, DeNationsCard, SandboxCard } from "./Components/Marketplace/AssetPage";
+import CryptoVoxelsMarketplace from "./Components/Marketplace/CryptoVoxelsMarketplace";
+import SandboxMarketplace from "./Components/Marketplace/SandboxMarketplace";
+import DecentralandMarketplace from "./Components/Marketplace/DecentralandMarketplace";
 
 const erc20abi = require("./abis/erc20.json");
 const erc721abi = require("./abis/erc721.json");
@@ -35,7 +36,7 @@ const hexToDec = (s: string) => {
 
 export interface NFT {
   id: string;
-  verse: string;
+  verseObj: Verse;
   balance: number;
   metadata: any;
 }
@@ -73,7 +74,7 @@ export class Verse {
   getMetadata: (uri: string) => Promise<any>;
   uriFunction: (id: string) => any;
   contractInst: any;
-  card: (a: NFT, loans: Loan[]) => JSX.Element;
+  accougy: (props: AssetCardProps) => JSX.Element;
   marketplace: any;
   approved: boolean;
 
@@ -82,8 +83,8 @@ export class Verse {
     nftIds: string[],
     getMetadata: (uri: string) => Promise<any>,
     address: string,
-    card: (a: NFT, loans: Loan[]) => JSX.Element,
-    marketplaceColor: any,
+    accougy: (props: AssetCardProps) => JSX.Element,
+    marketplace: any,
     isERC721: boolean,
   ) {
     this.name = name;
@@ -97,9 +98,15 @@ export class Verse {
       this.contractInst = new web3.eth.Contract(erc1155abi, address);
       this.uriFunction = this.contractInst.methods.uri;
     }
-    this.card = card;
-    this.marketplace = marketplaceColor;
+    this.marketplace = marketplace;
     this.approved = false;
+    this.accougy = accougy;
+  }
+}
+
+declare global {
+  interface Window {
+    ethereum: any;
   }
 }
 
@@ -109,22 +116,16 @@ const POOL_MAINNET = '0x0000000000000000000000000000000000000000';
 const ERC20_ROPSTEN = '0xFab46E002BbF0b4509813474841E0716E6730136';
 const POOL_ROPSTEN = '0x72D759a2FB537356152606AD33557796eDD00386';
 
-declare global {
-  interface Window {
-    ethereum: any;
-  }
-}
-
-const web3 = new Web3(window.ethereum);
-
 const ONBOARD_TEXT = "Click here to install MetaMask!";
 const CONNECT_TEXT = "Connect";
 const CONNECTED_TEXT = "Connected";
 
-const signatureToFunction: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
+const SIGNATURE_TO_FUNCTION: Record<string, string> = { '0xe6f97ea3': 'collect', '0xb9fae650': 'create', '0xe9126154': 'return', '0xafbb231e': 'timeout', '0xadfbe22f': 'accept' };
+
+const web3 = new Web3(window.ethereum);
 
 const ROPSTEN_VERSES: Verse[] = [
-  new Verse('SandboxClone',
+  new Verse('Test',
     [
       "26059276970032186212506257052788207833935590993847855924189730778752558827520",
       "40785833732304342849735419653626615027421227776496020677721887159020450484224",
@@ -140,7 +141,7 @@ const ROPSTEN_VERSES: Verse[] = [
         });
     },
     '0x2138A58561F66Be7247Bb24f07B1f17f381ACCf8',
-    DeNationsAssetCard,
+    DecentralandCard,
     DecentralandMarketplace,
     false
   ),
@@ -165,7 +166,7 @@ const ROPSTEN_VERSES: Verse[] = [
         });
     },
     '0x25ec3bbc85af8b7498c8f5b1cd1c39675431a13c',
-    DecentralandAssetCard,
+    DecentralandCard,
     DecentralandMarketplace,
     true
   ),
@@ -204,7 +205,7 @@ const MAINNET_VERSES: Verse[] = [
         });
     },
     '0xa342f5d851e866e18ff98f351f2c6637f4478db5',
-    SandboxAssetCard,
+    SandboxCard,
     SandboxMarketplace,
     false
   ),
@@ -223,15 +224,12 @@ const MAINNET_VERSES: Verse[] = [
         });
     },
     '0xD35147BE6401dcb20811f2104c33dE8E97ED6818',
-    DecentralandAssetCard,
+    DecentralandCard,
     DecentralandMarketplace,
     true
   ),
-  new Verse('DeNations',
-    [
-      "22",
-      "15"
-    ],
+  new Verse('CryptoVoxels',
+    [1, 2, 3, 4, 5, 6, 7, 8, 9].map((i: number) => i.toString()),
     async (uri: string): Promise<any> => {
       return await fetch(uri)
         .then(res => res.json())
@@ -239,28 +237,9 @@ const MAINNET_VERSES: Verse[] = [
           return metadata;
         });
     },
-    '0xA9Cfc59a96EaF67f8E1b8BC494d3863863C1F8ED',
-    DeNationsAssetCard,
-    DeNationsMarketplace,
-    false
-  ),
-  new Verse('Alpaca',
-    [
-      "8204",
-    ],
-    async (uri: string): Promise<any> => {
-      //fixme
-      const url = uri.slice(0, -4).concat("8204");
-
-      return await fetch(url)
-        .then(res => res.json())
-        .then((metadata: any) => {
-          return metadata;
-        });
-    },
-    '0xC7e5e9434f4a71e6dB978bD65B4D61D3593e5f27',
-    DeNationsAssetCard,
-    DeNationsMarketplace,
+    '0xa58b5224e2FD94020cb2837231B2B0E4247301A6',
+    DeNationsCard,
+    CryptoVoxelsMarketplace,
     false
   ),
 ]
@@ -332,7 +311,7 @@ function App() {
         web3.eth.getBlock("pending", true).then((value: BlockTransactionObject) => {
           for (let i = 0; i < value.transactions.length; i++) {
             const x = value.transactions[i];
-            const pendingFunction = signatureToFunction[x.input.slice(0, 10)]
+            const pendingFunction = SIGNATURE_TO_FUNCTION[x.input.slice(0, 10)]
             if (x.to === poolInstTemp.options.address && !temp.some(el => el.tx === x.hash)) {
               if (pendingFunction === 'create' && x.from.toLowerCase() === account.toLowerCase()) {
                 temp.push({
@@ -380,32 +359,32 @@ function App() {
         setPoolTokenInst(poolInstTemp);
         refreshLoans(poolInstTemp, newAccounts[0]);
 
-        const accougy = new ERC20(sandAddy);
-        setSandToken(accougy);
+        const sandTokenTemp = new ERC20(sandAddy);
+        setSandToken(sandTokenTemp);
 
-        accougy.contractInst.methods
+        sandTokenTemp.contractInst.methods
           .symbol()
           .call()
           .then(function (s: string) {
-            const hi = sandToken;
-            hi.symbol = s;
-            setSandToken(hi);
+            const tempy = sandToken;
+            tempy.symbol = s;
+            setSandToken(tempy);
           });
-        accougy.contractInst.methods
+        sandTokenTemp.contractInst.methods
           .balanceOf(newAccounts[0])
           .call()
           .then(function (bal: number) {
-            const hi = sandToken;
-            hi.balance = bal;
-            setSandToken(hi);
+            const tempy = sandToken;
+            tempy.balance = bal;
+            setSandToken(tempy);
           });
-        accougy.contractInst.methods
+        sandTokenTemp.contractInst.methods
           .allowance(newAccounts[0], poolAddy)
           .call()
-          .then((s: number) => {
-            const hi = sandToken;
-            hi.allowance = s;
-            setSandToken(hi);
+          .then((allow: number) => {
+            const tempy = sandToken;
+            tempy.allowance = allow;
+            setSandToken(tempy);
           })
 
         veg.map((v: Verse) => {
@@ -430,7 +409,7 @@ function App() {
                   let index = nfts.findIndex((n: NFT) => n.id === id);
                   if (index === -1) {
                     index = tempy.length;
-                    tempy.push({ id: id, balance: 0, metadata: {}, verse: v.name })
+                    tempy.push({ id: id, balance: 0, metadata: {}, verseObj: v });
                   }
                   tempy[index].metadata = metadata;
                   setNfts(tempy);
@@ -451,7 +430,7 @@ function App() {
                 let index = nfts.findIndex((n: NFT) => n.id === v.nftIds[i]);
                 if (index === -1) {
                   index = tempy.length;
-                  tempy.push({ id: v.nftIds[i], balance: 0, metadata: {}, verse: v.name })
+                  tempy.push({ id: v.nftIds[i], balance: 0, metadata: {}, verseObj: v });
                 }
                 tempy[index].balance = bals[i];
               }
@@ -472,6 +451,7 @@ function App() {
         window.ethereum.off("accountsChanged", handleNewAccounts);
       };
     }
+    // eslint-disable-next-line
   }, [nfts]);
 
   const metaMaskLogin = () => {
