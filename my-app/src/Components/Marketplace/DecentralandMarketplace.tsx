@@ -1,12 +1,9 @@
-import { NFT, Loan, Verse } from "../../App";
+import { NFT, Loan } from "../../App";
 import "./Marketplace.css";
 import { Link } from "react-router-dom";
+import { DeProps } from "./Marketplace";
 
-interface DeProps {
-  verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
-}
-
-const DecentralandAssetCard = (a: NFT, loans: Loan[]) => {
+const NftCard = (a: NFT, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
     (l: Loan) =>
       l.asset_id === a.id &&
@@ -47,7 +44,7 @@ const DecentralandMarketplace = (props: DeProps) => {
     <div className="card-container" style={{ backgroundColor: "Red" }}>
       {/* TODO make this rebuild when metadata loads */
         props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verseObj.name)).map((a: NFT) =>
-          DecentralandAssetCard(a, props.loans)
+          NftCard(a, props.loans)
         )}
     </div>
   </div>;

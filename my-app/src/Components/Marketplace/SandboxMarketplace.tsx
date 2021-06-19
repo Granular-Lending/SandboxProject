@@ -1,14 +1,15 @@
-import { NFT, Loan, Verse } from "../../App";
+import { NFT, Loan } from "../../App";
 import "./Marketplace.css";
 import { Link } from "react-router-dom";
 import React from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
+import { DeProps } from "./Marketplace";
+import PetsIcon from '@material-ui/icons/Pets';
+import ColorizeIcon from '@material-ui/icons/Colorize';
 
-interface DeProps {
-  verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
-}
+const ICON_MAPPING: Record<string, any> = { 'Equipment': <ColorizeIcon />, 'Entity': <PetsIcon /> }
 
-const SandboxAssetCard = (a: NFT, loans: Loan[]) => {
+const NftCard = (a: NFT, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
     (l: Loan) =>
       l.asset_id === a.id &&
@@ -21,21 +22,18 @@ const SandboxAssetCard = (a: NFT, loans: Loan[]) => {
     >
       <div className="productCard">
         <div className="card-container-data">
-          <img
-            alt="missing metadata"
-            style={{ objectFit: "contain" }}
-            src={a.metadata.image}
-          />
+          <div style={{ display: 'flex' }}>
+            {ICON_MAPPING[a.metadata.sandbox.classification.type]}
+            <img
+              alt="missing metadata"
+              style={{ objectFit: "contain" }}
+              src={a.metadata.image}
+            />
+          </div>
           <div className="cardData">
             <h3>{a.metadata.name.length > 22 ? `${a.metadata.name.slice(0, 22)}...` : a.metadata.name}</h3>
-            <h4 style={{ color: 'lightgrey' }}>
-              {`${a.metadata.sandbox.classification.type} | ${a.metadata.sandbox.classification.theme}`}
-            </h4>
             <p>
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
-            </p>
-            <p>
-              {a.verseObj.name}
             </p>
           </div>
         </div>
@@ -90,7 +88,7 @@ const SandboxMarketplace = (props: DeProps) => {
     <div className="card-container" style={{ backgroundColor: "#1b2026" }}>
       {/* TODO make this rebuild when metadata loads */
         props.assets.filter((a: NFT) => (props.verseType === a.verseObj.name && (sandboxType === "All" || sandboxType === a.metadata.sandbox.classification.type) && (theme === "All" || theme === a.metadata.sandbox.classification.theme))).map((a: NFT) => {
-          return SandboxAssetCard(a, props.loans)
+          return NftCard(a, props.loans)
         }
         )}
     </div>

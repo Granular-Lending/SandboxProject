@@ -28,7 +28,7 @@ interface AssetsProps {
   verses: Verse[]
 }
 
-interface DeProps {
+export interface DeProps {
   verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
 }
 

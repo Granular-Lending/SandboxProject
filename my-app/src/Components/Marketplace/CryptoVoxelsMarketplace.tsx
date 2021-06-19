@@ -1,15 +1,11 @@
-import { NFT, Loan, Verse } from "../../App";
+import { NFT, Loan } from "../../App";
 import "./Marketplace.css";
 import { Link } from "react-router-dom";
 import React from "react";
 import { FormControl, InputLabel, Select, MenuItem } from "@material-ui/core";
+import { DeProps } from "./Marketplace";
 
 const COLOR_MAPPING: Record<string, string> = { 'common': 'grey', 'rare': 'blue', 'epic': 'purple', 'legendary': 'orange' }
-
-
-interface DeProps {
-  verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
-}
 
 const DeNationsAssetCard = (a: NFT, loans: Loan[]) => {
   const numberOfLoans = loans.filter(
