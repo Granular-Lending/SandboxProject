@@ -1,5 +1,5 @@
 import React from "react";
-import { NFT, Loan, Verse } from "../../App";
+import { NFT, Loan, Verse, ERC20 } from "../../App";
 import "./Marketplace.css";
 import { Switch, Route } from "react-router-dom";
 import AssetPage from "./AssetPage";
@@ -18,11 +18,8 @@ interface MarketplaceProps {
   nfts: NFT[];
   accounts: string[];
   loans: Loan[];
-  sandBalance: number;
-  sym: string;
-  sandApproved: boolean;
   verses: Verse[];
-  sandTokenInst: any;
+  sandToken: ERC20;
   poolInst: any;
 }
 
@@ -251,16 +248,14 @@ const Marketplace = (props: MarketplaceProps) => {
           </Route>
           <Route path="/permissions">
             <Permissions
-              sandApproved={props.sandApproved}
               accounts={props.accounts}
-              sym={props.sym}
-              sandTokenInst={props.sandTokenInst}
               verses={props.verses}
               poolInst={props.poolInst}
+              sandToken={props.sandToken}
             />
           </Route>
           <Route path="/">
-            <Home sym={props.sym} />
+            <Home sym={props.sandToken.symbol} />
           </Route>
         </Switch>
       </div>

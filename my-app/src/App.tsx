@@ -54,6 +54,19 @@ export interface Loan {
   pendingFunction: string;
 }
 
+export class ERC20 {
+  symbol = "";
+  balance = 0;
+  allowance = 0;
+  contractInst: any;
+
+  constructor(
+    address: string,
+  ) {
+    this.contractInst = new web3.eth.Contract(erc20abi, address);
+  }
+}
+
 export class Verse {
   name: string;
   nftIds: string[];
@@ -91,6 +104,7 @@ export class Verse {
 }
 
 const ERC20_MAINNET = '0x3845badAde8e6dFF049820680d1F14bD3903a5d0';
+const POOL_MAINNET = '0x0000000000000000000000000000000000000000';
 
 const ERC20_ROPSTEN = '0xFab46E002BbF0b4509813474841E0716E6730136';
 const POOL_ROPSTEN = '0x72D759a2FB537356152606AD33557796eDD00386';
@@ -252,7 +266,6 @@ const MAINNET_VERSES: Verse[] = [
 ]
 
 function App() {
-  const [sandTokenInst, setSandTokenInst] = useState(new web3.eth.Contract(erc20abi, ""));
   const [poolInst, setPoolTokenInst] = useState(new web3.eth.Contract(poolabi, ""));
 
   const [loginButtonText, setLoginButtonText] = useState(ONBOARD_TEXT);
@@ -260,14 +273,11 @@ function App() {
   const [accounts, setAccounts] = useState([""]);
   const onboarding = React.useRef<MetaMaskOnboarding>();
 
-  const [sym, setSym] = useState("XXXX");
-  const [sandBalance, setSandBalance] = useState(-1);
-  const [sandApproved, setSandApproved] = useState(true);
+  const [sandToken, setSandToken] = useState(new ERC20(""));
 
-  const [verses, setVerses] = useState(MAINNET_VERSES);
-
+  const [verses, setVerses]: [Verse[], any] = useState([]);
   const [loans, setLoans]: [Loan[], any] = useState([]);
-  const [nfts, setAssets]: [NFT[], any] = useState([]);
+  const [nfts, setNfts]: [NFT[], any] = useState([]);
 
   React.useEffect(() => {
     if (!onboarding.current) {
@@ -357,46 +367,53 @@ function App() {
         const is_ropsten = networkType === 'ropsten';
 
         let sandAddy = ERC20_MAINNET;
-        let poolAddy = POOL_ROPSTEN;
+        let poolAddy = POOL_MAINNET;
         let veg = MAINNET_VERSES;
         if (is_ropsten) {
           sandAddy = ERC20_ROPSTEN;
+          poolAddy = POOL_ROPSTEN;
           veg = ROPSTEN_VERSES;
         }
         setVerses(veg);
 
-        const sandTokenInstTemp = new web3.eth.Contract(erc20abi, sandAddy);
         const poolInstTemp = new web3.eth.Contract(poolabi, poolAddy);
-
-        setSandTokenInst(sandTokenInstTemp);
         setPoolTokenInst(poolInstTemp);
+        refreshLoans(poolInstTemp, newAccounts[0]);
 
-        sandTokenInstTemp.methods
+        const accougy = new ERC20(sandAddy);
+        setSandToken(accougy);
+
+        accougy.contractInst.methods
           .symbol()
           .call()
           .then(function (s: string) {
-            setSym(s);
+            const hi = sandToken;
+            hi.symbol = s;
+            setSandToken(hi);
           });
-        sandTokenInstTemp.methods
+        accougy.contractInst.methods
           .balanceOf(newAccounts[0])
           .call()
           .then(function (bal: number) {
-            setSandBalance(bal);
+            const hi = sandToken;
+            hi.balance = bal;
+            setSandToken(hi);
           });
-        sandTokenInstTemp.methods
+        accougy.contractInst.methods
           .allowance(newAccounts[0], poolAddy)
           .call()
-          .then((s: number) => setSandApproved(s > 0))
+          .then((s: number) => {
+            const hi = sandToken;
+            hi.allowance = s;
+            setSandToken(hi);
+          })
 
-        refreshLoans(poolInstTemp, newAccounts[0]);
-
-        // todo this should really loop through assets?
         veg.map((v: Verse) => {
           v.contractInst.methods
             .isApprovedForAll(newAccounts[0], poolAddy)
             .call()
             .then((s: boolean) => {
-              const tempy = veg;//fixme there's some async stuff here
+              const tempy = veg;
               const index = tempy.findIndex((f: Verse) => f.name === v.name);
               if (index !== -1) {
                 tempy[index].approved = s;
@@ -416,7 +433,7 @@ function App() {
                     tempy.push({ id: id, balance: 0, metadata: {}, verse: v.name })
                   }
                   tempy[index].metadata = metadata;
-                  setAssets(tempy);
+                  setNfts(tempy);
                 })
               );
             return null;
@@ -438,7 +455,7 @@ function App() {
                 }
                 tempy[index].balance = bals[i];
               }
-              setAssets(tempy);
+              setNfts(tempy);
             });
           return null;
         }
@@ -491,20 +508,16 @@ function App() {
         disabled={isDisabled}
         onClick={metaMaskLogin}
         loginButtonText={loginButtonText}
-        sandBalance={sandBalance}
         accounts={accounts}
       />
       <Marketplace
         addPendingLoans={refreshLoans}
-        sandApproved={sandApproved}
         accounts={accounts}
-        sym={sym}
-        sandBalance={sandBalance}
         nfts={nfts}
         verses={verses}
         poolInst={poolInst}
-        sandTokenInst={sandTokenInst}
         loans={loans}
+        sandToken={sandToken}
       />
     </Router >
   );

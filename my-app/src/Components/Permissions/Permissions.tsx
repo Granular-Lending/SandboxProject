@@ -1,19 +1,20 @@
 import React from "react";
 
 import "./Permissions.css";
-import { Button, Grid } from "@material-ui/core";
-import { Verse } from "../../App";
+import { Button, Grid, TextField } from "@material-ui/core";
+import { ERC20, Verse } from "../../App";
+import sandIcon from "./assets/sandIcon.png";
 
 interface PermissionsProps {
-  sandApproved: boolean;
   accounts: string[];
-  sym: string;
-  sandTokenInst: any;
+  sandToken: ERC20;
   verses: Verse[];
   poolInst: any;
 }
 
 const Permissions = (props: PermissionsProps) => {
+  const [newAllowance, setNewAllowance] = React.useState(5);
+
   return (
     <div style={{ padding: 10 }} >
       <div className="sidebar-container">
@@ -22,28 +23,32 @@ const Permissions = (props: PermissionsProps) => {
         <p>The pool contract can be found at <a href={`https://ropsten.etherscan.io/address/${props.poolInst.options.address}`} target="_blank" rel="noreferrer">{props.poolInst.options.address}</a></p>
         <div>
           <div>
-            <h3>For loaning and borrowing</h3>
+            <h3>Token</h3>
             <Grid container direction="column">
               <Grid container style={{ padding: 10, paddingLeft: 0 }}>
                 <Grid item xs>
-                  Authorize the pool contract to operate <b>{props.sym}</b> on your behalf
+                  You have {props.sandToken.allowance} allowed <b>{props.sandToken.symbol}</b>
                 </Grid>
-                <Grid item xs>
+                <Grid item xs style={{ backgroundColor: 'white', padding: 20 }}>
+                  <img style={{ objectFit: "contain", width: 30 }} src={sandIcon} alt="SAND logo" />
+                  <TextField
+                    label="New allowance"
+                    onChange={(e: any) => setNewAllowance(e.target.value)}
+                  />
                   <Button
-                    disabled={props.sandApproved}
                     variant="contained"
                     style={{ marginLeft: 20 }}
                     onClick={() =>
-                      props.sandTokenInst.methods
-                        .approve(props.poolInst.options.address, 100000000)
+                      props.sandToken.contractInst.methods
+                        .approve(props.poolInst.options.address, newAllowance)
                         .send({ from: props.accounts[0] })
                     }
                   >
-                    {props.sandApproved ? "already approved" : "approve"}
+                    Update allowance
                   </Button>
                 </Grid>
               </Grid>
-              <h4>NFT's</h4>
+              <h3>NFT's</h3>
               {props.verses.map((v: Verse) => <Grid container style={{ padding: 10, paddingLeft: 0 }}>
                 <Grid item xs>
                   Authorize the pool contract to operate <b>{v.name}</b> on your behalf
@@ -52,6 +57,7 @@ const Permissions = (props: PermissionsProps) => {
                   <Button
                     disabled={v.approved}
                     variant="contained"
+                    color="secondary"
                     style={{ marginLeft: 20 }}
                     onClick={() =>
                       v.contractInst.methods
