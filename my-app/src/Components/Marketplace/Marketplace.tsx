@@ -29,8 +29,17 @@ interface AssetsProps {
 }
 
 export interface DeProps {
-  verseType: string, verses: Verse[], loans: Loan[], assets: NFT[]
+  verseType: string,
+  verses: Verse[],
+  loans: Loan[],
+  assets: NFT[]
 }
+
+export interface DeCardProps {
+  a: NFT,
+  loans: Loan[]
+}
+
 
 export const formatSand = (amount: number) =>
   <div>
@@ -44,31 +53,31 @@ export const formatSand = (amount: number) =>
     {amount}
   </div>
 
-const GenericCard = (a: NFT, loans: Loan[]) => {
-  const numberOfLoans = loans.filter(
+const GenericCard = (props: DeCardProps) => {
+  const numberOfLoans = props.loans.filter(
     (l: Loan) =>
-      l.asset_id === a.id &&
+      l.asset_id === props.a.id &&
       l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
   ).length;
   return (
     <Link
       style={{ textDecoration: "none" }}
-      to={`/asset/${a.id}`}
+      to={`/asset/${props.a.id}`}
     >
       <div className="productCardGeneric">
         <div className="card-container-data">
           <img
             alt="missing metadata"
             style={{ objectFit: "contain" }}
-            src={a.metadata.image}
+            src={props.a.metadata.image}
           />
           <div className="cardData">
-            <h3>{a.metadata.name}</h3>
+            <h3>{props.a.metadata.name}</h3>
             <p>
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
             </p>
             <p>
-              {a.verseObj.name}
+              {props.a.verse.name}
             </p>
           </div>
         </div>
@@ -78,13 +87,10 @@ const GenericCard = (a: NFT, loans: Loan[]) => {
 };
 
 export const GenericMarketplace = (props: DeProps) => {
-  return <div>
-    <div className="card-container" style={{ backgroundColor: 'white' }}>
-      {/* TODO make this rebuild when metadata loads */
-        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verseObj.name)).map((a: NFT) =>
-          GenericCard(a, props.loans)
-        )}
-    </div>
+  return <div className="card-container" style={{ backgroundColor: 'white', }}>
+    {props.assets.map((a: NFT) =>
+      <GenericCard key={a.id} a={a} loans={props.loans} />
+    )}
   </div>;
 }
 
@@ -93,12 +99,10 @@ const Assets = (props: AssetsProps) => {
   const VERSE_OPTIONS = ["Any"].concat(props.verses.map((v: Verse) => v.name));
 
   const [verseType, setVerseType] = React.useState(VERSE_OPTIONS[0]);
+  const [TheMarketplace, setTheMarketplace] = React.useState(
+    <GenericMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} />
+  );
 
-  const x = props.verses.find((v: Verse) => v.name === verseType);
-  let Hi = GenericMarketplace;
-  if (x) {
-    Hi = x.marketplace;
-  }
   return <div data-label="Assets">
     <div style={{ backgroundColor: "grey" }}>
       <FormControl>
@@ -107,10 +111,13 @@ const Assets = (props: AssetsProps) => {
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           value={verseType}
+          style={{ margin: 20, color: 'white' }}
           onChange={(e: any) => {
             setVerseType(e.target.value as string);
+            const x = props.verses.find((v: Verse) => v.name === e.target.value as string);
+            if (x) setTheMarketplace(<x.marketplace verseType={e.target.value as string} verses={props.verses} loans={props.loans} assets={props.assets} />)
+            else setTheMarketplace(<GenericMarketplace verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} />)
           }}
-          style={{ margin: 20, color: 'white' }}
         >
           {VERSE_OPTIONS.map((o: string) =>
             <MenuItem value={o}>
@@ -120,7 +127,7 @@ const Assets = (props: AssetsProps) => {
         </Select>
       </FormControl>
     </div>
-    <Hi verseType={verseType} verses={props.verses} loans={props.loans} assets={props.assets} />
+    {TheMarketplace}
   </div >
 };
 

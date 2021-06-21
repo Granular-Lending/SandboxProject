@@ -32,7 +32,7 @@ const DeNationsAssetCard = (a: NFT, loans: Loan[]) => {
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
             </p>
             <p>
-              {a.verseObj.name}
+              {a.verse.name}
             </p>
           </div>
         </div>
@@ -66,7 +66,7 @@ const CryptoVoxelsMarketplace = (props: DeProps) => {
     </div>
     <div className="card-container" style={{ backgroundColor: "white" }}>
       {/* TODO make this rebuild when metadata loads */
-        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verseObj.name) && (rarity === "All" || rarity === a.metadata.attributes["rarity"])).map((a: NFT) =>
+        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verse.name) && (rarity === "All" || rarity === a.metadata.attributes["rarity"])).map((a: NFT) =>
           DeNationsAssetCard(a, props.loans)
         )}
     </div>

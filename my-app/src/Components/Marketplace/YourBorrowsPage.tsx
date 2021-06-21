@@ -39,7 +39,7 @@ const returnAsset = (inst: any, from: string, index: string) => {
 };
 
 const YourBorrowsPage = (props: PopupProps) => {
-  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verseObj: new Verse("", [], async (s: string) => 2, "", DeNationsCard, null, false), balance: -1, metadata: { name: '', image: '' } });
+  const [chosenAsset, setChosenAsset] = React.useState({ id: '-1', verse: new Verse("", [], async (s: string) => 2, "", DeNationsCard, null, false), balance: -1, metadata: { name: '', image: '' } });
   const [chosenLoan, setChosenLoan] = useState({
     cost: 0,
     deposit: 0,

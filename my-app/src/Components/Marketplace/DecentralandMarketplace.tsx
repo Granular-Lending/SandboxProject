@@ -9,6 +9,7 @@ const NftCard = (a: NFT, loans: Loan[]) => {
       l.asset_id === a.id &&
       l.state === "0" && Date.now() < l.entry * 1000 + l.duration * 1000
   ).length;
+
   return (
     <Link
       style={{ textDecoration: "none" }}
@@ -18,16 +19,12 @@ const NftCard = (a: NFT, loans: Loan[]) => {
         <div className="card-container-data">
           <img
             alt="missing metadata"
-            style={{ objectFit: "contain" }}
             src={a.metadata.image}
           />
           <div className="cardData">
             <h3>{a.metadata.name}</h3>
             <p>
               {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available
-            </p>
-            <p>
-              {a.verseObj.name}
             </p>
           </div>
         </div>
@@ -36,18 +33,13 @@ const NftCard = (a: NFT, loans: Loan[]) => {
   );
 };
 
-const DecentralandMarketplace = (props: DeProps) => {
-  return <div>
-    <div style={{ backgroundColor: 'lightred' }}>
-
-    </div>
-    <div className="card-container" style={{ backgroundColor: "Red" }}>
-      {/* TODO make this rebuild when metadata loads */
-        props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verseObj.name)).map((a: NFT) =>
-          NftCard(a, props.loans)
-        )}
-    </div>
+const DecentralandMarketplace = (props: DeProps) =>
+  <div className="card-container" style={{ backgroundColor: "#151515" }}>
+    {/* TODO make this rebuild when metadata loads */
+      props.assets.filter((a: NFT) => (props.verseType === "Any" || props.verseType === a.verse.name)).map((a: NFT) =>
+        NftCard(a, props.loans)
+      )}
   </div>;
-}
+
 
 export default DecentralandMarketplace;

@@ -87,7 +87,7 @@ const SandboxMarketplace = (props: DeProps) => {
     </div>
     <div className="card-container" style={{ backgroundColor: "#1b2026" }}>
       {/* TODO make this rebuild when metadata loads */
-        props.assets.filter((a: NFT) => (props.verseType === a.verseObj.name && (sandboxType === "All" || sandboxType === a.metadata.sandbox.classification.type) && (theme === "All" || theme === a.metadata.sandbox.classification.theme))).map((a: NFT) => {
+        props.assets.filter((a: NFT) => (props.verseType === a.verse.name && (sandboxType === "All" || sandboxType === a.metadata.sandbox.classification.type) && (theme === "All" || theme === a.metadata.sandbox.classification.theme))).map((a: NFT) => {
           return NftCard(a, props.loans)
         }
         )}

@@ -36,7 +36,7 @@ const hexToDec = (s: string) => {
 
 export interface NFT {
   id: string;
-  verseObj: Verse;
+  verse: Verse;
   balance: number;
   metadata: any;
 }
@@ -409,7 +409,7 @@ function App() {
                   let index = nfts.findIndex((n: NFT) => n.id === id);
                   if (index === -1) {
                     index = tempy.length;
-                    tempy.push({ id: id, balance: 0, metadata: {}, verseObj: v });
+                    tempy.push({ id: id, balance: 0, metadata: {}, verse: v });
                   }
                   tempy[index].metadata = metadata;
                   setNfts(tempy);
@@ -430,7 +430,7 @@ function App() {
                 let index = nfts.findIndex((n: NFT) => n.id === v.nftIds[i]);
                 if (index === -1) {
                   index = tempy.length;
-                  tempy.push({ id: v.nftIds[i], balance: 0, metadata: {}, verseObj: v });
+                  tempy.push({ id: v.nftIds[i], balance: 0, metadata: {}, verse: v });
                 }
                 tempy[index].balance = bals[i];
               }

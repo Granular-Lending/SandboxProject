@@ -163,30 +163,22 @@ export const DecentralandCard = (props: AssetCardProps) => {
           Back
         </Button>
       </Link>
-      <div style={{
-        display: "flex",
-      }} >
-        <div style={{
-          display: "flex",
-          flexDirection: 'column',
-          padding: 20,
-        }}>
-          {
-            <img
-              alt="missing metadata"
-              src={props.asset.metadata.image}
-              style={{
-                objectFit: "contain",
-                width: 300,
-                height: 250,
-              }}
-            />}
-        </div>
-        <div style={{ width: "100%" }}>
-          <h1>{props.asset.metadata.name}</h1>
-          <h4 style={{ color: 'lightgrey' }}>Token ID: {props.asset.id}</h4>
-          <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available</h4>
-        </div>
+      <img
+        alt="missing metadata"
+        src={props.asset.metadata.thumbnail}
+        style={{
+          objectFit: "contain",
+          width: '100%',
+          paddingTop: 40,
+          paddingBottom: 40,
+          height: 250,
+          backgroundColor: 'lime'
+        }}
+      />
+      <div style={{ width: "100%" }}>
+        <h1>{props.asset.metadata.name}</h1>
+        <h4 style={{ color: 'lightgrey' }}>Token ID: {props.asset.id}</h4>
+        <h4 style={{ color: 'lightgrey' }}>{props.balance} owned by you | {numberOfLoans} {numberOfLoans === 1 ? "loan" : "loans"} available</h4>
       </div>
     </div>
   );
@@ -300,7 +292,7 @@ const AssetPage = (props: AssetPageProps) => {
   let { id } = useParams<ParamTypes>();
 
   const [chosenAsset, setChosenAsset]: [NFT, any] = React.useState({
-    id: '-1', verse: '', verseObj: new Verse("", [], async (s: string) => 2, "", DeNationsCard, null, false), balance: -1, metadata: { name: '', image: '' }
+    id: '-1', verse: new Verse("", [], async (s: string) => 2, "", DeNationsCard, null, false), balance: -1, metadata: { name: '', image: '' }
   });
   const [chosenLoan, setChosenLoan] = React.useState({
     cost: 0,
@@ -449,7 +441,7 @@ const AssetPage = (props: AssetPageProps) => {
     <div style={{ padding: 10 }}>
       {dialog}
 
-      <chosenAsset.verseObj.accougy asset={chosenAsset} balance={0} loans={props.loans} />
+      <chosenAsset.verse.accougy asset={chosenAsset} balance={0} loans={props.loans} />
 
       <div style={{ backgroundColor: "#1b2030", paddingTop: 4 }}>
         <h2 style={{ textAlign: 'center' }}>Loans</h2>
